@@ -400,8 +400,17 @@ def identify_hotspots(catch_totals: pd.DataFrame, complaints: pd.DataFrame, trea
          the lookback window.
       - 'Repeatedly treated': >= min_treatments completed treatments at the
          site in the lookback window.
-    A site can carry more than one flag. All rule parameters are configurable
-    (see core/config.py) rather than hard-coded thresholds on model output.
+      - 'Confirmed hotspot (trap + complaint)': added on top of the above
+         when a site is flagged by BOTH the trap-based rule (persistent
+         activity or a spike) AND the complaint-based rule at the same time
+         - the two independent signals corroborate each other, rather than
+         one input alone driving the flag.
+    A site can carry more than one flag. Also returns `Trap_Flagged` and
+    `Complaint_Flagged` boolean columns (independent of `Flags`' text) so a
+    caller can filter sites by which signal(s) actually triggered - e.g. the
+    Hotspots page's "trap only / complaint only / both" filter. All rule
+    parameters are configurable (see core/config.py) rather than hard-coded
+    thresholds on model output.
     """
     window_start = as_of - timedelta(weeks=lookback_weeks)
     window = catch_totals[(catch_totals["Deployment_DateTime"] >= window_start) &
@@ -424,15 +433,20 @@ def identify_hotspots(catch_totals: pd.DataFrame, complaints: pd.DataFrame, trea
                                       (treatments["Treatment_Date"] >= window_start) &
                                       (treatments["Treatment_Date"] <= as_of)]
 
+        trap_flagged = elevated_weeks >= min_elevated_weeks or elevated_weeks == 1
+        complaint_flagged = len(site_complaints) >= min_complaints
+
         flags = []
         if elevated_weeks >= min_elevated_weeks:
             flags.append("Persistent elevated activity")
         elif elevated_weeks == 1:
             flags.append("Single elevated spike")
-        if len(site_complaints) >= min_complaints:
+        if complaint_flagged:
             flags.append("Repeated complaints")
         if len(site_treatments) >= min_treatments:
             flags.append("Repeatedly treated")
+        if trap_flagged and complaint_flagged:
+            flags.append("Confirmed hotspot (trap + complaint)")
 
         if flags:
             rows.append({
@@ -441,6 +455,8 @@ def identify_hotspots(catch_totals: pd.DataFrame, complaints: pd.DataFrame, trea
                 "Elevated_Weeks": elevated_weeks,
                 "Complaints_In_Window": len(site_complaints),
                 "Treatments_In_Window": len(site_treatments),
+                "Trap_Flagged": trap_flagged,
+                "Complaint_Flagged": complaint_flagged,
             })
 
     return pd.DataFrame(rows)

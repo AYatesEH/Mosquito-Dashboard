@@ -164,7 +164,10 @@ every function has a docstring and nothing here talks to Streamlit.
 - **Hotspot identification** (`identify_hotspots`): four transparent, configurable rules over a lookback window
   - persistent elevated activity (several elevated weeks), a single spike (exactly one), repeated complaints,
   and repeated treatments. No machine learning, nothing hidden - every parameter is a slider on the Hotspots
-  page and a constant in `core/config.py`.
+  page and a constant in `core/config.py`. A site flagged by BOTH the trap-based rule and the complaint-based
+  rule in the same window also gets a "Confirmed hotspot (trap + complaint)" flag, and the function returns
+  `Trap_Flagged`/`Complaint_Flagged` booleans so the Hotspots page can filter to all flagged sites, only the
+  confirmed (both-signal) ones, trap-only, or complaint-only.
 - **Data quality** (`data_quality_report`): a fixed set of checks (missing coordinates, orphaned foreign keys,
   retrieval-before-deployment, negative counts, missing species, zero-area completed treatments, and more) that
   only ever **report** - nothing is auto-corrected.
