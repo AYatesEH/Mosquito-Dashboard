@@ -105,7 +105,12 @@ CURRENT_SEASON_CUTOFF = datetime(2026, 2, 10)  # data generation stops here for 
 COMPLETE_SEASONS = ["2023-24", "2024-25"]
 ALL_SEASONS = COMPLETE_SEASONS + [CURRENT_SEASON]
 
-OFFICERS = ["J. Nguyen", "R. Patel", "S. O'Connell", "M. Ahmed", "K. Wallace", "T. Singh"]
+# Deliberately generic/obviously-fictional placeholder labels, NOT name-shaped
+# ("Firstname Surname") - a name-shaped placeholder risks coincidentally
+# resembling (or being mistaken for) a real person, which happened with an
+# earlier version of this list and was flagged and removed. Do not replace
+# these with anything that looks like a real name.
+OFFICERS = ["Officer A", "Officer B", "Officer C", "Officer D", "Officer E", "Officer F"]
 SYSTEM_USER = "data_generator"
 
 
