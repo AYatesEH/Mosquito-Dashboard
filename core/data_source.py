@@ -79,6 +79,17 @@ class DataRepository(abc.ABC):
     @abc.abstractmethod
     def get_program_targets(self) -> pd.DataFrame: ...
 
+    def data_version(self) -> str:
+        """
+        A token that changes whenever the underlying data (or the code that
+        shapes it) changes. core.ui keys its Streamlit cache on this, so a
+        running app never keeps serving DataFrames built from an older
+        file/schema (e.g. after a redeploy renames a column). Backends that
+        can't cheaply detect changes may return a constant and rely on
+        ui.invalidate_data_cache() instead.
+        """
+        return ""
+
     # --- Writes ------------------------------------------------------------
     # Each returns the new row's generated ID. A future backend (SQL Server,
     # SharePoint Lists, Dataverse, ...) implements these the same way it
@@ -113,6 +124,15 @@ class CSVDataRepository(DataRepository):
 
     def __init__(self, data_dir: Optional[Path] = None):
         self.data_dir = Path(data_dir) if data_dir else DATA_DIR
+
+    def data_version(self) -> str:
+        # Every CSV's modified-time and size, plus this file's own modified
+        # time (so a column rename in a getter below also invalidates).
+        stamps = [f"{Path(__file__).name}:{Path(__file__).stat().st_mtime_ns}"]
+        for path in sorted(self.data_dir.glob("*.csv")):
+            st = path.stat()
+            stamps.append(f"{path.name}:{st.st_mtime_ns}:{st.st_size}")
+        return "|".join(stamps)
 
     def _read_csv(self, filename: str, date_cols=None) -> pd.DataFrame:
         path = self.data_dir / filename

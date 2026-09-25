@@ -37,11 +37,14 @@ DEFAULT_SEASON = "2025-26"
 # ===========================================================================
 
 @st.cache_data(show_spinner=False)
-def load_raw_tables() -> dict:
+def load_raw_tables(data_version: str = "") -> dict:
     """
     Loads every table once per data version and caches it. This is the single
     point where Streamlit's cache wraps the data-access layer - pages never
-    call core.data_source directly.
+    call core.data_source directly. `data_version` is only a cache key (see
+    DataRepository.data_version): without it, a running app would keep
+    serving tables cached before a data/schema change (e.g. the
+    Area_Treated_Ha -> Area_Treated_M2 rename) and pages would hit KeyErrors.
     """
     repo = get_repository()
     return {
@@ -62,15 +65,16 @@ def load_raw_tables() -> dict:
 
 
 @st.cache_data(show_spinner=False)
-def load_catch_totals(_surv_events: pd.DataFrame, _surv_results: pd.DataFrame) -> pd.DataFrame:
+def load_catch_totals(_surv_events: pd.DataFrame, _surv_results: pd.DataFrame, data_version: str = "") -> pd.DataFrame:
     """Cached wrapper around calc.event_catch_totals (the most expensive/most reused computation)."""
     return calc.event_catch_totals(_surv_events, _surv_results)
 
 
 def get_data() -> dict:
     """Convenience accessor: raw tables + derived catch_totals in one dict."""
-    data = load_raw_tables()
-    data["catch_totals"] = load_catch_totals(data["surv_events"], data["surv_results"])
+    version = get_repository().data_version()
+    data = load_raw_tables(version)
+    data["catch_totals"] = load_catch_totals(data["surv_events"], data["surv_results"], version)
     return data
 
 
