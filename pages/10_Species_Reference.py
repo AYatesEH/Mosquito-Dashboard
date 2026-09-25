@@ -14,10 +14,16 @@ def render():
 
     st.title("Species Reference")
     st.info(
-        "Breeding habitat, biting behaviour, seasonal characteristics and vector-significance fields below are "
-        "SAMPLE, simplified descriptions for prototype demonstration - not verified scientific or public-health "
-        "reference material. Scientific/common names are real for realism; the descriptive fields are not "
-        "authoritative and should be replaced with verified content before any operational use."
+        "The six species below are sourced from WA Department of Health public guidance ('Common mosquitoes in "
+        "Western Australia'), chosen for relevance to an inner-Perth council area like Vincent - Aedes "
+        "notoscriptus (the dominant urban/backyard-container species), the saltmarsh/estuarine species Aedes "
+        "vigilax and Aedes camptorhynchus (relevant given the Swan River foreshore site and their long dispersal "
+        "range), and the freshwater/urban species Culex annulirostris, Culex quinquefasciatus and Anopheles "
+        "annulipes. For identifying a specimen that doesn't match one of these, see WA Health's "
+        "[South-West adult mosquito photographic key](https://www.health.wa.gov.au/~/media/Corp/Documents/"
+        "Health-for/Mosquitoes/PDF/South-West-adult-mosquito-photographic-key.pdf), which covers the broader "
+        "range of species present in the region. Always confirm current guidance directly with WA Health for "
+        "anything operationally significant."
     )
 
     species = data["species"][data["species"]["Species_Code"] != "OTHER"]

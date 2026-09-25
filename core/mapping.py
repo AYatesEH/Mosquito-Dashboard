@@ -51,11 +51,16 @@ def build_operational_map(
     """
     mappable_sites = sites.dropna(subset=["Latitude", "Longitude"]).copy()
     if mappable_sites.empty:
-        center = [-31.95, 115.90]
+        center = [-31.928, 115.853]  # City of Vincent, WA (North Perth) fallback centre
     else:
         center = [mappable_sites["Latitude"].mean(), mappable_sites["Longitude"].mean()]
 
-    fmap = folium.Map(location=center, zoom_start=10, tiles="cartodbpositron")
+    # NOTE: "cartodbpositron" (and other CartoDB basemap styles) now require a
+    # Carto account/API key for their tile service, which is why the map
+    # previously showed an "API key required" message instead of a basemap.
+    # "OpenStreetMap" is folium's built-in default tile source and needs no
+    # key/account - it's the right choice for an internal prototype like this.
+    fmap = folium.Map(location=center, zoom_start=13, tiles="OpenStreetMap")
 
     hotspot_site_ids = hotspot_site_ids or set()
     status_lookup = {}

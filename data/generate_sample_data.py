@@ -72,6 +72,11 @@ def season_effective_end(season):
 # ---------------------------------------------------------------------------
 SITE_TYPES = ["Saltmarsh", "Freshwater Wetland", "Tidal Drain", "Retention Basin",
               "Urban Stormwater", "Estuarine Fringe", "Rural Drain", "Parkland Lake"]
+# Real site type added specifically for the Swan River bank site below (see
+# "Fixed, real-world site" section) - larvae dipping/larviciding along the
+# Swan River foreshore is a distinct, regularly-worked site type from the
+# randomly generated inland sites above.
+RIVER_SITE_TYPE = "Swan River Foreshore"
 
 SITE_NAME_PARTS_A = ["Riverside", "Northgate", "Saltbush", "Mill", "Cooper's", "Tern",
                       "Heron", "Bluegum", "Sandpiper", "Wattle", "Ibis", "Claypan",
@@ -92,14 +97,24 @@ def make_site_name():
             return name
 
 
-# Fictional region center point (not tied to any specific real facility)
-CENTER_LAT, CENTER_LON = -31.95, 115.90
+# Region center point: City of Vincent, WA (North Perth) - real coordinates,
+# used so the map centres on and stays within the council area rather than an
+# arbitrary point. Site NAMES remain invented; only the general area is real.
+CENTER_LAT, CENTER_LON = -31.928, 115.853
+
+# Real, named location: Claisebrook Cove / Swan River foreshore, just east of
+# Vincent's Highgate/East Perth boundary. Added because larvae dipping and
+# larviciding along the Swan River bank is a regular, named part of the
+# program (saltmarsh/estuarine species disperse well beyond the immediate
+# riverbank, so it's tracked even though it sits just outside the LGA line).
+RIVER_SITE_LAT, RIVER_SITE_LON = -31.9522, 115.8791
 
 sites = []
+# N_SITES random inland sites (fictional names/exact positions, real local area)
 for i in range(1, N_SITES + 1):
     site_id = f"ST-{i:03d}"
-    lat = CENTER_LAT + rng.uniform(-0.35, 0.35)
-    lon = CENTER_LON + rng.uniform(-0.45, 0.45)
+    lat = CENTER_LAT + rng.uniform(-0.016, 0.016)
+    lon = CENTER_LON + rng.uniform(-0.02, 0.02)
     status = rng.choice(["Active", "Active", "Active", "Active", "Inactive"], p=[0.55, 0.2, 0.15, 0.05, 0.05])
     site_type = rng.choice(SITE_TYPES)
     created_dt = SEASONS["2023-24"]["start"] - timedelta(days=int(rng.integers(30, 900)))
@@ -122,6 +137,30 @@ for i in range(1, N_SITES + 1):
 # Data Quality page to detect (clearly a subset, not pervasive):
 sites[3]["Latitude"] = None       # missing coordinate
 sites[3]["Longitude"] = None
+
+# Fixed, real-world site: Swan River bank at Claisebrook Cove. Larvae dipping
+# and larviciding along the Swan River foreshore is a regular, named part of
+# the program, so - unlike the randomly generated inland sites above - this
+# one is a specific real location rather than an invented name/position.
+river_site_id = f"ST-{N_SITES + 1:03d}"
+sites.append({
+    "Site_ID": river_site_id,
+    "Site_Name": "Claisebrook Cove Foreshore (Swan River)",
+    "Site_Type": RIVER_SITE_TYPE,
+    "Latitude": round(RIVER_SITE_LAT, 5),
+    "Longitude": round(RIVER_SITE_LON, 5),
+    "Status": "Active",
+    "Description": "Swan River bank/foreshore at Claisebrook Cove - tidal, brackish estuarine fringe. Regular "
+                    "larvae dipping and larviciding location given its estuarine mosquito breeding habitat.",
+    "Notes": "Real, named location (approximate coordinates for Claisebrook Cove) - sits just east of Vincent's "
+             "Highgate/East Perth boundary; tracked because saltmarsh/estuarine species disperse well beyond "
+             "the immediate riverbank.",
+    "Created_By": SYSTEM_USER,
+    "Created_Date": SEASONS["2023-24"]["start"].strftime("%Y-%m-%d"),
+    "Modified_By": SYSTEM_USER,
+    "Modified_Date": SEASONS["2023-24"]["start"].strftime("%Y-%m-%d"),
+})
+
 sites_df = pd.DataFrame(sites)
 sites_df.to_csv(OUT_DIR / "sites.csv", index=False)
 
@@ -157,56 +196,96 @@ trap_sites_df.to_csv(OUT_DIR / "trap_sites.csv", index=False)
 # ---------------------------------------------------------------------------
 # 3. SPECIES REFERENCE
 # ---------------------------------------------------------------------------
-# Real (publicly documented) mosquito species commonly discussed in Australian
-# mosquito-management contexts, used here purely to make surveillance results
-# realistic. Descriptive fields are simplified for prototype purposes and are
-# NOT a substitute for verified organisational/scientific reference material.
+# Real species and ecology data for the mosquitoes actually relevant to the
+# Perth metropolitan area / City of Vincent, sourced from WA Department of
+# Health public guidance:
+#   - "Common mosquitoes in Western Australia" - health.wa.gov.au/Articles/A_E/
+#     Common-mosquitoes-in-Western-Australia (breeding habitat, biting
+#     behaviour, disease significance quoted/paraphrased directly from this
+#     page for each species below)
+#   - "South-West adult mosquito photographic key" (WA Health, PDF) - broader
+#     identification reference covering additional local species; linked from
+#     the Species Reference page for officers who need to ID a specimen beyond
+#     the six operationally-tracked species below.
+# Aedes notoscriptus is the dominant species in an inner-urban council like
+# Vincent (container/backyard breeder); Aedes vigilax/camptorhynchus are
+# included because they disperse well beyond their saltmarsh/estuarine
+# breeding sites (WA Health: Ae. vigilax "can travel tens of kilometres"),
+# which is also why the Swan River foreshore site below is tracked even
+# though it sits just outside the LGA boundary.
 species_reference = [
     {
+        "Species_Code": "AEDNOT", "Scientific_Name": "Aedes notoscriptus", "Common_Name": "Container Mosquito",
+        "Typical_Breeding_Habitat": "Clean water within the domestic environment; artificial containers such as "
+                                     "water ponds, bird baths, pet water bowls, gutters, pot plant drip trays, leaf axils.",
+        "Biting_Behaviour": "Vicious biter; active dawn and dusk, occasionally at night and daytime; prefers shade.",
+        "Seasonal_Characteristics": "Present year-round in the Perth metro area; breeds readily in backyard "
+                                     "containers after rain or irrigation, so numbers track closely with resident "
+                                     "watering/container habits as much as season.",
+        "Vector_Significance": "Ross River virus (RRV).",
+        "Notes": "The dominant species in inner-urban council areas such as Vincent - most resident complaints "
+                 "and backyard breeding-site inspections relate to this species. Source: WA Dept of Health, "
+                 "'Common mosquitoes in Western Australia'.",
+    },
+    {
         "Species_Code": "AEDVIG", "Scientific_Name": "Aedes vigilax", "Common_Name": "Saltmarsh Mosquito",
-        "Typical_Breeding_Habitat": "SAMPLE (simplified): Tidal saltmarsh and estuarine pools.",
-        "Biting_Behaviour": "SAMPLE (simplified): Aggressive day/evening biter, can disperse long distances.",
-        "Seasonal_Characteristics": "SAMPLE (simplified): Peaks after spring/king tides in warmer months.",
-        "Vector_Significance": "SAMPLE (simplified, non-authoritative) - refer to verified public health guidance.",
-        "Notes": "Reference data simplified for prototype only.",
+        "Typical_Breeding_Habitat": "Coastal saltmarshes and brackish swamps.",
+        "Biting_Behaviour": "Vicious biter; bites at all times of day and night.",
+        "Seasonal_Characteristics": "Builds after tidal inundation of saltmarsh in the warmer months; a strong "
+                                     "flier that can disperse tens of kilometres from its breeding site, so it is "
+                                     "tracked well beyond the immediate saltmarsh/river fringe.",
+        "Vector_Significance": "Ross River virus (RRV) and Barmah Forest virus (BFV).",
+        "Notes": "Source: WA Dept of Health, 'Common mosquitoes in Western Australia' and WA Health mosquito "
+                 "management plan template (2020).",
     },
     {
         "Species_Code": "AEDCAM", "Scientific_Name": "Aedes camptorhynchus", "Common_Name": "Southern Saltmarsh Mosquito",
-        "Typical_Breeding_Habitat": "SAMPLE (simplified): Temperate saltmarsh, brackish pools.",
-        "Biting_Behaviour": "SAMPLE (simplified): Persistent biter, active dusk/dawn.",
-        "Seasonal_Characteristics": "SAMPLE (simplified): Associated with autumn/winter tidal inundation in southern regions.",
-        "Vector_Significance": "SAMPLE (simplified, non-authoritative) - refer to verified public health guidance.",
-        "Notes": "Reference data simplified for prototype only.",
+        "Typical_Breeding_Habitat": "Coastal or inland brackish water; tidal saltmarshes, especially sites with samphire.",
+        "Biting_Behaviour": "Vicious biter; bites at all times of day and night.",
+        "Seasonal_Characteristics": "Often the dominant species in WA trap collections between September and "
+                                     "December, associated with saltmarsh/estuarine tidal inundation.",
+        "Vector_Significance": "Ross River virus (RRV) and Barmah Forest virus (BFV).",
+        "Notes": "Relevant to the Swan River foreshore site given its estuarine/brackish habitat. Source: WA Dept "
+                 "of Health, 'Common mosquitoes in Western Australia' and WA Health mosquito management plan "
+                 "template (2020).",
     },
     {
         "Species_Code": "CULANN", "Scientific_Name": "Culex annulirostris", "Common_Name": "Common Banded Mosquito",
-        "Typical_Breeding_Habitat": "SAMPLE (simplified): Freshwater wetlands, drains, retention basins.",
-        "Biting_Behaviour": "SAMPLE (simplified): Active night biter.",
-        "Seasonal_Characteristics": "SAMPLE (simplified): Builds through summer with warm, wet conditions.",
-        "Vector_Significance": "SAMPLE (simplified, non-authoritative) - refer to verified public health guidance.",
-        "Notes": "Reference data simplified for prototype only.",
+        "Typical_Breeding_Habitat": "Permanent/semi-permanent freshwater bodies; also mildly brackish water, "
+                                     "man-made lakes and containers.",
+        "Biting_Behaviour": "Active at dawn, dusk and night.",
+        "Seasonal_Characteristics": "Builds through summer in warm, wet conditions; common in retention basins "
+                                     "and freshwater wetlands.",
+        "Vector_Significance": "Murray Valley encephalitis (MVE), West Nile virus Kunjin strain (WNVKUN), Ross "
+                                "River virus (RRV) and Barmah Forest virus (BFV).",
+        "Notes": "Source: WA Dept of Health, 'Common mosquitoes in Western Australia'.",
     },
     {
         "Species_Code": "CULQUI", "Scientific_Name": "Culex quinquefasciatus", "Common_Name": "Southern House Mosquito",
-        "Typical_Breeding_Habitat": "SAMPLE (simplified): Stagnant urban water - stormwater, containers, blocked drains.",
-        "Biting_Behaviour": "SAMPLE (simplified): Night biter, closely associated with urban areas.",
-        "Seasonal_Characteristics": "SAMPLE (simplified): Present year-round, peaks in warmer months.",
-        "Vector_Significance": "SAMPLE (simplified, non-authoritative) - refer to verified public health guidance.",
-        "Notes": "Reference data simplified for prototype only.",
+        "Typical_Breeding_Habitat": "Clean or polluted water in the domestic environment and artificial containers "
+                                     "(stormwater, blocked drains, catch basins).",
+        "Biting_Behaviour": "Active at dawn, dusk and night.",
+        "Seasonal_Characteristics": "Present year-round, closely associated with urban stormwater infrastructure.",
+        "Vector_Significance": "A significant nuisance/pest species but a poor disease vector in WA.",
+        "Notes": "Source: WA Dept of Health, 'Common mosquitoes in Western Australia'.",
     },
     {
-        "Species_Code": "COQUIL", "Scientific_Name": "Coquillettidia linealis", "Common_Name": "Grass Mosquito",
-        "Typical_Breeding_Habitat": "SAMPLE (simplified): Permanent vegetated freshwater wetlands.",
-        "Biting_Behaviour": "SAMPLE (simplified): Persistent evening biter.",
-        "Seasonal_Characteristics": "SAMPLE (simplified): Fairly stable across the season.",
-        "Vector_Significance": "SAMPLE (simplified, non-authoritative) - refer to verified public health guidance.",
-        "Notes": "Reference data simplified for prototype only.",
+        "Species_Code": "ANOANN", "Scientific_Name": "Anopheles annulipes", "Common_Name": "Common Anopheles Mosquito",
+        "Typical_Breeding_Habitat": "Permanent and semi-permanent fresh water.",
+        "Biting_Behaviour": "Night-time; occasionally bites during the day.",
+        "Seasonal_Characteristics": "Present alongside Culex species in freshwater wetlands and drains.",
+        "Vector_Significance": "None - not considered a disease vector in WA.",
+        "Notes": "Included for identification completeness. Source: WA Dept of Health, 'Common mosquitoes in "
+                 "Western Australia'.",
     },
     {
         "Species_Code": "OTHER", "Scientific_Name": "Other / unidentified", "Common_Name": "Other species",
         "Typical_Breeding_Habitat": "Not applicable.", "Biting_Behaviour": "Not applicable.",
         "Seasonal_Characteristics": "Not applicable.", "Vector_Significance": "Not applicable.",
-        "Notes": "Catch-all for low-count incidental species not separately identified.",
+        "Notes": "Catch-all for low-count incidental species not separately identified. WA's South-West adult "
+                 "mosquito photographic key (health.wa.gov.au) lists many further species present in the region "
+                 "(e.g. Culex globocoxitus, Culex molestus, Coquillettidia sp. nr. linealis) for officers "
+                 "identifying a specimen that doesn't match the six species tracked above.",
     },
 ]
 species_df = pd.DataFrame(species_reference)
@@ -214,46 +293,100 @@ species_df.to_csv(OUT_DIR / "species_reference.csv", index=False)
 SPECIES_CODES = [s for s in species_df["Species_Code"].tolist() if s != "OTHER"]
 
 # Relative abundance weighting per species (drives realistic composition).
-SPECIES_WEIGHTS = {"AEDVIG": 0.34, "AEDCAM": 0.12, "CULANN": 0.28, "CULQUI": 0.18, "COQUIL": 0.08}
+SPECIES_WEIGHTS = {"AEDNOT": 0.15, "AEDVIG": 0.30, "AEDCAM": 0.12, "CULANN": 0.25, "CULQUI": 0.13, "ANOANN": 0.05}
 
 # Assign each site a dominant-species tendency based on its type, so results
 # are internally consistent (saltmarsh sites -> Aedes vigilax, urban drains ->
-# Culex quinquefasciatus, etc.)
+# Culex quinquefasciatus, the Swan River foreshore -> Aedes camptorhynchus etc.)
 SITE_TYPE_SPECIES_BIAS = {
     "Saltmarsh": "AEDVIG", "Estuarine Fringe": "AEDVIG",
-    "Freshwater Wetland": "CULANN", "Parkland Lake": "COQUIL",
+    "Freshwater Wetland": "CULANN", "Parkland Lake": "CULANN",
     "Tidal Drain": "AEDCAM", "Retention Basin": "CULANN",
     "Urban Stormwater": "CULQUI", "Rural Drain": "CULANN",
+    RIVER_SITE_TYPE: "AEDCAM",
 }
 
 
 # ---------------------------------------------------------------------------
-# 4. PRODUCTS  (FICTIONAL control products - clearly sample data)
+# 4. PRODUCTS
 # ---------------------------------------------------------------------------
+# PRD-01 and PRD-02 are REAL, currently APVMA-registered S-methoprene
+# larvicides (ProLink Pellets, ProLink XR Briquets) - these are the two
+# products the program will primarily be using, per direct advice. Because the
+# labelled rate genuinely varies with water-body/site conditions (depth,
+# vegetation, pollution) rather than being one fixed number, each product
+# carries a Rate_Min/Rate_Max range rather than a single value - see
+# Rate_Basis for what drives where in that range a given site sits.
+# Sourced from: ProLink Pellets / ProLink XR Briquets product labels and SDS
+# (Wellmark International; distributed in Australia by Garrards, Pestrol,
+# David Grays, Agserv); NOMOZ+ProLink Pellets label (Pacific Biologics); City
+# of South Perth ProLink XR Briquets SDS; City of Perth Mosquito Management
+# Plan (2025) for observed WA field placement practice. Duration-of-control
+# figures vary between these sources (e.g. Pellets: 30 days reported by one
+# retailer, up to 6 months by another) - flagged explicitly in Notes rather
+# than silently picking one, exactly like the app's Data Quality page would.
+# PRD-04 (Bti) is kept as a real, secondary/knockdown option. PRD-03
+# (adulticide) and PRD-05 (withdrawn) are unchanged fictional placeholders -
+# out of scope for this update, which covered larvicides only.
 products = [
-    {"Product_ID": "PRD-01", "Product_Name": "AquaLarv 100G (fictional)", "Active_Ingredient": "Fictional-BTI-Analog",
-     "Application_Method": "Granular - hand/spreader", "Approved_Rate": 5.0, "Rate_Unit": "kg/ha",
-     "Status": "Active", "Label_Reference": "SAMPLE DATA ONLY - NOT FOR OPERATIONAL USE",
-     "Notes": "Fictional larvicide granule for prototype demonstration only."},
-    {"Product_ID": "PRD-02", "Product_Name": "LarvaClear XR (fictional)", "Active_Ingredient": "Fictional-Methoprene-Analog",
-     "Application_Method": "Briquette - hand placement", "Approved_Rate": 2.0, "Rate_Unit": "briquettes/100 m2",
-     "Status": "Active", "Label_Reference": "SAMPLE DATA ONLY - NOT FOR OPERATIONAL USE",
-     "Notes": "Fictional extended-release larvicide for prototype demonstration only."},
+    {"Product_ID": "PRD-01", "Product_Name": "ProLink Pellets", "Active_Ingredient": "S-methoprene 40 g/kg (4% w/w)",
+     "Formulation": "Pellet (ready-to-use)",
+     "Application_Method": "Hand broadcast or mechanical spreader - place/broadcast directly into water",
+     "Rate_Min": 1.0, "Rate_Max": 3.0, "Rate_Unit": "pellets per L (container) or m2 (water surface)",
+     "Rate_Basis": "Use the lower rate (1) for ~3 months control; the higher rate (3) for ~6 months control.",
+     "Duration_Of_Control": "~3-6 months depending on rate used (one manufacturer source states 30 days for "
+                             "broadacre use - durations vary between published sources, confirm current label)",
+     "Status": "Active",
+     "Label_Reference": "ProLink Pellets product label/SDS (Wellmark; Garrards/Pestrol/David Grays, AU); "
+                         "NOMOZ+ProLink Pellets label (Pacific Biologics)",
+     "Notes": "Primary larvicide - standing water, catch basins, ponds, containers and drains. Published "
+              "duration-of-control claims vary by source (30 days vs up to 6 months) - CONFIRM the current "
+              "APVMA-approved label rate for the specific site/water-body before use."},
+    {"Product_ID": "PRD-02", "Product_Name": "ProLink XR Briquets",
+     "Active_Ingredient": "S-methoprene 18 g/kg (1.8% w/w), extended-release",
+     "Formulation": "Extended-release briquette",
+     "Application_Method": "Hand placement - float/place briquette(s) directly in water",
+     "Rate_Min": 1.0, "Rate_Max": 1.0, "Rate_Unit": "briquette per ~10 m2 (approx., derived from ~3.2 m grid spacing)",
+     "Rate_Basis": "Spacing is derived from reported WA field placement practice, not a quoted label figure.",
+     "Duration_Of_Control": "Up to 150 days (one manufacturer source states up to 6 months)",
+     "Status": "Active",
+     "Label_Reference": "ProLink XR Briquets SDS/product label (Wellmark; City of South Perth, Garrards, Agserv, "
+                         "David Grays, AU); observed WA council placement practice (City of Perth Mosquito "
+                         "Management Plan, 2025)",
+     "Notes": "Primary larvicide for chronic/semi-permanent breeding sites - stormwater drains, ponds, rainwater "
+              "tanks, and the Swan River foreshore/estuarine fringe. CONFIRM exact current label spacing/rate "
+              "before use - the briquette-per-area figure here is approximated from field practice, not the label."},
     {"Product_ID": "PRD-03", "Product_Name": "MosquiZap ULV (fictional)", "Active_Ingredient": "Fictional-Pyrethroid-Analog",
-     "Application_Method": "ULV - truck-mounted cold fog", "Approved_Rate": 0.5, "Rate_Unit": "L/ha",
+     "Formulation": "Liquid (ULV)",
+     "Application_Method": "ULV - truck-mounted cold fog", "Rate_Min": 0.5, "Rate_Max": 0.5, "Rate_Unit": "L/ha",
+     "Rate_Basis": "", "Duration_Of_Control": "N/A (adulticide - knockdown only)",
      "Status": "Active", "Label_Reference": "SAMPLE DATA ONLY - NOT FOR OPERATIONAL USE",
-     "Notes": "Fictional adulticide for prototype demonstration only."},
-    {"Product_ID": "PRD-04", "Product_Name": "BactiRing WSP (fictional)", "Active_Ingredient": "Fictional-BTI-Analog",
-     "Application_Method": "Water-soluble pouch - hand placement", "Approved_Rate": 1.0, "Rate_Unit": "pouch/50 m2",
-     "Status": "Active", "Label_Reference": "SAMPLE DATA ONLY - NOT FOR OPERATIONAL USE",
-     "Notes": "Fictional larvicide pouch for prototype demonstration only."},
+     "Notes": "Fictional adulticide placeholder - out of scope for this update (larvicides only). Still NOT FOR "
+              "OPERATIONAL USE."},
+    {"Product_ID": "PRD-04", "Product_Name": "VectoBac G", "Active_Ingredient": "Bacillus thuringiensis var. israelensis (Bti)",
+     "Formulation": "Granule",
+     "Application_Method": "Calibrated ground spreader or drone", "Rate_Min": 300.0, "Rate_Max": 500.0,
+     "Rate_Unit": "g/ha", "Rate_Basis": "Higher rate for denser vegetation/organic load.",
+     "Duration_Of_Control": "Short - larvae killed within ~24 hours; minimal residual (used for immediate "
+                             "knockdown, not sustained control)",
+     "Status": "Active",
+     "Label_Reference": "City of Perth Mosquito Management Plan (2025); WA Health mosquito management plan "
+                         "template (2020)",
+     "Notes": "Secondary/knockdown larvicide - the program's PRIMARY larvicides are the S-methoprene ProLink "
+              "products above. Confirm current APVMA label before use."},
     {"Product_ID": "PRD-05", "Product_Name": "OldStock Larvicide (fictional)", "Active_Ingredient": "Fictional-Discontinued-Compound",
-     "Application_Method": "Granular - hand/spreader", "Approved_Rate": 4.0, "Rate_Unit": "kg/ha",
+     "Formulation": "Granule",
+     "Application_Method": "Granular - hand/spreader", "Rate_Min": 4.0, "Rate_Max": 4.0, "Rate_Unit": "kg/ha",
+     "Rate_Basis": "", "Duration_Of_Control": "N/A",
      "Status": "Withdrawn", "Label_Reference": "SAMPLE DATA ONLY - NOT FOR OPERATIONAL USE",
-     "Notes": "Fictional withdrawn product retained for historical treatment records only."},
+     "Notes": "Fictional withdrawn product retained for historical treatment records / Withdrawn-status testing only."},
 ]
 products_df = pd.DataFrame(products)
 products_df.to_csv(OUT_DIR / "products.csv", index=False)
+# Convenience column used only for simulating realistic sample treatment
+# quantities below (Application_Rate = midpoint of the labelled range) - not
+# written to products.csv, since the real rate is a range, not one number.
+products_df["_Rate_Mid"] = (products_df["Rate_Min"].astype(float) + products_df["Rate_Max"].astype(float)) / 2
 
 
 # ---------------------------------------------------------------------------
@@ -455,7 +588,7 @@ for season in ALL_SEASONS:
             prod = candidate_products.sample(1, random_state=int(rng.integers(0, 1_000_000))).iloc[0]
             product_id = prod["Product_ID"]
             application_method = prod["Application_Method"]
-            approved_rate = prod["Approved_Rate"]
+            approved_rate = prod["_Rate_Mid"]  # midpoint of the labelled Rate_Min-Rate_Max range
             rate_unit = prod["Rate_Unit"]
 
         status_roll = rng.random()
@@ -534,8 +667,8 @@ for site_id in hotspot_persistent_sites:
             "Planned_Date": mid.strftime("%Y-%m-%d"), "Treatment_Date": mid.strftime("%Y-%m-%d"),
             "Treatment_Status": "Completed", "Treatment_Type": "Larvicide Application",
             "Product_ID": prod["Product_ID"], "Application_Method": prod["Application_Method"],
-            "Application_Rate": prod["Approved_Rate"], "Rate_Unit": prod["Rate_Unit"],
-            "Area_Treated_Ha": area_ha, "Quantity_Used": round(float(prod["Approved_Rate"]) * area_ha, 2),
+            "Application_Rate": prod["_Rate_Mid"], "Rate_Unit": prod["Rate_Unit"],
+            "Area_Treated_Ha": area_ha, "Quantity_Used": round(float(prod["_Rate_Mid"]) * area_ha, 2),
             "Operator": rng.choice(OFFICERS), "Reason": "Surveillance threshold exceeded",
             "Cancelled_Reason": "", "Notes": "Targeted treatment at known persistent hotspot.",
             "Created_By": SYSTEM_USER, "Created_Date": mid.strftime("%Y-%m-%d"),
@@ -578,8 +711,8 @@ for season in ALL_SEASONS:
             approx_lon = sites_df.loc[sites_df["Site_ID"] == site_id, "Longitude"].iloc[0]
         else:
             site_id = ""
-            approx_lat = round(CENTER_LAT + rng.uniform(-0.3, 0.3), 5)
-            approx_lon = round(CENTER_LON + rng.uniform(-0.4, 0.4), 5)
+            approx_lat = round(CENTER_LAT + rng.uniform(-0.016, 0.016), 5)
+            approx_lon = round(CENTER_LON + rng.uniform(-0.02, 0.02), 5)
         status = rng.choice(INVESTIGATION_STATUSES, p=[0.1, 0.15, 0.15, 0.6])
         complaints.append({
             "Complaint_ID": f"CMP-{complaint_counter:05d}",

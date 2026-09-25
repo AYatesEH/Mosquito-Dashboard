@@ -138,7 +138,8 @@ class CSVDataRepository(DataRepository):
 
     def get_products(self) -> pd.DataFrame:
         df = self._read_csv("products.csv")
-        df["Approved_Rate"] = pd.to_numeric(df["Approved_Rate"], errors="coerce")
+        for col in ("Rate_Min", "Rate_Max"):
+            df[col] = pd.to_numeric(df[col], errors="coerce")
         return df
 
     def get_complaints(self) -> pd.DataFrame:

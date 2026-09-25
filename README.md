@@ -154,12 +154,24 @@ every function has a docstring and nothing here talks to Streamlit.
 
 Marked clearly in the app itself (banners on the relevant pages), but to be explicit:
 
-- **Sample/fictional, must be replaced before any real use:** action thresholds, program targets, all products
-  and application rates, the dosage calculator's output, and the descriptive fields on the species reference
-  page (breeding habitat, biting behaviour, vector significance).
-- **Realistic but synthetic:** every trap result, treatment, complaint, environmental reading and site - none
-  of it is real council data, and site names/coordinates are invented.
-- **Real (public biological knowledge), used only for realism:** mosquito species scientific/common names.
+- **Real, sourced from WA Dept of Health / manufacturer product labels - confirm current details before
+  operational use:** the six mosquito species on the Species Reference page (breeding habitat, biting
+  behaviour, seasonal characteristics and vector significance, sourced from WA Health's "Common mosquitoes in
+  Western Australia"); the two primary larvicides on the Products/Dosage Calculator pages, ProLink Pellets and
+  ProLink XR Briquets (S-methoprene, active ingredient/application-rate range/duration sourced from product
+  labels and SDS - see each product's `Label_Reference`); VectoBac G (Bti), kept as a secondary/knockdown
+  option. Rates are shown as ranges (not one fixed number) because the real labelled rate genuinely depends on
+  site conditions - always verify the exact current APVMA-approved label before any real application.
+- **Sample/fictional, must be replaced before any real use:** action thresholds, program targets, the two
+  remaining placeholder products (an adulticide and a withdrawn product - out of scope for the species/larvicide
+  update above), and the dosage calculator's arithmetic itself (a plain area x rate multiplication, with no
+  safety margins or label conditions applied).
+- **Realistic but synthetic:** every trap result, treatment, complaint, environmental reading, and 24 of the 25
+  sites - none of it is real council data, and those site names/exact coordinates are invented (though
+  clustered around real City of Vincent/North Perth coordinates rather than an arbitrary point).
+- **Real, specific location:** one site, "Claisebrook Cove Foreshore (Swan River)", uses real coordinates for
+  a real, named Swan River bank location - added because larvae dipping/larviciding along the river bank is a
+  regular, named part of the program.
 
 ---
 
