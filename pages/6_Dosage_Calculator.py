@@ -1,4 +1,7 @@
-"""Dosage Calculator - transparent product-quantity calculation. SAMPLE DATA ONLY."""
+"""Dosage Calculator - transparent product-quantity calculation. Rate/label data for the two selectable
+products (ProLink Pellets, ProLink XR Briquets) is real, sourced from their APVMA-approved labels - the
+arithmetic itself (area x rate, no safety margins or label conditions applied) is still what an officer must
+independently verify, not the product data."""
 
 import math
 
@@ -14,11 +17,12 @@ def render():
 
     st.title("Dosage Calculator")
     st.warning(
-        "ProLink Pellets and ProLink XR Briquets below use real, currently APVMA-registered application data "
-        "(sourced from product labels/SDS - see Label_Reference for each product). The remaining products are "
-        "still fictional placeholders and are clearly marked. Rates genuinely vary by site/water-body condition "
-        "(depth, vegetation, pollution) - this calculator shows a range, not a single fixed number, and an "
-        "officer must always confirm the exact current APVMA-approved label before any real application."
+        "ProLink Pellets and ProLink XR Briquets below use real, currently APVMA-registered application data, "
+        "transcribed directly from the actual product labels (see Label_Reference and the APVMA approval number "
+        "for each product). Rates genuinely vary by site/water-body condition (depth, vegetation, pollution, "
+        "larval counts) - this calculator shows a range, not a single fixed number - and an officer must always "
+        "confirm the exact current APVMA-approved label before any real application, since labels are "
+        "periodically reissued."
     )
 
     products = data["products"]
