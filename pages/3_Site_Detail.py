@@ -7,6 +7,7 @@ import streamlit as st
 from streamlit_folium import st_folium
 
 from core import ui, calculations as calc, mapping
+from core.config import RIVER_SITE_TYPE
 
 
 def render():
@@ -54,6 +55,23 @@ def render():
             st_folium(mini_map, width=280, height=220)
         else:
             st.warning("Coordinates missing for this site (see Data Quality).")
+
+    # --- Tide indicator (Swan River foreshore site only) --------------------
+    if site_row["Site_Type"] == RIVER_SITE_TYPE and pd.notna(site_row["Latitude"]) and pd.notna(site_row["Longitude"]):
+        with st.expander("Tide indicator (rough approximation only - read before using to time river-bank work)"):
+            tide = ui.get_tide_indicator(site_row["Latitude"], site_row["Longitude"])
+            if "error" in tide:
+                st.info(f"Tide indicator unavailable right now: {tide['error']}")
+            else:
+                st.error(tide["caveat"])
+                tc1, tc2, tc3 = st.columns(3)
+                tc1.metric("Sea level (rough)", f"{tide['sea_level_m']:g} m" if tide["sea_level_m"] is not None else "-")
+                tc2.metric("Trend", tide["trend"] or "-")
+                tc3.metric(
+                    f"Next {tide['next_turn_type'] or 'turn'}",
+                    tide["next_turn_time"].split("T")[-1] if tide["next_turn_time"] else "-",
+                )
+                st.caption(f"Observed at {tide['observed_at']} (Open-Meteo Marine API, live).")
 
     st.divider()
 

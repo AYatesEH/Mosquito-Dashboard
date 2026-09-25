@@ -123,31 +123,76 @@ SITE_TYPES = ["Saltmarsh", "Freshwater Wetland", "Tidal Drain", "Retention Basin
 # Real site type added specifically for the Swan River bank site below (see
 # "Fixed, real-world site" section) - larvae dipping/larviciding along the
 # Swan River foreshore is a distinct, regularly-worked site type from the
-# randomly generated inland sites above.
+# randomly generated inland sites above. NOTE: this string is intentionally
+# duplicated in core/config.py (also named RIVER_SITE_TYPE, used by pages to
+# find "the river site" e.g. for the tide indicator) rather than imported,
+# since this script must stay runnable standalone via
+# `python3 data/generate_sample_data.py` without the project root on
+# PYTHONPATH - if you change one, change the other.
 RIVER_SITE_TYPE = "Swan River Foreshore"
 
-SITE_NAME_PARTS_A = ["Riverside", "Northgate", "Saltbush", "Mill", "Cooper's", "Tern",
-                      "Heron", "Bluegum", "Sandpiper", "Wattle", "Ibis", "Claypan",
-                      "Sanctuary", "Lower", "Upper", "Old Ferry", "Curlew", "Brolga",
-                      "Mangrove", "Pelican", "Egret", "Fig Tree", "Melaleuca", "Sedge"]
-SITE_NAME_PARTS_B = ["Creek", "Wetland", "Drain", "Basin", "Flats", "Reserve",
-                     "Marsh", "Lagoon", "Channel", "Swamp", "Point", "Inlet"]
-
-N_SITES = 24
-site_names_used = set()
-
-
-def make_site_name():
-    while True:
-        name = f"{rng.choice(SITE_NAME_PARTS_A)} {rng.choice(SITE_NAME_PARTS_B)}"
-        if name not in site_names_used:
-            site_names_used.add(name)
-            return name
-
+# Real, named public open spaces within the City of Vincent - sourced from
+# vincent.wa.gov.au's own Parks & Facilities directory (community facilities,
+# sportsgrounds, and parks/reserves lists) plus a Google Places lookup for
+# each name's real coordinates, each one then verified with
+# `_point_in_polygon` against the actual LGA boundary above (all 21 confirmed
+# inside). This replaces the earlier fully-invented site names/positions so
+# the prototype is easier for exec/EHOs to recognise and sanity-check.
+# Site_Type is an inference of the kind of breeding habitat an EHO would
+# monitor at that park (stormwater drainage/low points, retention basin,
+# etc.) - NOT a claim about that park's actual drainage infrastructure, which
+# would need to be confirmed against Vincent's own asset/GIS data. Hyde Park
+# and Smiths Lake Reserve are the two exceptions: both have a real, permanent
+# lake (Smiths Lake Reserve is a former drainage reservoir), so those are
+# real breeding-habitat features, not an inference.
+REAL_SITES = [
+    ("Hyde Park", -31.93807, 115.86240, "Parkland Lake",
+     "North Perth/Highgate. Ornamental lake at the centre of Hyde Park - a well-known permanent water body and bird habitat."),
+    ("Robertson Park", -31.94126, 115.85620, "Urban Stormwater",
+     "North Perth (Fitzgerald St). Public open space monitored for stormwater drainage/low-lying breeding habitat."),
+    ("Braithwaite Park", -31.91968, 115.83479, "Freshwater Wetland",
+     "Mount Hawthorn (Scarborough Beach Rd). Public open space monitored for low-lying/wetland-type breeding habitat."),
+    ("Beatty Park Reserve", -31.93573, 115.85144, "Retention Basin",
+     "North Perth. Reserve adjoining Beatty Park Leisure Centre; monitored for stormwater retention/breeding habitat."),
+    ("Smiths Lake Reserve", -31.93279, 115.85074, "Parkland Lake",
+     "North Perth (Kayle St/Bourke St). Former drainage reservoir; a real, permanent (murky) lake with reported mosquito activity."),
+    ("Birdwood Square", -31.94286, 115.86585, "Urban Stormwater",
+     "Perth/Highgate (Beaufort St). Public open space monitored for stormwater drainage/low-lying breeding habitat."),
+    ("Britannia Reserve", -31.93170, 115.83744, "Freshwater Wetland",
+     "Leederville/Mount Hawthorn (Bourke St). Bushland-edge reserve monitored for wetland-type breeding habitat."),
+    ("Britannia Road Reserve", -31.92832, 115.83631, "Retention Basin",
+     "Mount Hawthorn. Sportsground/reserve monitored for stormwater retention/breeding habitat."),
+    ("Charles Veryard Reserve", -31.93108, 115.84995, "Urban Stormwater",
+     "North Perth (Bourke St). Sportsground monitored for stormwater drainage/low-lying breeding habitat."),
+    ("Dorrien Gardens", -31.93841, 115.85438, "Retention Basin",
+     "West Perth (Britannia Rd). Sports venue monitored for stormwater retention/breeding habitat."),
+    ("Forrest Park", -31.93800, 115.87473, "Retention Basin",
+     "Leederville/Mount Lawley border (Walcott St/Curtis St). Large sportsground monitored for stormwater retention/breeding habitat."),
+    ("Les Lilleyman Reserve", -31.91793, 115.84515, "Freshwater Wetland",
+     "North Perth/Mount Hawthorn border (Gill St). Public open space monitored for wetland-type breeding habitat."),
+    ("Litis Stadium", -31.92728, 115.83353, "Urban Stormwater",
+     "Leederville (Britannia Rd). Sports venue monitored for stormwater drainage/breeding habitat."),
+    ("Menzies Park", -31.91887, 115.83126, "Retention Basin",
+     "Mount Hawthorn (Purslowe St). Sportsground monitored for stormwater retention/breeding habitat."),
+    ("Woodville Reserve", -31.92708, 115.85826, "Urban Stormwater",
+     "North Perth (Namur St). Public open space monitored for stormwater drainage/low-lying breeding habitat."),
+    ("Weld Square", -31.94731, 115.86477, "Urban Stormwater",
+     "Perth/Highgate (Beaufort St). Public open space monitored for stormwater drainage/low-lying breeding habitat."),
+    ("Hyde Street Reserve", -31.93272, 115.86442, "Urban Stormwater",
+     "Highgate/Mount Lawley border (Forrest St). Small reserve monitored for stormwater drainage/breeding habitat."),
+    ("Stuart Street Reserve", -31.94339, 115.85874, "Urban Stormwater",
+     "Perth/West Perth (Church St). Public open space monitored for stormwater drainage/breeding habitat."),
+    ("Loftus Recreation Centre", -31.93520, 115.84546, "Urban Stormwater",
+     "Leederville (Loftus St). Recreation centre grounds monitored for stormwater drainage/breeding habitat."),
+    ("Loton Park", -31.94567, 115.87133, "Urban Stormwater",
+     "Perth/Highgate (Lord St & Bulwer St). Public open space monitored for stormwater drainage/breeding habitat."),
+    ("Redfern Street Reserve", -31.92263, 115.85586, "Urban Stormwater",
+     "North Perth (Redfern St). Small local reserve monitored for stormwater drainage/breeding habitat."),
+]
+N_SITES = len(REAL_SITES)
 
 # Region center point: the real centroid of the City of Vincent LGA boundary
 # (computed from the actual boundary polygon above, WA Landgate LGATE-233).
-# Site NAMES remain invented; only the general area/boundary is real.
 CENTER_LAT = round(sum(_ring_lats) / len(_ring_lats), 5)
 CENTER_LON = round(sum(_ring_lons) / len(_ring_lons), 5)
 
@@ -159,24 +204,24 @@ CENTER_LON = round(sum(_ring_lons) / len(_ring_lons), 5)
 RIVER_SITE_LAT, RIVER_SITE_LON = -31.9522, 115.8791
 
 sites = []
-# N_SITES random inland sites (fictional names/exact positions, but each one
-# is rejection-sampled to genuinely fall inside the real Vincent boundary
-# polygon - not just a rough bounding box around the centroid).
-for i in range(1, N_SITES + 1):
+# The N_SITES real, named City of Vincent parks/reserves defined in
+# REAL_SITES above - each one's coordinates were already verified to fall
+# inside the real Vincent boundary polygon.
+for i, (name, lat, lon, site_type, description) in enumerate(REAL_SITES, start=1):
     site_id = f"ST-{i:03d}"
-    lat, lon = random_point_in_vincent(rng)
     status = rng.choice(["Active", "Active", "Active", "Active", "Inactive"], p=[0.55, 0.2, 0.15, 0.05, 0.05])
-    site_type = rng.choice(SITE_TYPES)
     created_dt = SEASONS["2023-24"]["start"] - timedelta(days=int(rng.integers(30, 900)))
     sites.append({
         "Site_ID": site_id,
-        "Site_Name": make_site_name(),
+        "Site_Name": name,
         "Site_Type": site_type,
         "Latitude": round(lat, 5),
         "Longitude": round(lon, 5),
         "Status": status,
-        "Description": f"{site_type} monitored for mosquito breeding and adult activity.",
-        "Notes": "",
+        "Description": description,
+        "Notes": "Real, named public open space (City of Vincent) - Latitude/Longitude approximate the "
+                 "park/reserve's location; Site_Type is an inferred likely breeding habitat, not a confirmed "
+                 "asset record. Confirm actual monitored feature/coordinates on the ground before operational use.",
         "Created_By": SYSTEM_USER,
         "Created_Date": created_dt.strftime("%Y-%m-%d"),
         "Modified_By": SYSTEM_USER,
@@ -361,73 +406,97 @@ SITE_TYPE_SPECIES_BIAS = {
 # 4. PRODUCTS
 # ---------------------------------------------------------------------------
 # PRD-01 and PRD-02 are REAL, currently APVMA-registered S-methoprene
-# larvicides (ProLink Pellets, ProLink XR Briquets) - these are the two
-# products the program will primarily be using, per direct advice. Because the
-# labelled rate genuinely varies with water-body/site conditions (depth,
-# vegetation, pollution) rather than being one fixed number, each product
-# carries a Rate_Min/Rate_Max range rather than a single value - see
-# Rate_Basis for what drives where in that range a given site sits.
-# Sourced from: ProLink Pellets / ProLink XR Briquets product labels and SDS
-# (Wellmark International; distributed in Australia by Garrards, Pestrol,
-# David Grays, Agserv); NOMOZ+ProLink Pellets label (Pacific Biologics); City
-# of South Perth ProLink XR Briquets SDS; City of Perth Mosquito Management
-# Plan (2025) for observed WA field placement practice. Duration-of-control
-# figures vary between these sources (e.g. Pellets: 30 days reported by one
-# retailer, up to 6 months by another) - flagged explicitly in Notes rather
-# than silently picking one, exactly like the app's Data Quality page would.
-# PRD-04 (Bti) is kept as a real, secondary/knockdown option. PRD-03
-# (adulticide) and PRD-05 (withdrawn) are unchanged fictional placeholders -
-# out of scope for this update, which covered larvicides only.
+# larvicides (ProLink Pellets, ProLink XR Briquets) - the two products the
+# program will primarily be using, per direct advice, and the ONLY active
+# products in this list (the fictional adulticide "MosquiZap ULV" and the
+# real secondary/knockdown product "VectoBac G" were both removed from the
+# dashboard on request - the program is tracking these two S-methoprene
+# larvicides only). Rate/duration data for both is sourced directly from the
+# real, current APVMA-approved product labels (supplied directly by the
+# person and read in full) rather than retailer pages or third-party plans -
+# see each product's Label_Reference and Rate_Basis for exact detail and the
+# APVMA approval number. PRD-05 (a fictional withdrawn product) is kept only
+# to exercise Withdrawn-status handling in the app; it is not real.
+#
+# Duration_Min_Days/Duration_Max_Days are the numeric form of Duration_Of_
+# Control, added so the Treatments page can calculate an estimated re-dose
+# due date (Rate_Min -> Duration_Min_Days, Rate_Max -> Duration_Max_Days;
+# interpolated for a rate in between). Where sources disagree (see Notes),
+# the more conservative figure is used as the number that actually drives a
+# due-date calculation - the wider claim stays visible in Duration_Of_Control
+# text and Notes so it's not hidden, just not the one silently trusted.
 products = [
-    {"Product_ID": "PRD-01", "Product_Name": "ProLink Pellets", "Active_Ingredient": "S-methoprene 40 g/kg (4% w/w)",
-     "Formulation": "Pellet (ready-to-use)",
-     "Application_Method": "Hand broadcast or mechanical spreader - place/broadcast directly into water",
-     "Rate_Min": 1.0, "Rate_Max": 3.0, "Rate_Unit": "pellets per L (container) or m2 (water surface)",
-     "Rate_Basis": "Use the lower rate (1) for ~3 months control; the higher rate (3) for ~6 months control.",
-     "Duration_Of_Control": "~3-6 months depending on rate used (one manufacturer source states 30 days for "
-                             "broadacre use - durations vary between published sources, confirm current label)",
+    {"Product_ID": "PRD-01", "Product_Name": "ProLink Pellets", "Active_Ingredient": "(S)-methoprene 40 g/kg "
+                    "(Group 7A insecticide / insect growth regulator)",
+     "Formulation": "Pellet (ready-to-use, 10 kg net contents)",
+     "Application_Method": "Ground equipment (broadcast/granular spreader) for good, even coverage at the rates "
+                            "below; can also be applied aerially (fixed-wing/helicopter with granular spreaders) "
+                            "at the same 3-4 kg/ha rates, checked frequently against area flown.",
+     "Rate_Min": 3.0, "Rate_Max": 4.0, "Rate_Unit": "kg/ha (ground or aerial broadacre application)",
+     "Rate_Basis": "Per the APVMA-approved label: use 3 kg/ha for temporary water sites (freshwater/salt "
+                   "marshes, mangrove swamps, estuarine areas, woodland pools, natural water-holding features) "
+                   "where water is shallow (<30cm), clean, and larval counts are low (<10/dip). Use 4 kg/ha for "
+                   "permanent water sites (ornamental ponds/pools, birdbaths, troughs, gutters, other artificial "
+                   "or manmade water-holding depressions, tree holes, cesspools/septic tanks, sewage settling "
+                   "ponds) where water is deep (>30cm), rich in organic matter/sediment, larval counts are high "
+                   "(>10/dip), or the target is specifically Culex sitiens. Restraint: DO NOT use in areas "
+                   "grazed by livestock. SEPARATE hand-treatment method for small containers only (water tanks, "
+                   "pot-plant trays, tyres, gutters, catch basins) uses a different rate: 1 pellet per L or m2 "
+                   "for control up to 3 months, 3 pellets per L or m2 for control up to 6 months - not the rate "
+                   "modelled by this row; use the label directly if hand-treating a small container.",
+     "Duration_Of_Control": "Label: 'release (S)-methoprene for at least 30 days' once submerged, for the "
+                            "broadacre kg/ha rate above (this is the figure driving the re-dose calculator - a "
+                            "conservative floor, not a fixed window, since the label gives no upper bound for "
+                            "this application method). The separate small-container pellet-count method can "
+                            "achieve up to 3-6 months (see Rate_Basis) but is not what this row models.",
+     "Duration_Min_Days": 30, "Duration_Max_Days": 30,
      "Status": "Active",
-     "Label_Reference": "ProLink Pellets product label/SDS (Wellmark; Garrards/Pestrol/David Grays, AU); "
-                         "NOMOZ+ProLink Pellets label (Pacific Biologics)",
-     "Notes": "Primary larvicide - standing water, catch basins, ponds, containers and drains. Published "
-              "duration-of-control claims vary by source (30 days vs up to 6 months) - CONFIRM the current "
-              "APVMA-approved label rate for the specific site/water-body before use."},
+     "Label_Reference": "ProLink Pellets APVMA-approved label, Approval No. 58064/1/0705 (Wellmark "
+                         "International; distributed in Australia by Pacific BioLogics Pty Ltd, Kippa Ring QLD, "
+                         "(07) 3283 5077) - label supplied directly by the person and read in full.",
+     "Notes": "Primary larvicide - standing water, catch basins, ponds, and drains in parks/reserves (broadacre "
+              "kg/ha method). The earlier 'confirm against APVMA' caveat has been resolved by reading the actual "
+              "label directly - approval number above can still be cross-checked on APVMA's PubCRIS database "
+              "(portal.apvma.gov.au/pubcris) if desired, though PubCRIS is a live keyword search tool, not "
+              "fetchable by approval number directly. NOTE: the re-dose due date now uses the real, more "
+              "conservative 30-day label figure (previously an incorrect 90-180 day estimate) - this will surface "
+              "re-dose reminders much sooner than before."},
     {"Product_ID": "PRD-02", "Product_Name": "ProLink XR Briquets",
-     "Active_Ingredient": "S-methoprene 18 g/kg (1.8% w/w), extended-release",
-     "Formulation": "Extended-release briquette",
-     "Application_Method": "Hand placement - float/place briquette(s) directly in water",
-     "Rate_Min": 1.0, "Rate_Max": 1.0, "Rate_Unit": "briquette per ~10 m2 (approx., derived from ~3.2 m grid spacing)",
-     "Rate_Basis": "Spacing is derived from reported WA field placement practice, not a quoted label figure.",
-     "Duration_Of_Control": "Up to 150 days (one manufacturer source states up to 6 months)",
+     "Active_Ingredient": "(S)-methoprene 18 g/kg, dry weight basis (Group 7A insecticide / insect growth regulator)",
+     "Formulation": "Extended-release briquette (100 briquets per 3.66 kg dry-weight carton)",
+     "Application_Method": "Hand placement - float/place briquette(s) directly in water. In soft mud/loose "
+                            "sediment, place in a mesh bag tied to a stake so the briquet doesn't sink and to "
+                            "allow monitoring of breakdown rate. Not effective where briquets can be flushed out "
+                            "of the site - must be anchored.",
+     "Rate_Min": 10.0, "Rate_Max": 20.0, "Rate_Unit": "m2 of water surface per 1 briquet",
+     "Rate_Basis": "Per the APVMA-approved label: 1 briquet per 20 m2 where water is shallow (<30cm), clean, and "
+                   "larval counts are low (<10/dip) - labelled specifically for Ochlerotatus/Aedes vigilax. "
+                   "1 briquet per 10 m2 where water is deep (>30cm), rich in organic matter/sediment, or larval "
+                   "counts are high (>10/dip), and for all other mosquito species regardless of depth. Separately, "
+                   "rainwater tanks (including potable): 1 briquet per 5,000 L, retreated every 6-12 months. "
+                   "Restraint: DO NOT use in areas grazed by livestock.",
+     "Duration_Of_Control": "Up to 150 days, or the rest of the mosquito control season if shorter (per label: "
+                            "'one application should last the entire mosquito control season, or at least 150 "
+                            "days, whichever is shorter'). Should be applied before/at the start of the season; "
+                            "can be pre-placed in dry sites before flooding or rain.",
+     "Duration_Min_Days": 150, "Duration_Max_Days": 150,
      "Status": "Active",
-     "Label_Reference": "ProLink XR Briquets SDS/product label (Wellmark; City of South Perth, Garrards, Agserv, "
-                         "David Grays, AU); observed WA council placement practice (City of Perth Mosquito "
-                         "Management Plan, 2025)",
-     "Notes": "Primary larvicide for chronic/semi-permanent breeding sites - stormwater drains, ponds, rainwater "
-              "tanks, and the Swan River foreshore/estuarine fringe. CONFIRM exact current label spacing/rate "
-              "before use - the briquette-per-area figure here is approximated from field practice, not the label."},
-    {"Product_ID": "PRD-03", "Product_Name": "MosquiZap ULV (fictional)", "Active_Ingredient": "Fictional-Pyrethroid-Analog",
-     "Formulation": "Liquid (ULV)",
-     "Application_Method": "ULV - truck-mounted cold fog", "Rate_Min": 0.5, "Rate_Max": 0.5, "Rate_Unit": "L/ha",
-     "Rate_Basis": "", "Duration_Of_Control": "N/A (adulticide - knockdown only)",
-     "Status": "Active", "Label_Reference": "SAMPLE DATA ONLY - NOT FOR OPERATIONAL USE",
-     "Notes": "Fictional adulticide placeholder - out of scope for this update (larvicides only). Still NOT FOR "
-              "OPERATIONAL USE."},
-    {"Product_ID": "PRD-04", "Product_Name": "VectoBac G", "Active_Ingredient": "Bacillus thuringiensis var. israelensis (Bti)",
-     "Formulation": "Granule",
-     "Application_Method": "Calibrated ground spreader or drone", "Rate_Min": 300.0, "Rate_Max": 500.0,
-     "Rate_Unit": "g/ha", "Rate_Basis": "Higher rate for denser vegetation/organic load.",
-     "Duration_Of_Control": "Short - larvae killed within ~24 hours; minimal residual (used for immediate "
-                             "knockdown, not sustained control)",
-     "Status": "Active",
-     "Label_Reference": "City of Perth Mosquito Management Plan (2025); WA Health mosquito management plan "
-                         "template (2020)",
-     "Notes": "Secondary/knockdown larvicide - the program's PRIMARY larvicides are the S-methoprene ProLink "
-              "products above. Confirm current APVMA label before use."},
+     "Label_Reference": "ProLink XR Briquets APVMA-approved label, Approval No. 58061/100/0505 (Wellmark "
+                         "International; distributed in Australia by Pacific BioLogics Pty Ltd, Kippa Ring QLD, "
+                         "(07) 3283 5077) - label supplied directly by the person and read in full.",
+     "Notes": "Primary larvicide for chronic/semi-permanent breeding sites - dams, storm drains, catch basins, "
+              "roadside ditches, ornamental ponds/pools, cesspools/septic tanks, sewage settling ponds, abandoned "
+              "pools, manmade depressions, freshwater/salt marshes, mangrove swamps, woodland pools, flood "
+              "plains, and rainwater tanks. Label explicitly lists control of Aedes, Anopheles, Culex and "
+              "Ochlerotatus spp. (Ochlerotatus vigilax = the current name Aedes vigilax was reclassified from/to; "
+              "same species). No effect on mosquitoes already at pupal/adult stage at time of treatment. This is "
+              "now sourced directly from the real APVMA label (previously an approximation from field practice) "
+              "- CONFIRM against the current label before operational use, as labels are periodically reissued."},
     {"Product_ID": "PRD-05", "Product_Name": "OldStock Larvicide (fictional)", "Active_Ingredient": "Fictional-Discontinued-Compound",
      "Formulation": "Granule",
      "Application_Method": "Granular - hand/spreader", "Rate_Min": 4.0, "Rate_Max": 4.0, "Rate_Unit": "kg/ha",
      "Rate_Basis": "", "Duration_Of_Control": "N/A",
+     "Duration_Min_Days": 0, "Duration_Max_Days": 0,
      "Status": "Withdrawn", "Label_Reference": "SAMPLE DATA ONLY - NOT FOR OPERATIONAL USE",
      "Notes": "Fictional withdrawn product retained for historical treatment records / Withdrawn-status testing only."},
 ]
@@ -437,6 +506,28 @@ products_df.to_csv(OUT_DIR / "products.csv", index=False)
 # quantities below (Application_Rate = midpoint of the labelled range) - not
 # written to products.csv, since the real rate is a range, not one number.
 products_df["_Rate_Mid"] = (products_df["Rate_Min"].astype(float) + products_df["Rate_Max"].astype(float)) / 2
+
+
+def compute_quantity_used(rate_mid, rate_unit, area_ha):
+    """Rough sample-data proxy for how much product a completed treatment
+    used, given the product's rate and the treated area. Handles the two
+    real rate structures now in products.csv (see the products list above):
+      - "...kg/ha..." (ProLink Pellets broadacre rate): quantity = rate * area_ha (kg).
+      - "...per 1 briquet" (ProLink XR Briquets - rate is AREA COVERED PER
+        BRIQUET, i.e. inverse of the other products: a BIGGER rate number
+        means FEWER briquets needed): briquets = (area_ha * 10,000 m2/ha) / rate.
+      - anything else (the fictional withdrawn placeholder): falls back to a
+        generic rate * area proxy for backward compatibility only.
+    """
+    if rate_mid is None:
+        return ""
+    rate_unit_str = str(rate_unit)
+    if "ha" in rate_unit_str:
+        return round(float(rate_mid) * area_ha, 2)
+    if "briquet" in rate_unit_str:
+        area_m2 = area_ha * 10000
+        return round(area_m2 / float(rate_mid))  # whole briquets, roughly
+    return round(float(rate_mid) * max(area_ha * 100, 1) / 10, 1)  # generic fallback proxy
 
 
 # ---------------------------------------------------------------------------
@@ -665,10 +756,7 @@ for season in ALL_SEASONS:
         if status == "Completed":
             actual_date = (planned_date + timedelta(days=int(rng.integers(0, 3)))).strftime("%Y-%m-%d")
             if approved_rate is not None:
-                if "ha" in str(rate_unit):
-                    quantity_used = round(float(approved_rate) * area_ha, 2)
-                else:
-                    quantity_used = round(float(approved_rate) * max(area_ha * 100, 1) / 10, 1)  # rough proxy
+                quantity_used = compute_quantity_used(approved_rate, rate_unit, area_ha)
         elif status == "Cancelled":
             cancelled_reason = rng.choice([
                 "Site access restricted", "Weather unsuitable", "Insufficient surveillance trigger",
@@ -718,7 +806,8 @@ for site_id in hotspot_persistent_sites:
             "Treatment_Status": "Completed", "Treatment_Type": "Larvicide Application",
             "Product_ID": prod["Product_ID"], "Application_Method": prod["Application_Method"],
             "Application_Rate": prod["_Rate_Mid"], "Rate_Unit": prod["Rate_Unit"],
-            "Area_Treated_Ha": area_ha, "Quantity_Used": round(float(prod["_Rate_Mid"]) * area_ha, 2),
+            "Area_Treated_Ha": area_ha,
+            "Quantity_Used": compute_quantity_used(prod["_Rate_Mid"], prod["Rate_Unit"], area_ha),
             "Operator": rng.choice(OFFICERS), "Reason": "Surveillance threshold exceeded",
             "Cancelled_Reason": "", "Notes": "Targeted treatment at known persistent hotspot.",
             "Created_By": SYSTEM_USER, "Created_Date": mid.strftime("%Y-%m-%d"),

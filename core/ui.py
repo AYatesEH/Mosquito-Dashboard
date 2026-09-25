@@ -19,6 +19,7 @@ import streamlit as st
 
 from core.data_source import get_repository
 from core import calculations as calc
+from core import weather_api
 from core.config import (
     APP_TITLE, SAMPLE_DATA_BANNER, STATUS_COLOURS, STATUS_UNKNOWN,
 )
@@ -107,9 +108,43 @@ def sample_data_banner():
     st.markdown(f'<div class="sample-banner">{SAMPLE_DATA_BANNER}</div>', unsafe_allow_html=True)
 
 
-def status_badge_html(status: str) -> str:
-    colour = STATUS_COLOURS.get(status, STATUS_COLOURS[STATUS_UNKNOWN])
+def status_badge_html(status: str, colours: Optional[dict] = None) -> str:
+    colour_map = colours if colours is not None else STATUS_COLOURS
+    colour = colour_map.get(status, STATUS_COLOURS[STATUS_UNKNOWN])
     return f'<span class="status-badge" style="background-color:{colour};">{status}</span>'
+
+
+# ===========================================================================
+# LIVE WEATHER (Open-Meteo, via core/weather_api.py)
+# ===========================================================================
+# Cached here (not in weather_api.py itself) because caching policy is a UI
+# concern - see weather_api.py's module docstring. Short TTL for "current
+# conditions" (changes constantly); longer TTL for a specific date's daily
+# figures (a past date's rainfall/temperature won't change once reported,
+# and even a forecast for a near-future date doesn't need refreshing every
+# few seconds). NOTE: this calls the live Open-Meteo API over the network -
+# it was written and syntax-checked but could not be exercised end-to-end in
+# the sandbox this was built in (outbound network there is restricted to
+# GitHub/package registries only) - the deployed Streamlit Cloud app has
+# normal internet access, so this needs its first real run there to confirm.
+# Every caller MUST check for an "error" key before reading weather fields.
+
+@st.cache_data(show_spinner=False, ttl=600)
+def get_current_weather(lat: float, lon: float) -> dict:
+    return weather_api.fetch_current_conditions(lat, lon)
+
+
+@st.cache_data(show_spinner=False, ttl=3600)
+def get_weather_for_date(lat: float, lon: float, target_date) -> dict:
+    return weather_api.fetch_weather_for_date(lat, lon, target_date)
+
+
+@st.cache_data(show_spinner=False, ttl=1200)
+def get_tide_indicator(lat: float, lon: float) -> dict:
+    """Rough rising/falling tide indicator - see weather_api.fetch_tide_indicator's
+    docstring for the important accuracy caveat, which is also returned in
+    the result under 'caveat' so callers surface it, not just log it."""
+    return weather_api.fetch_tide_indicator(lat, lon)
 
 
 # ===========================================================================

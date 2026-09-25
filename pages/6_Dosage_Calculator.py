@@ -1,5 +1,7 @@
 """Dosage Calculator - transparent product-quantity calculation. SAMPLE DATA ONLY."""
 
+import math
+
 import streamlit as st
 
 from core import ui
@@ -46,6 +48,12 @@ def render():
     st.subheader("2. Enter treatment area / volume and rate")
     rate_unit = product["Rate_Unit"]
     is_area_based = "ha" in rate_unit or "m2" in rate_unit
+    # ProLink XR Briquets' real label rate is the INVERSE of the other
+    # products: "m2 of water surface per 1 briquet" (area covered per unit of
+    # product), not "product per area" like kg/ha. A bigger rate number means
+    # FEWER briquets needed, so the calculation below must divide, not
+    # multiply, for this product - see the note under "3. Calculation".
+    is_inverse_rate = "per 1 briquet" in rate_unit or "per briquet" in rate_unit
 
     c3, c4 = st.columns(2)
     with c3:
@@ -70,6 +78,27 @@ def render():
     st.subheader("3. Calculation")
     if area_value <= 0 or rate_override <= 0:
         st.warning("Enter a treatment area/volume and an application rate greater than zero to calculate.")
+    elif is_inverse_rate:
+        # Rate is "area covered per 1 briquet" - divide area by rate to get
+        # the number of briquets, then round UP (you can't place half a
+        # briquet); the exact figure is shown alongside for transparency.
+        exact_result = area_value / rate_override
+        result = math.ceil(exact_result)
+        st.markdown(
+            f"**Calculation performed (shown for independent verification):**\n\n"
+            f"`{area_value:g} {area_unit_label} ÷ {rate_override:g} {rate_unit} = {exact_result:,.2f} briquets "
+            f"→ rounded up to {result:,} briquet(s)`\n\n"
+            f"(This product's labelled rate is area-covered-per-briquet, not product-per-area, so the area is "
+            f"divided by the rate rather than multiplied - see Rate_Basis above for the label's shallow/deep and "
+            f"species-based rate selection.)"
+        )
+        label = "Estimated product required" if not is_fictional else "Estimated product required (SAMPLE calculation only)"
+        st.success(f"{label}: **{result:,} briquet(s)**")
+        st.caption(
+            "This figure is a direct division of area by rate, rounded up to a whole briquet - no adjustments, "
+            "safety margins or label conditions have been applied. An officer must independently verify against "
+            "the actual, current, verified product label before any real application."
+        )
     else:
         result = area_value * rate_override
         st.markdown(

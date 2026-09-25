@@ -12,13 +12,14 @@ def render():
 
     st.title("Products")
     st.warning(
-        "ProLink Pellets and ProLink XR Briquets (the program's primary S-methoprene larvicides) and VectoBac G "
-        "(secondary Bti knockdown option) use REAL data sourced from product labels/SDS - see Label_Reference "
-        "below for each. The remaining rows (MosquiZap ULV, OldStock Larvicide) are still fictional placeholders, "
-        "clearly marked 'SAMPLE DATA ONLY' in Label_Reference. In production this table would be replaced by a "
-        "centrally managed, verified product/label database maintained by an authorised administrator, so "
-        "officers are never manually entering application rates themselves - and every rate here should still be "
-        "checked against the current APVMA-approved label before operational use."
+        "ProLink Pellets and ProLink XR Briquets (the program's two S-methoprene larvicides) are the only active "
+        "products tracked here - rate, duration and label data is sourced directly from the real, current "
+        "APVMA-approved product labels (see Label_Reference and the APVMA approval number for each). The "
+        "remaining row (OldStock Larvicide) is a fictional withdrawn placeholder, clearly marked 'SAMPLE DATA "
+        "ONLY' in Label_Reference, kept only to exercise Withdrawn-status handling. In production this table "
+        "would be replaced by a centrally managed, verified product/label database maintained by an authorised "
+        "administrator, so officers are never manually entering application rates themselves - and every rate "
+        "here should still be checked against the current APVMA-approved label before operational use."
     )
 
     products = data["products"]

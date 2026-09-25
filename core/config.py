@@ -10,6 +10,7 @@ rates) is sample-only and loaded from CSV so it can later move to an admin
 screen or database table without code changes.
 """
 
+import json
 from pathlib import Path
 
 # --- Paths -------------------------------------------------------------
@@ -18,6 +19,24 @@ DATA_DIR = PROJECT_ROOT / "data" / "raw"
 GIS_DIR = PROJECT_ROOT / "data" / "gis"
 # Real City of Vincent LGA boundary (WA Landgate LGATE-233 dataset).
 VINCENT_BOUNDARY_PATH = GIS_DIR / "city_of_vincent_boundary.geojson"
+
+# Real centroid of the Vincent LGA boundary above - used as a stable
+# "region-wide" coordinate for the live weather feed (core/weather_api.py),
+# since environmental_data.csv models weather as region-wide rather than
+# per-site. Computed the same way data/generate_sample_data.py derives its
+# CENTER_LAT/CENTER_LON, so the two stay consistent.
+with open(VINCENT_BOUNDARY_PATH) as _f:
+    _boundary_geojson = json.load(_f)
+_boundary_ring = _boundary_geojson["features"][0]["geometry"]["coordinates"][0][0]
+VINCENT_CENTER_LAT = round(sum(c[1] for c in _boundary_ring) / len(_boundary_ring), 5)
+VINCENT_CENTER_LON = round(sum(c[0] for c in _boundary_ring) / len(_boundary_ring), 5)
+
+# Site type used for the Swan River foreshore site (Claisebrook Cove) - a
+# real, named location tracked because larvae dipping/larviciding along the
+# river bank is a regular part of the program. Defined here (not just in
+# data/generate_sample_data.py) so pages can identify "the river site" -
+# e.g. to show a tide indicator - without hardcoding the string themselves.
+RIVER_SITE_TYPE = "Swan River Foreshore"
 
 # --- Trap effort ---------------------------------------------------------
 # A "trap night" is counted only for events where the trap was deployed,
@@ -51,6 +70,24 @@ STATUS_COLOURS = {
 DEFAULT_PRE_WINDOW_DAYS = 7
 DEFAULT_POST_WINDOW_DAYS = 7
 MIN_EVENTS_FOR_EFFECTIVENESS = 1  # minimum valid surveillance events required on EACH side of a treatment
+
+# --- Re-dose scheduling (see calculations.estimate_control_window) -----
+# How many days before a treatment's estimated effectiveness window ends it
+# should surface as "due soon" rather than "on track" - lets officers plan
+# the next visit ahead of the larvicide actually lapsing, not after.
+REDOSE_LEAD_DAYS = 14
+
+REDOSE_ON_TRACK = "On track"
+REDOSE_DUE_SOON = "Re-dose due soon"
+REDOSE_OVERDUE = "Re-dose overdue"
+REDOSE_NOT_SCHEDULED = "Not scheduled"  # product has no meaningful residual window (e.g. adulticide, Bti knockdown)
+
+REDOSE_STATUS_COLOURS = {
+    REDOSE_ON_TRACK: "#2E7D32",       # green
+    REDOSE_DUE_SOON: "#F2A900",       # amber
+    REDOSE_OVERDUE: "#C62828",        # red
+    REDOSE_NOT_SCHEDULED: "#9E9E9E",  # grey
+}
 
 # --- Hotspot rules (SAMPLE - configurable, transparent, not predictive) --
 # A site is flagged a "persistent hotspot" if in the last N weeks it recorded

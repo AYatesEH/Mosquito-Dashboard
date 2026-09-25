@@ -87,10 +87,21 @@ mosquito_dashboard/
 **The City of Vincent boundary is real, not sample data.** `data/gis/city_of_vincent_boundary.geojson` is the
 actual City of Vincent LGA polygon, extracted from WA Landgate's public "Local Government Area (LGA) Boundaries"
 dataset (LGATE-233, GDA2020, supplied directly as a download from data.wa.gov.au). It's drawn as an outline on
-the Map page, and `data/generate_sample_data.py` also uses it to rejection-sample every randomly generated site
-so each one genuinely falls inside the real council boundary (not just a rough bounding box) - see
-`random_point_in_vincent()` in that file. The one exception is the Swan River site (Claisebrook Cove), which is
-deliberately placed just outside the boundary, matching its real position.
+the Map page. `random_point_in_vincent()` in `data/generate_sample_data.py` (a point-in-polygon rejection
+sampler against this boundary) is still used for a couple of incidental random points (the "no site" complaint
+fallback location), but the 21 monitored sites themselves are no longer randomly generated inside the boundary -
+see below.
+
+**Sites are real, named City of Vincent parks/reserves, not invented names.** `REAL_SITES` in
+`data/generate_sample_data.py` lists 21 real public open spaces (Hyde Park, Robertson Park, Smiths Lake Reserve,
+Braithwaite Park, Beatty Park Reserve, and so on), sourced from vincent.wa.gov.au's own Parks & Facilities
+directory, with coordinates from a places lookup and each one verified to fall inside the real LGA boundary
+above. `Site_Type` per park is an *inferred* likely breeding-habitat category (stormwater drainage, retention
+basin, etc.) for demo purposes - not a confirmed council asset record - except for Hyde Park and Smiths Lake
+Reserve, which both have a real, permanent lake (Smiths Lake Reserve is a former drainage reservoir). The
+Swan River site (Claisebrook Cove) remains the one site deliberately placed just outside the LGA boundary,
+matching its real position. All trap results, treatments, complaints, and observations tied to these sites are
+still entirely synthetic - only the site names/locations are real.
 
 **Why it's split this way:** a page file only ever calls into `core/` - it never reads a CSV, computes a
 trap-night figure, or decides whether a site is "Elevated" itself. That logic lives once, in `core/`, so every
@@ -157,6 +168,35 @@ every function has a docstring and nothing here talks to Streamlit.
 - **Data quality** (`data_quality_report`): a fixed set of checks (missing coordinates, orphaned foreign keys,
   retrieval-before-deployment, negative counts, missing species, zero-area completed treatments, and more) that
   only ever **report** - nothing is auto-corrected.
+- **Re-dose scheduling** (`estimate_control_window`, `treatment_redose_schedule`): for a larvicide treatment,
+  linearly interpolates a control-window duration between the product's `Duration_Min_Days` (at `Rate_Min`) and
+  `Duration_Max_Days` (at `Rate_Max`) for the rate actually used, then works out an effective-until date and a
+  re-dose-due date (`REDOSE_LEAD_DAYS` before that, configurable in `core/config.py`). `treatment_redose_schedule`
+  runs this for every site's most recent completed larvicide application and is surfaced on the Treatments page's
+  "Re-dose schedule" tab (KPIs + sortable table) and as a live preview on the "Record a treatment" form. This is
+  a genuinely working feature (not sample/fictional), but its output is only as good as the underlying product
+  duration data - see Section 5. **Note:** because both real products now have a fixed (not rate-dependent)
+  labelled duration (30 days for ProLink Pellets, 150 for XR Briquets - see Section 5), the interpolation always
+  resolves to that fixed number; the machinery still supports a genuine rate-dependent range if a future product
+  needs it.
+- **Live weather** (`core/weather_api.py`, wrapped/cached in `core/ui.py`): calls the free, no-API-key
+  Open-Meteo API to auto-populate current conditions (Environmental Conditions page) and historical/forecast
+  weather for a specific site/date (Treatments form preview) - no manual searching or data entry needed. Written
+  and syntax-checked against Open-Meteo's published API docs, but **could not be exercised against the live
+  API from the sandbox this was built in** (its outbound network is restricted to GitHub/package registries
+  only) - the deployed Streamlit Cloud app has normal internet access, so this needs its first real run there to
+  confirm the response shape matches. Every call checks for an `"error"` key before reading fields and degrades
+  to a plain message rather than crashing the page if the lookup fails.
+- **Tide indicator** (`weather_api.fetch_tide_indicator`): a rough rising/falling sea-level indicator for the
+  Swan River foreshore site, via Open-Meteo's free Marine Weather API - added because there is **no free,
+  no-API-key source of accurate real Swan River tide data**. WA Dept of Transport publishes only an interactive
+  real-time chart and static annual PDF tables (not a queryable API) for its Perth (Barrack St) station, and
+  BOM has no official public API either. Open-Meteo's marine model is ~8km-resolution open ocean data and is
+  explicitly documented as not accurate for narrow estuaries like the Swan River (which is tidally dampened and
+  lagged behind the ocean entrance at Fremantle) - so this is shown ONLY as a rough trend/next-turn indicator,
+  with a prominent on-screen caveat every time it's displayed (Site Detail and Environmental Conditions pages),
+  never as an authoritative water level. An officer timing river-bank work should confirm against WA DoT's real
+  station before acting on it.
 
 ---
 
@@ -164,26 +204,43 @@ every function has a docstring and nothing here talks to Streamlit.
 
 Marked clearly in the app itself (banners on the relevant pages), but to be explicit:
 
-- **Real, sourced from WA Dept of Health / manufacturer product labels - confirm current details before
-  operational use:** the six mosquito species on the Species Reference page (breeding habitat, biting
-  behaviour, seasonal characteristics and vector significance, sourced from WA Health's "Common mosquitoes in
-  Western Australia"); the two primary larvicides on the Products/Dosage Calculator pages, ProLink Pellets and
-  ProLink XR Briquets (S-methoprene, active ingredient/application-rate range/duration sourced from product
-  labels and SDS - see each product's `Label_Reference`); VectoBac G (Bti), kept as a secondary/knockdown
-  option. Rates are shown as ranges (not one fixed number) because the real labelled rate genuinely depends on
-  site conditions - always verify the exact current APVMA-approved label before any real application.
-- **Sample/fictional, must be replaced before any real use:** action thresholds, program targets, the two
-  remaining placeholder products (an adulticide and a withdrawn product - out of scope for the species/larvicide
-  update above), and the dosage calculator's arithmetic itself (a plain area x rate multiplication, with no
-  safety margins or label conditions applied).
-- **Realistic but synthetic:** every trap result, treatment, complaint, environmental reading, and 24 of the 25
-  sites - none of it is real council data, and those site names/exact coordinates are invented (though
-  clustered around real City of Vincent/North Perth coordinates rather than an arbitrary point).
+- **Real, sourced directly from the actual APVMA-approved product labels (supplied by the person) and WA Dept
+  of Health - confirm current details before operational use:** the six mosquito species on the Species
+  Reference page (breeding habitat, biting behaviour, seasonal characteristics and vector significance, sourced
+  from WA Health's "Common mosquitoes in Western Australia"); the two products tracked on the
+  Products/Dosage Calculator pages - ProLink Pellets (Active Constituent 40 g/kg (S)-methoprene, APVMA Approval
+  No. 58064/1/0705) and ProLink XR Briquets (18 g/kg (S)-methoprene, APVMA Approval No. 58061/100/0505) - whose
+  rate, duration-of-control and application-method fields are transcribed directly from the real labels, not a
+  retailer/third-party approximation. Rates are shown as ranges (not one fixed number) because the real labelled
+  rate genuinely depends on site conditions (water depth, organic load, larval counts) - see each product's
+  `Rate_Basis` and always verify the exact current APVMA-approved label before any real application, since
+  labels are periodically reissued. Note: ProLink XR Briquets' labelled rate is area-covered-per-briquet
+  (inverse of the other product's product-per-area rate) - the Dosage Calculator divides rather than multiplies
+  for this product accordingly.
+- **Removed from the dashboard on request:** the fictional adulticide ("MosquiZap ULV") and the real
+  secondary/knockdown product ("VectoBac G") were both deliberately removed - the program tracks only the two
+  S-methoprene ProLink products above.
+- **Sample/fictional, must be replaced before any real use:** action thresholds, program targets, the one
+  remaining placeholder product (a withdrawn product, kept only to exercise Withdrawn-status handling), and the
+  dosage calculator's arithmetic itself (a plain area x rate multiplication/division, with no safety margins or
+  label conditions applied).
+- **Real, named locations - synthetic activity data:** the 21 inland sites are real, named City of Vincent
+  parks and reserves (Hyde Park, Robertson Park, Smiths Lake Reserve, Braithwaite Park, Beatty Park Reserve, and
+  so on - see `REAL_SITES` in `data/generate_sample_data.py`), sourced from vincent.wa.gov.au's own Parks &
+  Facilities directory with coordinates from a places lookup, each verified to fall inside the real LGA
+  boundary. `Site_Type` (the inferred breeding-habitat category monitored there) is a plausible inference for
+  demo purposes, not a confirmed council asset record, except for Hyde Park and Smiths Lake Reserve, which both
+  have a real, permanent lake. Every trap result, treatment, complaint, environmental reading and observation
+  tied to these sites is still entirely synthetic - only the site names/locations are real.
 - **Real, specific location:** one site, "Claisebrook Cove Foreshore (Swan River)", uses real coordinates for
   a real, named Swan River bank location - added because larvae dipping/larviciding along the river bank is a
   regular, named part of the program.
 - **Real geographic boundary:** the City of Vincent LGA outline shown on the Map page is the actual council
   boundary (WA Landgate LGATE-233), not an approximation - see the note in Section 2.
+- **Real, live (not sample) data:** the "Live conditions now" panel (Environmental Conditions page) and the
+  weather auto-populated on the Treatments form are genuine live API calls to Open-Meteo, not sample data - see
+  Section 4. The tide indicator is also a live API call, but is explicitly a rough approximation, not accurate
+  real data - see Section 4's caveat before relying on it for anything.
 
 ---
 

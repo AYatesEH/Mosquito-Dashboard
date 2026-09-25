@@ -33,6 +33,11 @@ from core.config import (
     HOTSPOT_MIN_ELEVATED_WEEKS,
     HOTSPOT_MIN_COMPLAINTS,
     HOTSPOT_MIN_TREATMENTS,
+    REDOSE_LEAD_DAYS,
+    REDOSE_ON_TRACK,
+    REDOSE_DUE_SOON,
+    REDOSE_OVERDUE,
+    REDOSE_NOT_SCHEDULED,
 )
 
 
@@ -242,6 +247,135 @@ def assess_treatment_effectiveness(
         "Observed change associated with the treatment window; not a causal claim. "
         "Weather, tides and surveillance effort may also have contributed."
     )
+
+
+# ===========================================================================
+# RE-DOSE / EFFECTIVENESS-WINDOW SCHEDULING
+# ===========================================================================
+# A larvicide's labelled rate is a RANGE (see products.csv Rate_Min/Rate_Max),
+# and the real duration of control genuinely depends on where in that range
+# the officer actually dosed (see Duration_Min_Days/Duration_Max_Days on the
+# same row) - so the estimated re-dose date is calculated per treatment, not
+# looked up as one fixed number per product.
+
+@dataclass
+class ControlWindowResult:
+    duration_days: Optional[float]
+    effective_until: Optional[pd.Timestamp]     # estimated date control lapses
+    redose_due: Optional[pd.Timestamp]          # effective_until minus the lead buffer
+    status: str
+    note: str
+
+
+def estimate_control_window(
+    product_row: pd.Series,
+    rate_used: Optional[float],
+    treatment_date: pd.Timestamp,
+    as_of: Optional[pd.Timestamp] = None,
+    lead_days: int = REDOSE_LEAD_DAYS,
+) -> ControlWindowResult:
+    """
+    Estimates when a single larvicide application's control window ends and
+    when the site should be re-dosed, by linearly interpolating between the
+    product's Duration_Min_Days (at Rate_Min) and Duration_Max_Days (at
+    Rate_Max) for the rate actually used.
+
+    Returns REDOSE_NOT_SCHEDULED (no duration/date maths attempted) when the
+    product has no meaningful residual window (Duration_Min/Max_Days both 0,
+    e.g. an adulticide) or when required inputs are missing - callers should
+    treat that as "re-treatment is a surveillance/complaint decision, not a
+    scheduled one", not as an error.
+    """
+    if pd.isna(treatment_date):
+        return ControlWindowResult(None, None, None, REDOSE_NOT_SCHEDULED,
+                                    "No treatment date recorded.")
+
+    dur_min = product_row.get("Duration_Min_Days")
+    dur_max = product_row.get("Duration_Max_Days")
+    rate_min = product_row.get("Rate_Min")
+    rate_max = product_row.get("Rate_Max")
+    if pd.isna(dur_min) or pd.isna(dur_max) or (float(dur_min) == 0 and float(dur_max) == 0):
+        return ControlWindowResult(None, None, None, REDOSE_NOT_SCHEDULED,
+                                    "This product has no meaningful residual control window (e.g. an adulticide) "
+                                    "- re-treatment should be driven by surveillance/complaints, not a timer.")
+
+    dur_min, dur_max = float(dur_min), float(dur_max)
+    if rate_used is None or pd.isna(rate_used) or pd.isna(rate_min) or pd.isna(rate_max) or float(rate_max) == float(rate_min):
+        duration_days = (dur_min + dur_max) / 2.0  # can't interpolate - use the midpoint
+    else:
+        rate_min, rate_max, rate_used = float(rate_min), float(rate_max), float(rate_used)
+        frac = (rate_used - rate_min) / (rate_max - rate_min)
+        frac = min(max(frac, 0.0), 1.0)  # clamp - a rate outside the labelled range doesn't extrapolate duration
+        duration_days = dur_min + frac * (dur_max - dur_min)
+
+    effective_until = treatment_date + timedelta(days=duration_days)
+    redose_due = effective_until - timedelta(days=lead_days)
+    if redose_due < treatment_date:
+        redose_due = treatment_date  # never recommend re-dosing before the treatment even happened
+
+    reference = as_of if as_of is not None else pd.Timestamp.now().normalize()
+    if reference >= effective_until:
+        status = REDOSE_OVERDUE
+    elif reference >= redose_due:
+        status = REDOSE_DUE_SOON
+    else:
+        status = REDOSE_ON_TRACK
+
+    return ControlWindowResult(
+        round(duration_days, 1), effective_until, redose_due, status,
+        f"Estimated {duration_days:.0f}-day control window from the rate used, interpolated between this "
+        f"product's labelled Rate_Min/Rate_Max. CONFIRM against the current APVMA label and site conditions - "
+        f"this is a planning estimate, not a guarantee of ongoing control."
+    )
+
+
+def treatment_redose_schedule(
+    treatments: pd.DataFrame,
+    products: pd.DataFrame,
+    as_of: pd.Timestamp,
+    lead_days: int = REDOSE_LEAD_DAYS,
+) -> pd.DataFrame:
+    """
+    For every site, looks at its MOST RECENT completed 'Larvicide Application'
+    treatment only (an older one is superseded once a newer one is logged)
+    and estimates its control window. Returns one row per site that has at
+    least one completed larvicide treatment, with columns: Site_ID,
+    Treatment_ID, Product_ID, Product_Name, Treatment_Date, Rate_Used,
+    Rate_Unit, Duration_Days, Effective_Until, Redose_Due, Status, Note.
+    Sites where the product has no residual window (REDOSE_NOT_SCHEDULED)
+    are still included, since that's operationally meaningful ("no timer
+    applies here"), not an absence of data - callers can filter them out.
+    """
+    larvicide = treatments[
+        (treatments["Treatment_Type"] == "Larvicide Application") &
+        (treatments["Treatment_Status"] == "Completed") &
+        treatments["Treatment_Date"].notna() &
+        treatments["Product_ID"].notna() & (treatments["Product_ID"] != "")
+    ].copy()
+    if larvicide.empty:
+        return pd.DataFrame(columns=["Site_ID", "Treatment_ID", "Product_ID", "Product_Name", "Treatment_Date",
+                                      "Rate_Used", "Rate_Unit", "Duration_Days", "Effective_Until", "Redose_Due",
+                                      "Status", "Note"])
+
+    latest_idx = larvicide.sort_values("Treatment_Date").groupby("Site_ID")["Treatment_Date"].idxmax()
+    latest = larvicide.loc[latest_idx]
+
+    rows = []
+    for _, t in latest.iterrows():
+        prod_rows = products[products["Product_ID"] == t["Product_ID"]]
+        if prod_rows.empty:
+            continue
+        prod = prod_rows.iloc[0]
+        rate_used = t.get("Application_Rate")
+        result = estimate_control_window(prod, rate_used, t["Treatment_Date"], as_of=as_of, lead_days=lead_days)
+        rows.append({
+            "Site_ID": t["Site_ID"], "Treatment_ID": t["Treatment_ID"], "Product_ID": t["Product_ID"],
+            "Product_Name": prod["Product_Name"], "Treatment_Date": t["Treatment_Date"],
+            "Rate_Used": rate_used, "Rate_Unit": t.get("Rate_Unit"),
+            "Duration_Days": result.duration_days, "Effective_Until": result.effective_until,
+            "Redose_Due": result.redose_due, "Status": result.status, "Note": result.note,
+        })
+    return pd.DataFrame(rows)
 
 
 # ===========================================================================

@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from core import ui, calculations as calc
+from core.config import VINCENT_CENTER_LAT, VINCENT_CENTER_LON, RIVER_SITE_TYPE
 
 
 def render():
@@ -15,10 +16,43 @@ def render():
     st.title("Environmental Conditions")
     ui.sample_data_banner()
     st.caption(
-        "Environmental readings are SAMPLE/synthetic and region-wide (not site-specific) for this prototype. "
-        "Designed so an automated weather/tidal feed could replace this data source later without changing "
-        "any other page (see core/data_source.py)."
+        "The historical charts below remain SAMPLE/synthetic and region-wide (not site-specific). The panel "
+        "immediately below, however, is LIVE, real data from a free weather API (Open-Meteo) - no manual "
+        "searching/entry needed."
     )
+
+    # --- Live conditions now (real data, Open-Meteo) -----------------------
+    st.subheader("Live conditions now")
+    live = ui.get_current_weather(VINCENT_CENTER_LAT, VINCENT_CENTER_LON)
+    if "error" in live:
+        st.info(f"Live weather unavailable right now: {live['error']}")
+    else:
+        lc1, lc2, lc3, lc4 = st.columns(4)
+        lc1.metric("Temperature", f"{live['temperature_c']:g}°C" if live["temperature_c"] is not None else "-")
+        lc2.metric("Humidity", f"{live['humidity_pct']:g}%" if live["humidity_pct"] is not None else "-")
+        lc3.metric("Wind speed", f"{live['wind_speed_kmh']:g} km/h" if live["wind_speed_kmh"] is not None else "-")
+        lc4.metric("Today's rainfall", f"{live['today_rainfall_mm']:g} mm" if live["today_rainfall_mm"] is not None else "-")
+        st.caption(f"Observed at {live['observed_at']} (Open-Meteo, live, region-wide - Vincent LGA centroid). No API key required.")
+
+    river_site = data["sites"][data["sites"]["Site_Type"] == RIVER_SITE_TYPE]
+    if not river_site.empty:
+        river_row = river_site.iloc[0]
+        with st.expander(f"Tide indicator - {river_row['Site_Name']} (rough approximation only - read before using)"):
+            tide = ui.get_tide_indicator(river_row["Latitude"], river_row["Longitude"])
+            if "error" in tide:
+                st.info(f"Tide indicator unavailable right now: {tide['error']}")
+            else:
+                st.error(tide["caveat"])
+                tc1, tc2, tc3 = st.columns(3)
+                tc1.metric("Sea level (rough)", f"{tide['sea_level_m']:g} m" if tide["sea_level_m"] is not None else "-")
+                tc2.metric("Trend", tide["trend"] or "-")
+                tc3.metric(
+                    f"Next {tide['next_turn_type'] or 'turn'}",
+                    tide["next_turn_time"].split("T")[-1] if tide["next_turn_time"] else "-",
+                )
+                st.caption(f"Observed at {tide['observed_at']} (Open-Meteo Marine API, live).")
+
+    st.divider()
 
     env = data["environmental"]
     env_f = env[
