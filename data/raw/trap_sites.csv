@@ -1,0 +1,30 @@
+Trap_ID,Site_ID,Trap_Type,Trap_Status,Install_Date,Notes,Created_By,Created_Date
+TRP-001,ST-001,EVS (CO2-baited),Active,2023-01-11,,data_generator,2023-10-01
+TRP-002,ST-002,Gravid Trap,Active,2023-04-12,,data_generator,2023-10-01
+TRP-003,ST-002,Gravid Trap,Active,2023-09-05,,data_generator,2023-10-01
+TRP-004,ST-003,EVS (CO2-baited),Active,2023-05-16,,data_generator,2023-10-01
+TRP-005,ST-004,CDC Light Trap,Active,2023-08-12,,data_generator,2023-10-01
+TRP-006,ST-004,EVS (CO2-baited),Active,2023-02-04,,data_generator,2023-10-01
+TRP-007,ST-006,BG-Sentinel,Active,2022-09-26,,data_generator,2023-10-01
+TRP-008,ST-006,Gravid Trap,Active,2023-02-07,,data_generator,2023-10-01
+TRP-009,ST-007,CDC Light Trap,Active,2023-02-03,,data_generator,2023-10-01
+TRP-010,ST-008,EVS (CO2-baited),Active,2022-09-13,,data_generator,2023-10-01
+TRP-011,ST-008,BG-Sentinel,Active,2023-03-17,,data_generator,2023-10-01
+TRP-012,ST-009,EVS (CO2-baited),Active,2023-08-20,,data_generator,2023-10-01
+TRP-013,ST-010,CDC Light Trap,Active,2023-03-14,,data_generator,2023-10-01
+TRP-014,ST-011,EVS (CO2-baited),Active,2023-02-11,,data_generator,2023-10-01
+TRP-015,ST-012,Gravid Trap,Active,2023-06-09,,data_generator,2023-10-01
+TRP-016,ST-013,CDC Light Trap,Active,2023-03-02,,data_generator,2023-10-01
+TRP-017,ST-014,BG-Sentinel,Active,2023-09-13,,data_generator,2023-10-01
+TRP-018,ST-015,EVS (CO2-baited),Active,2022-10-07,,data_generator,2023-10-01
+TRP-019,ST-016,BG-Sentinel,Active,2023-02-17,,data_generator,2023-10-01
+TRP-020,ST-016,BG-Sentinel,Active,2023-08-10,,data_generator,2023-10-01
+TRP-021,ST-017,EVS (CO2-baited),Active,2023-06-04,,data_generator,2023-10-01
+TRP-022,ST-018,CDC Light Trap,Active,2022-12-12,,data_generator,2023-10-01
+TRP-023,ST-019,BG-Sentinel,Active,2023-08-10,,data_generator,2023-10-01
+TRP-024,ST-020,Gravid Trap,Active,2023-06-24,,data_generator,2023-10-01
+TRP-025,ST-021,EVS (CO2-baited),Active,2023-02-17,,data_generator,2023-10-01
+TRP-026,ST-021,CDC Light Trap,Active,2023-04-30,,data_generator,2023-10-01
+TRP-027,ST-022,BG-Sentinel,Active,2022-11-10,,data_generator,2023-10-01
+TRP-028,ST-023,EVS (CO2-baited),Active,2022-09-15,,data_generator,2023-10-01
+TRP-029,ST-024,CDC Light Trap,Active,2023-03-05,,data_generator,2023-10-01

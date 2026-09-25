@@ -1,0 +1,25 @@
+Site_ID,Site_Name,Site_Type,Latitude,Longitude,Status,Description,Notes,Created_By,Created_Date,Modified_By,Modified_Date
+ST-001,Cooper's Wetland,Saltmarsh,-31.75823,115.84499,Active,Saltmarsh monitored for mosquito breeding and adult activity.,,data_generator,2022-01-03,data_generator,2022-01-03
+ST-002,Egret Reserve,Urban Stormwater,-31.61706,116.13503,Active,Urban Stormwater monitored for mosquito breeding and adult activity.,,data_generator,2023-05-13,data_generator,2023-05-13
+ST-003,Lower Reserve,Retention Basin,-32.04044,116.28409,Active,Retention Basin monitored for mosquito breeding and adult activity.,,data_generator,2021-09-16,data_generator,2021-09-16
+ST-004,Heron Lagoon,Rural Drain,,,Active,Rural Drain monitored for mosquito breeding and adult activity.,,data_generator,2021-09-11,data_generator,2021-09-11
+ST-005,Curlew Swamp,Retention Basin,-31.76934,115.76907,Inactive,Retention Basin monitored for mosquito breeding and adult activity.,,data_generator,2021-07-16,data_generator,2021-07-16
+ST-006,Brolga Channel,Urban Stormwater,-32.16375,115.87005,Active,Urban Stormwater monitored for mosquito breeding and adult activity.,,data_generator,2023-04-20,data_generator,2023-04-20
+ST-007,Northgate Reserve,Parkland Lake,-31.77867,116.32076,Active,Parkland Lake monitored for mosquito breeding and adult activity.,,data_generator,2022-10-14,data_generator,2022-10-14
+ST-008,Lower Channel,Tidal Drain,-32.16737,115.56693,Active,Tidal Drain monitored for mosquito breeding and adult activity.,,data_generator,2023-02-16,data_generator,2023-02-16
+ST-009,Mangrove Swamp,Saltmarsh,-31.99399,116.19941,Active,Saltmarsh monitored for mosquito breeding and adult activity.,,data_generator,2022-12-04,data_generator,2022-12-04
+ST-010,Old Ferry Wetland,Freshwater Wetland,-31.73666,115.79873,Active,Freshwater Wetland monitored for mosquito breeding and adult activity.,,data_generator,2022-01-16,data_generator,2022-01-16
+ST-011,Claypan Channel,Rural Drain,-32.16006,115.45663,Active,Rural Drain monitored for mosquito breeding and adult activity.,,data_generator,2022-01-31,data_generator,2022-01-31
+ST-012,Tern Wetland,Saltmarsh,-31.75349,115.86302,Active,Saltmarsh monitored for mosquito breeding and adult activity.,,data_generator,2023-05-03,data_generator,2023-05-03
+ST-013,Lower Lagoon,Saltmarsh,-31.83212,115.87399,Active,Saltmarsh monitored for mosquito breeding and adult activity.,,data_generator,2021-11-05,data_generator,2021-11-05
+ST-014,Sandpiper Reserve,Urban Stormwater,-31.91249,115.95329,Active,Urban Stormwater monitored for mosquito breeding and adult activity.,,data_generator,2023-08-06,data_generator,2023-08-06
+ST-015,Pelican Creek,Saltmarsh,-32.14979,115.81768,Active,Saltmarsh monitored for mosquito breeding and adult activity.,,data_generator,2023-02-10,data_generator,2023-02-10
+ST-016,Sanctuary Swamp,Freshwater Wetland,-32.10303,115.71423,Active,Freshwater Wetland monitored for mosquito breeding and adult activity.,,data_generator,2022-05-05,data_generator,2022-05-05
+ST-017,Sandpiper Creek,Tidal Drain,-31.83498,115.81575,Active,Tidal Drain monitored for mosquito breeding and adult activity.,,data_generator,2023-04-09,data_generator,2023-04-09
+ST-018,Fig Tree Marsh,Estuarine Fringe,-32.23697,116.10012,Active,Estuarine Fringe monitored for mosquito breeding and adult activity.,,data_generator,2023-04-14,data_generator,2023-04-14
+ST-019,Tern Basin,Freshwater Wetland,-32.19338,116.07669,Active,Freshwater Wetland monitored for mosquito breeding and adult activity.,,data_generator,2022-10-05,data_generator,2022-10-05
+ST-020,Sandpiper Inlet,Tidal Drain,-31.8588,115.77563,Active,Tidal Drain monitored for mosquito breeding and adult activity.,,data_generator,2023-05-22,data_generator,2023-05-22
+ST-021,Heron Swamp,Rural Drain,-31.66399,116.07974,Active,Rural Drain monitored for mosquito breeding and adult activity.,,data_generator,2021-05-11,data_generator,2021-05-11
+ST-022,Ibis Point,Saltmarsh,-31.79818,115.85443,Active,Saltmarsh monitored for mosquito breeding and adult activity.,,data_generator,2023-06-10,data_generator,2023-06-10
+ST-023,Lower Drain,Rural Drain,-31.98096,115.63213,Active,Rural Drain monitored for mosquito breeding and adult activity.,,data_generator,2022-04-16,data_generator,2022-04-16
+ST-024,Bluegum Lagoon,Estuarine Fringe,-31.70037,116.13267,Active,Estuarine Fringe monitored for mosquito breeding and adult activity.,,data_generator,2022-08-22,data_generator,2022-08-22

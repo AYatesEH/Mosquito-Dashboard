@@ -1,0 +1,6 @@
+Product_ID,Product_Name,Active_Ingredient,Application_Method,Approved_Rate,Rate_Unit,Status,Label_Reference,Notes
+PRD-01,AquaLarv 100G (fictional),Fictional-BTI-Analog,Granular - hand/spreader,5.0,kg/ha,Active,SAMPLE DATA ONLY - NOT FOR OPERATIONAL USE,Fictional larvicide granule for prototype demonstration only.
+PRD-02,LarvaClear XR (fictional),Fictional-Methoprene-Analog,Briquette - hand placement,2.0,briquettes/100 m2,Active,SAMPLE DATA ONLY - NOT FOR OPERATIONAL USE,Fictional extended-release larvicide for prototype demonstration only.
+PRD-03,MosquiZap ULV (fictional),Fictional-Pyrethroid-Analog,ULV - truck-mounted cold fog,0.5,L/ha,Active,SAMPLE DATA ONLY - NOT FOR OPERATIONAL USE,Fictional adulticide for prototype demonstration only.
+PRD-04,BactiRing WSP (fictional),Fictional-BTI-Analog,Water-soluble pouch - hand placement,1.0,pouch/50 m2,Active,SAMPLE DATA ONLY - NOT FOR OPERATIONAL USE,Fictional larvicide pouch for prototype demonstration only.
+PRD-05,OldStock Larvicide (fictional),Fictional-Discontinued-Compound,Granular - hand/spreader,4.0,kg/ha,Withdrawn,SAMPLE DATA ONLY - NOT FOR OPERATIONAL USE,Fictional withdrawn product retained for historical treatment records only.
