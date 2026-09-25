@@ -60,7 +60,24 @@ def build_operational_map(
     # previously showed an "API key required" message instead of a basemap.
     # "OpenStreetMap" is folium's built-in default tile source and needs no
     # key/account - it's the right choice for an internal prototype like this.
-    fmap = folium.Map(location=center, zoom_start=13, tiles="OpenStreetMap")
+    # tiles=None here because we add OSM and satellite as two selectable base
+    # layers below instead (folium only lets the *first* added tile layer be
+    # passed via the `tiles=` shortcut).
+    fmap = folium.Map(location=center, zoom_start=13, tiles=None)
+    folium.TileLayer(
+        tiles="OpenStreetMap", name="Street map", control=True, overlay=False, show=True,
+    ).add_to(fmap)
+    # Esri World Imagery: a free, publicly available satellite/aerial basemap
+    # that needs no API key or account (standard choice for this - the same
+    # basis on which the OpenStreetMap layer above is used). Resolution is
+    # good for most of WA but is a global mosaic, not WA's own more current
+    # Landgate aerial photography - see README for how to swap in council/
+    # state GIS layers once their exact service endpoint is known.
+    folium.TileLayer(
+        tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        attr="Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
+        name="Satellite imagery", control=True, overlay=False, show=False,
+    ).add_to(fmap)
 
     hotspot_site_ids = hotspot_site_ids or set()
     status_lookup = {}
