@@ -31,6 +31,45 @@ _boundary_ring = _boundary_geojson["features"][0]["geometry"]["coordinates"][0][
 VINCENT_CENTER_LAT = round(sum(c[1] for c in _boundary_ring) / len(_boundary_ring), 5)
 VINCENT_CENTER_LON = round(sum(c[0] for c in _boundary_ring) / len(_boundary_ring), 5)
 
+# Discrete, LABEL-DEFINED rate options for the two real S-methoprene
+# products, transcribed exactly from the APVMA-approved labels (see each
+# product's Rate_Basis/Label_Reference in products.csv for the full text).
+# Both labels define the rate as a straight choice between exactly two site
+# conditions - never a number in between - so the Treatments "Record a
+# treatment" form uses this to make an officer pick the site condition and
+# get the exact labelled rate, rather than typing a free-form number that
+# might not actually be on the label. Keyed by Product_ID; each value is a
+# list of (site-condition description, exact rate) tuples in the product's
+# own Rate_Unit.
+LABEL_RATE_OPTIONS = {
+    "PRD-01": [  # ProLink Pellets - kg/ha
+        ("Shallow (<30cm), clean water, low larval counts (<10/dip)", 3.0),
+        ("Deep (>30cm), organic/sediment-rich water, high larval counts (>10/dip), "
+         "or the target is specifically Culex sitiens", 4.0),
+    ],
+    "PRD-02": [  # ProLink XR Briquets - m2 of water surface per 1 briquet
+        ("Shallow (<30cm), clean water, low larval counts (<10/dip) - Ochlerotatus/Aedes vigilax", 20.0),
+        ("Deep (>30cm), organic/sediment-rich water, high larval counts (>10/dip), "
+         "or all other mosquito species", 10.0),
+    ],
+}
+
+# Unit that Quantity_Used is RECORDED in for each active real product -
+# chosen to match how officers actually count/measure product in the field
+# (whole briquets, grams of pellets), which is deliberately NOT the same as
+# the product's Rate_Unit above (a per-area/per-water-surface APPLICATION
+# RATE, e.g. "kg/ha" or "m2 of water surface per 1 briquet"). Used to label
+# the Quantity_Used input/auto-suggestion on the Treatments "Record a
+# treatment" form, and anywhere Quantity_Used is displayed, so the two
+# different-looking units for the same product are never mistaken for one
+# another. Keyed by Product_ID; a product not listed here (e.g. the
+# fictional withdrawn product) has no fixed recording unit and is entered as
+# a plain number.
+QUANTITY_USED_UNITS = {
+    "PRD-01": "g",           # ProLink Pellets - grams of product applied
+    "PRD-02": "briquet(s)",  # ProLink XR Briquets - whole briquets used
+}
+
 # Site type used for the Swan River foreshore site (Claisebrook Cove) - a
 # real, named location tracked because larvae dipping/larviciding along the
 # river bank is a regular part of the program. Defined here (not just in

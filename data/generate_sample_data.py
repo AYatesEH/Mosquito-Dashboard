@@ -21,6 +21,7 @@ Relational model (see README.md for full description):
 """
 
 import json
+import math
 
 import numpy as np
 import pandas as pd
@@ -516,11 +517,17 @@ products_df["_Rate_Mid"] = (products_df["Rate_Min"].astype(float) + products_df[
 def compute_quantity_used(rate_mid, rate_unit, area_ha):
     """Rough sample-data proxy for how much product a completed treatment
     used, given the product's rate and the treated area. Handles the two
-    real rate structures now in products.csv (see the products list above):
-      - "...kg/ha..." (ProLink Pellets broadacre rate): quantity = rate * area_ha (kg).
+    real rate structures now in products.csv (see the products list above),
+    each recorded in the unit an officer would actually count/measure in the
+    field (see core.config.QUANTITY_USED_UNITS) rather than the rate's own
+    unit:
+      - "...kg/ha..." (ProLink Pellets broadacre rate): quantity = rate *
+        area_ha, converted kg -> GRAMS and rounded to a whole gram.
       - "...per 1 briquet" (ProLink XR Briquets - rate is AREA COVERED PER
         BRIQUET, i.e. inverse of the other products: a BIGGER rate number
-        means FEWER briquets needed): briquets = (area_ha * 10,000 m2/ha) / rate.
+        means FEWER briquets needed): briquets = ceil((area_ha * 10,000
+        m2/ha) / rate) - a whole number, since you can't place half a
+        briquet (matches the Dosage Calculator's rounding).
       - anything else (the fictional withdrawn placeholder): falls back to a
         generic rate * area proxy for backward compatibility only.
     """
@@ -528,10 +535,11 @@ def compute_quantity_used(rate_mid, rate_unit, area_ha):
         return ""
     rate_unit_str = str(rate_unit)
     if "ha" in rate_unit_str:
-        return round(float(rate_mid) * area_ha, 2)
+        kg = float(rate_mid) * area_ha
+        return round(kg * 1000)  # grams, whole number
     if "briquet" in rate_unit_str:
         area_m2 = area_ha * 10000
-        return round(area_m2 / float(rate_mid))  # whole briquets, roughly
+        return math.ceil(area_m2 / float(rate_mid))  # whole briquets
     return round(float(rate_mid) * max(area_ha * 100, 1) / 10, 1)  # generic fallback proxy
 
 

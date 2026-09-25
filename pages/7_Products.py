@@ -3,6 +3,7 @@
 import streamlit as st
 
 from core import ui
+from core.config import QUANTITY_USED_UNITS
 
 
 def render():
@@ -43,7 +44,10 @@ def render():
     c1, c2, c3 = st.columns(3)
     c1.metric("Times used (completed treatments)", len(used))
     c2.metric("Total area treated (ha)", f"{used['Area_Treated_Ha'].fillna(0).sum():.1f}")
-    c3.metric("Total quantity used", f"{used['Quantity_Used'].fillna(0).sum():.1f}")
+    qty_unit = QUANTITY_USED_UNITS.get(product_id, "")
+    qty_total = used["Quantity_Used"].fillna(0).sum()
+    qty_fmt = f"{qty_total:.0f}" if qty_unit else f"{qty_total:.1f}"
+    c3.metric(f"Total quantity used{f' ({qty_unit})' if qty_unit else ''}", qty_fmt)
     if not used.empty:
         st.dataframe(
             used.merge(data["sites"][["Site_ID", "Site_Name"]], on="Site_ID", how="left")[

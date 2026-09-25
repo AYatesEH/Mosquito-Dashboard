@@ -1,5 +1,6 @@
 """Treatments - register, planning workflow (Planned/Scheduled/Completed/Cancelled)."""
 
+import math
 from datetime import datetime, time as dt_time
 
 import pandas as pd
@@ -11,6 +12,7 @@ from core import calculations as calc
 from core.config import (
     TREATMENT_STATUSES, REDOSE_LEAD_DAYS, REDOSE_ON_TRACK, REDOSE_DUE_SOON,
     REDOSE_OVERDUE, REDOSE_NOT_SCHEDULED, REDOSE_STATUS_COLOURS,
+    LABEL_RATE_OPTIONS, QUANTITY_USED_UNITS,
 )
 
 
@@ -113,30 +115,87 @@ def render():
             new_time = st.time_input("Treatment time", value=dt_time(9, 0), key="new_treatment_time")
             new_officer = st.selectbox("Assigned officer", data["users"]["Name"].tolist(), key="new_treatment_officer")
 
+        rate_unit_str = str(new_product.get("Rate_Unit", ""))
+        rate_options = LABEL_RATE_OPTIONS.get(new_product["Product_ID"])
         has_rate_range = pd.notna(new_product.get("Rate_Min")) and pd.notna(new_product.get("Rate_Max"))
         new_rate = None
-        if new_type == "Larvicide Application" and has_rate_range:
+        if new_type == "Larvicide Application" and rate_options:
+            # Both real products' labels define the rate as a straight choice
+            # between exactly two site conditions, never a number in between -
+            # so this is a locked selectbox, not an editable number, and an
+            # officer can't enter a rate that isn't actually on the label.
+            rate_labels = [f"{desc} → {val:g} {rate_unit_str}" for desc, val in rate_options]
+            rate_lookup = dict(zip(rate_labels, [v for _, v in rate_options]))
+            new_rate_label = st.selectbox(
+                "Site condition (sets the exact labelled dosage/application rate)",
+                rate_labels, key="new_treatment_rate_choice",
+            )
+            new_rate = rate_lookup[new_rate_label]
+            st.caption(f"Rate is locked to the product's APVMA label: **{new_rate:g} {rate_unit_str}** - not editable.")
+        elif new_type == "Larvicide Application" and has_rate_range:
+            # Fallback for a product with no discrete label options on file
+            # (e.g. the fictional withdrawn product, kept only for historical
+            # records) - no real label to lock to, so this stays a free entry.
             default_rate = float((new_product["Rate_Min"] + new_product["Rate_Max"]) / 2)
             new_rate = st.number_input(
-                f"Dosage/application rate used ({new_product['Rate_Unit']})",
+                f"Dosage/application rate used ({rate_unit_str})",
                 min_value=0.0, value=default_rate, step=0.1, key="new_treatment_rate",
             )
+            st.caption("No discrete label options on file for this product - enter the rate manually and verify against the label.")
             if not (new_product["Rate_Min"] <= new_rate <= new_product["Rate_Max"]):
                 st.caption(f"⚠️ Outside the labelled range ({new_product['Rate_Min']:g}-{new_product['Rate_Max']:g}).")
 
+        # The area input's unit follows the selected product's own label
+        # rate: ProLink XR Briquets is labelled per m2 of water surface, not
+        # per hectare, so entering area in ha there would force awkward
+        # decimals (e.g. 0.002 ha for a 20 m2 puddle). Area_Treated_Ha in the
+        # data store is always hectares (other pages sum it directly for
+        # cross-product area totals), so an m2 entry is converted before
+        # saving; the raw, as-entered value is kept separately for the
+        # quantity-used calculation below, since that must divide the actual
+        # m2 figure, not a rounded ha conversion.
+        area_is_m2 = new_type == "Larvicide Application" and "m2" in rate_unit_str and "ha" not in rate_unit_str
         fc3, fc4, fc5 = st.columns(3)
         with fc3:
             new_status = st.selectbox("Treatment status", TREATMENT_STATUSES, index=TREATMENT_STATUSES.index("Completed"), key="new_treatment_status")
         with fc4:
-            new_area_ha = (
-                st.number_input("Area treated (ha)", min_value=0.0, value=1.0, step=0.1, key="new_treatment_area")
-                if new_type != "Source Reduction / Habitat Modification" else None
-            )
+            new_area_ha = None
+            new_area_raw = None
+            if new_type != "Source Reduction / Habitat Modification":
+                if area_is_m2:
+                    new_area_raw = st.number_input(
+                        "Area/water surface treated (m²)", min_value=0.0, value=100.0, step=10.0, key="new_treatment_area_m2",
+                    )
+                    new_area_ha = round(new_area_raw / 10000, 4)
+                    st.caption(f"= {new_area_ha:g} ha (converted for area-treated totals elsewhere in the app).")
+                else:
+                    new_area_ha = st.number_input("Area treated (ha)", min_value=0.0, value=1.0, step=0.1, key="new_treatment_area")
+                    new_area_raw = new_area_ha
         with fc5:
-            new_quantity = st.number_input(
-                "Quantity used (in the product's rate unit - leave 0 if not applicable/not yet known)",
-                min_value=0.0, value=0.0, step=0.1, key="new_treatment_quantity",
-            )
+            # Quantity used is recorded in whatever unit an officer actually
+            # counts/measures in the field for that product - NOT the same
+            # unit as the rate above (see core.config.QUANTITY_USED_UNITS) -
+            # and defaults to the amount the locked rate and entered area
+            # imply, rounded to a whole unit, while staying editable in case
+            # actual field usage differed.
+            qty_unit = QUANTITY_USED_UNITS.get(new_product["Product_ID"])
+            suggested_qty = None
+            if new_rate and new_area_raw:
+                if qty_unit == "g":  # kg/ha rate -> total kg -> grams
+                    suggested_qty = round(new_rate * new_area_ha * 1000)
+                elif qty_unit == "briquet(s)":  # m2-per-briquet rate (inverse) -> briquet count
+                    suggested_qty = math.ceil(new_area_raw / new_rate)
+            if qty_unit:
+                new_quantity = st.number_input(
+                    f"Quantity used ({qty_unit})",
+                    min_value=0, value=int(suggested_qty) if suggested_qty else 0, step=1, key="new_treatment_quantity",
+                )
+                st.caption(f"Defaults to the amount the rate and area above imply, in whole {qty_unit} - editable.")
+            else:
+                new_quantity = st.number_input(
+                    "Quantity used (leave 0 if not applicable/not yet known)",
+                    min_value=0.0, value=0.0, step=0.1, key="new_treatment_quantity",
+                )
         new_reason = st.selectbox(
             "Reason", ["Surveillance threshold exceeded", "Complaint-triggered inspection",
                        "Routine scheduled treatment", "Follow-up after prior treatment"],
@@ -313,7 +372,11 @@ def render():
                     fig3 = px.bar(by_product, x="Product_Name", y="Quantity_Used")
                     fig3.update_layout(height=320, xaxis_title="", yaxis_title="Quantity used (product-specific units)")
                     st.plotly_chart(fig3, use_container_width=True)
-                    st.caption("Quantities are in each product's own rate unit - see Products page. Not directly comparable across products.")
+                    st.caption(
+                        "Quantities are in each product's own recording unit (grams for ProLink Pellets, whole "
+                        "briquets for ProLink XR Briquets - see core.config.QUANTITY_USED_UNITS/Products page), "
+                        "NOT the product's application rate unit. Not directly comparable across products."
+                    )
         else:
             st.info("No treatments recorded for this selection.")
 
