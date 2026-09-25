@@ -88,9 +88,9 @@ def render():
         results_f = results_f[results_f["Species_Code"].isin(filters["species_codes"])]
     if not results_f.empty:
         by_species = results_f.groupby("Species_Code", as_index=False)["Number_Collected"].sum()
-        by_species = by_species.merge(data["species"][["Species_Code", "Common_Name"]], on="Species_Code", how="left")
+        by_species = by_species.merge(data["species"][["Species_Code", "Scientific_Name"]], on="Species_Code", how="left")
         by_species = by_species.sort_values("Number_Collected", ascending=False)
-        fig4 = px.bar(by_species, x="Common_Name", y="Number_Collected")
+        fig4 = px.bar(by_species, x="Scientific_Name", y="Number_Collected")
         fig4.update_layout(height=350, xaxis_title="", yaxis_title="Total collected")
         st.plotly_chart(fig4, use_container_width=True)
     else:

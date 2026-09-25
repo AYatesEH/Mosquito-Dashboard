@@ -101,14 +101,14 @@ def render():
 
     st.divider()
     st.subheader("Species composition by season")
-    species_ref = data["species"][["Species_Code", "Common_Name"]]
+    species_ref = data["species"][["Species_Code", "Scientific_Name"]]
     comp_rows = []
     for season, comp in species_by_season.items():
         for code, pct in comp.items():
             comp_rows.append({"Season": season, "Species_Code": code, "Percent": pct})
     if comp_rows:
         comp_df = pd.DataFrame(comp_rows).merge(species_ref, on="Species_Code", how="left")
-        fig5 = px.bar(comp_df, x="Season", y="Percent", color="Common_Name", barmode="stack")
+        fig5 = px.bar(comp_df, x="Season", y="Percent", color="Scientific_Name", barmode="stack")
         fig5.update_layout(height=380, yaxis_title="% of total catch")
         st.plotly_chart(fig5, use_container_width=True)
     else:

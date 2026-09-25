@@ -58,7 +58,7 @@ def render():
                     .groupby("Species_Code", as_index=False)["Number_Collected"].sum()
                     .sort_values("Number_Collected", ascending=False).head(1),
                     on="Species_Code", how="inner",
-                )["Common_Name"].iloc[0]
+                )["Scientific_Name"].iloc[0]
                 if not ct.empty else "N/A"
             ),
         },

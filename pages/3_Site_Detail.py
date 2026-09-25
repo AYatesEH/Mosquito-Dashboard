@@ -72,7 +72,7 @@ def render():
         if not site_results.empty:
             top = site_results.groupby("Species_Code")["Number_Collected"].sum().idxmax()
             sp_row = data["species"][data["species"]["Species_Code"] == top]
-            dominant_species = sp_row["Common_Name"].iloc[0] if not sp_row.empty else top
+            dominant_species = sp_row["Scientific_Name"].iloc[0] if not sp_row.empty else top
 
         completed_treatments_site = treatments_site[treatments_site["Treatment_Status"] == "Completed"]
         last_treatment_date = (
@@ -125,8 +125,8 @@ def render():
     site_results_period = site_results_period[site_results_period["Number_Collected"].fillna(-1) >= 0]
     if not site_results_period.empty:
         by_sp = site_results_period.groupby("Species_Code", as_index=False)["Number_Collected"].sum()
-        by_sp = by_sp.merge(data["species"][["Species_Code", "Common_Name"]], on="Species_Code", how="left")
-        fig_sp = px.bar(by_sp.sort_values("Number_Collected", ascending=False), x="Common_Name", y="Number_Collected")
+        by_sp = by_sp.merge(data["species"][["Species_Code", "Scientific_Name"]], on="Species_Code", how="left")
+        fig_sp = px.bar(by_sp.sort_values("Number_Collected", ascending=False), x="Scientific_Name", y="Number_Collected")
         fig_sp.update_layout(height=320, xaxis_title="")
         st.plotly_chart(fig_sp, use_container_width=True)
     else:

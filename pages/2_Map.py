@@ -73,7 +73,7 @@ def render():
         if not site_results.empty:
             top = site_results.groupby("Species_Code")["Number_Collected"].sum().idxmax()
             sp_row = data["species"][data["species"]["Species_Code"] == top]
-            dominant_species = sp_row["Common_Name"].iloc[0] if not sp_row.empty else top
+            dominant_species = sp_row["Scientific_Name"].iloc[0] if not sp_row.empty else top
 
         c1, c2, c3, c4 = st.columns(4)
         c1.markdown(f"**{site_row['Site_Name']}** ({site_id})")

@@ -109,8 +109,8 @@ def render():
         results_f = results_f[results_f["Number_Collected"].fillna(-1) >= 0]
         if not results_f.empty:
             by_species = results_f.groupby("Species_Code", as_index=False)["Number_Collected"].sum()
-            by_species = by_species.merge(data["species"][["Species_Code", "Common_Name"]], on="Species_Code", how="left")
-            fig3 = px.pie(by_species, names="Common_Name", values="Number_Collected", hole=0.4)
+            by_species = by_species.merge(data["species"][["Species_Code", "Scientific_Name"]], on="Species_Code", how="left")
+            fig3 = px.pie(by_species, names="Scientific_Name", values="Number_Collected", hole=0.4)
             fig3.update_layout(height=320, margin=dict(t=10, b=10, l=10, r=10))
             st.plotly_chart(fig3, use_container_width=True)
         else:

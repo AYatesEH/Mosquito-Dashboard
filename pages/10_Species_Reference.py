@@ -38,7 +38,7 @@ def render():
         by_sp = results_f.groupby("Species_Code", as_index=False)["Number_Collected"].sum()
         by_sp = by_sp.merge(species[["Species_Code", "Common_Name", "Scientific_Name"]], on="Species_Code", how="left")
         by_sp = by_sp.sort_values("Number_Collected", ascending=False)
-        fig = px.bar(by_sp, x="Common_Name", y="Number_Collected", hover_data=["Scientific_Name"])
+        fig = px.bar(by_sp, x="Scientific_Name", y="Number_Collected", hover_data=["Common_Name"])
         fig.update_layout(height=340, xaxis_title="")
         st.plotly_chart(fig, use_container_width=True)
     else:
@@ -47,7 +47,8 @@ def render():
     st.divider()
     st.subheader("Species reference")
     for _, sp in species.iterrows():
-        with st.expander(f"{sp['Common_Name']} ({sp['Scientific_Name']})"):
+        with st.expander(f"*{sp['Scientific_Name']}*"):
+            st.caption(f"Common name: {sp['Common_Name']}")
             st.markdown(f"**Typical breeding habitat:** {sp['Typical_Breeding_Habitat']}")
             st.markdown(f"**Biting behaviour:** {sp['Biting_Behaviour']}")
             st.markdown(f"**Seasonal characteristics:** {sp['Seasonal_Characteristics']}")

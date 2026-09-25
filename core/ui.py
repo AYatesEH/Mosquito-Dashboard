@@ -197,8 +197,7 @@ def render_global_filters(data: dict) -> dict:
     f["site_ids"] = [site_lookup[lbl] for lbl in selected_site_labels]
 
     species_names = species[species["Species_Code"] != "OTHER"]
-    species_lookup = dict(zip(species_names["Common_Name"] + " (" + species_names["Scientific_Name"] + ")",
-                               species_names["Species_Code"]))
+    species_lookup = dict(zip(species_names["Scientific_Name"], species_names["Species_Code"]))
     selected_species_labels = st.sidebar.multiselect(
         "Species - leave blank for all", list(species_lookup.keys()),
         default=[lbl for lbl, code in species_lookup.items() if code in f["species_codes"]], key="filter_species"
