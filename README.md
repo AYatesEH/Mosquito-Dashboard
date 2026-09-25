@@ -77,10 +77,20 @@ mosquito_dashboard/
 │   └── ui.py                     # Cached data loading, global filters, KPI cards, styling
 ├── data/
 │   ├── generate_sample_data.py   # Generates every CSV under data/raw/ (documented, deterministic)
-│   └── raw/                      # The CSV files themselves (the prototype's "database")
+│   ├── raw/                      # The CSV files themselves (the prototype's "database")
+│   └── gis/
+│       └── city_of_vincent_boundary.geojson   # REAL City of Vincent LGA boundary (see note below)
 ├── .streamlit/config.toml        # Theme
 └── requirements.txt
 ```
+
+**The City of Vincent boundary is real, not sample data.** `data/gis/city_of_vincent_boundary.geojson` is the
+actual City of Vincent LGA polygon, extracted from WA Landgate's public "Local Government Area (LGA) Boundaries"
+dataset (LGATE-233, GDA2020, supplied directly as a download from data.wa.gov.au). It's drawn as an outline on
+the Map page, and `data/generate_sample_data.py` also uses it to rejection-sample every randomly generated site
+so each one genuinely falls inside the real council boundary (not just a rough bounding box) - see
+`random_point_in_vincent()` in that file. The one exception is the Swan River site (Claisebrook Cove), which is
+deliberately placed just outside the boundary, matching its real position.
 
 **Why it's split this way:** a page file only ever calls into `core/` - it never reads a CSV, computes a
 trap-night figure, or decides whether a site is "Elevated" itself. That logic lives once, in `core/`, so every
@@ -172,6 +182,8 @@ Marked clearly in the app itself (banners on the relevant pages), but to be expl
 - **Real, specific location:** one site, "Claisebrook Cove Foreshore (Swan River)", uses real coordinates for
   a real, named Swan River bank location - added because larvae dipping/larviciding along the river bank is a
   regular, named part of the program.
+- **Real geographic boundary:** the City of Vincent LGA outline shown on the Map page is the actual council
+  boundary (WA Landgate LGATE-233), not an approximation - see the note in Section 2.
 
 ---
 

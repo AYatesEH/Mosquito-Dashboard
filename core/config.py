@@ -15,6 +15,9 @@ from pathlib import Path
 # --- Paths -------------------------------------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data" / "raw"
+GIS_DIR = PROJECT_ROOT / "data" / "gis"
+# Real City of Vincent LGA boundary (WA Landgate LGATE-233 dataset).
+VINCENT_BOUNDARY_PATH = GIS_DIR / "city_of_vincent_boundary.geojson"
 
 # --- Trap effort ---------------------------------------------------------
 # A "trap night" is counted only for events where the trap was deployed,

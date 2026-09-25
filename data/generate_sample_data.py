@@ -20,6 +20,8 @@ Relational model (see README.md for full description):
     all reference Site_ID rather than duplicating name/lat/long.
 """
 
+import json
+
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -30,6 +32,52 @@ rng = np.random.default_rng(RNG_SEED)
 
 OUT_DIR = Path(__file__).parent / "raw"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# ---------------------------------------------------------------------------
+# REAL City of Vincent LGA boundary (WA Landgate LGATE-233 dataset, supplied
+# directly by the person). Used so randomly generated sites are rejection-
+# sampled to fall genuinely INSIDE the real council boundary, rather than
+# just inside a rough bounding box - see `_point_in_polygon` / `_random_point_
+# in_boundary` below.
+BOUNDARY_PATH = Path(__file__).parent / "gis" / "city_of_vincent_boundary.geojson"
+with open(BOUNDARY_PATH) as _f:
+    _boundary_geojson = json.load(_f)
+# geometry is a MultiPolygon with one polygon and one ring (verified when
+# this file was extracted from the statewide LGATE-233 dataset)
+VINCENT_BOUNDARY_RING = _boundary_geojson["features"][0]["geometry"]["coordinates"][0][0]  # list of [lon, lat]
+_ring_lons = [c[0] for c in VINCENT_BOUNDARY_RING]
+_ring_lats = [c[1] for c in VINCENT_BOUNDARY_RING]
+VINCENT_BBOX = (min(_ring_lons), max(_ring_lons), min(_ring_lats), max(_ring_lats))  # lon_min, lon_max, lat_min, lat_max
+
+
+def _point_in_polygon(lon: float, lat: float, ring: list) -> bool:
+    """Standard ray-casting point-in-polygon test against a GeoJSON ring
+    (list of [lon, lat] pairs). No extra geo library required."""
+    inside = False
+    n = len(ring)
+    x1, y1 = ring[0]
+    for i in range(1, n + 1):
+        x2, y2 = ring[i % n]
+        if (y1 > lat) != (y2 > lat):
+            x_intersect = (x2 - x1) * (lat - y1) / (y2 - y1) + x1
+            if lon < x_intersect:
+                inside = not inside
+        x1, y1 = x2, y2
+    return inside
+
+
+def random_point_in_vincent(rng) -> tuple:
+    """Rejection-samples a (lat, lon) pair that genuinely falls inside the
+    real City of Vincent boundary, instead of just a bounding box."""
+    lon_min, lon_max, lat_min, lat_max = VINCENT_BBOX
+    for _ in range(200):
+        lon = rng.uniform(lon_min, lon_max)
+        lat = rng.uniform(lat_min, lat_max)
+        if _point_in_polygon(lon, lat, VINCENT_BOUNDARY_RING):
+            return lat, lon
+    # Should not happen in practice for a bbox this tight around a single
+    # simple polygon, but fall back to the centroid rather than fail.
+    return CENTER_LAT, CENTER_LON
 
 TODAY = datetime(2026, 9, 25)  # "current" real-world date the prototype is built against
 
@@ -97,10 +145,11 @@ def make_site_name():
             return name
 
 
-# Region center point: City of Vincent, WA (North Perth) - real coordinates,
-# used so the map centres on and stays within the council area rather than an
-# arbitrary point. Site NAMES remain invented; only the general area is real.
-CENTER_LAT, CENTER_LON = -31.928, 115.853
+# Region center point: the real centroid of the City of Vincent LGA boundary
+# (computed from the actual boundary polygon above, WA Landgate LGATE-233).
+# Site NAMES remain invented; only the general area/boundary is real.
+CENTER_LAT = round(sum(_ring_lats) / len(_ring_lats), 5)
+CENTER_LON = round(sum(_ring_lons) / len(_ring_lons), 5)
 
 # Real, named location: Claisebrook Cove / Swan River foreshore, just east of
 # Vincent's Highgate/East Perth boundary. Added because larvae dipping and
@@ -110,11 +159,12 @@ CENTER_LAT, CENTER_LON = -31.928, 115.853
 RIVER_SITE_LAT, RIVER_SITE_LON = -31.9522, 115.8791
 
 sites = []
-# N_SITES random inland sites (fictional names/exact positions, real local area)
+# N_SITES random inland sites (fictional names/exact positions, but each one
+# is rejection-sampled to genuinely fall inside the real Vincent boundary
+# polygon - not just a rough bounding box around the centroid).
 for i in range(1, N_SITES + 1):
     site_id = f"ST-{i:03d}"
-    lat = CENTER_LAT + rng.uniform(-0.016, 0.016)
-    lon = CENTER_LON + rng.uniform(-0.02, 0.02)
+    lat, lon = random_point_in_vincent(rng)
     status = rng.choice(["Active", "Active", "Active", "Active", "Inactive"], p=[0.55, 0.2, 0.15, 0.05, 0.05])
     site_type = rng.choice(SITE_TYPES)
     created_dt = SEASONS["2023-24"]["start"] - timedelta(days=int(rng.integers(30, 900)))
@@ -711,8 +761,8 @@ for season in ALL_SEASONS:
             approx_lon = sites_df.loc[sites_df["Site_ID"] == site_id, "Longitude"].iloc[0]
         else:
             site_id = ""
-            approx_lat = round(CENTER_LAT + rng.uniform(-0.016, 0.016), 5)
-            approx_lon = round(CENTER_LON + rng.uniform(-0.02, 0.02), 5)
+            approx_lat, approx_lon = random_point_in_vincent(rng)
+            approx_lat, approx_lon = round(approx_lat, 5), round(approx_lon, 5)
         status = rng.choice(INVESTIGATION_STATUSES, p=[0.1, 0.15, 0.15, 0.6])
         complaints.append({
             "Complaint_ID": f"CMP-{complaint_counter:05d}",

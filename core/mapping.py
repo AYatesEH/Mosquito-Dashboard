@@ -15,12 +15,13 @@ Design note on future GIS layers:
 
 from __future__ import annotations
 
+import json
 from typing import Optional
 
 import folium
 import pandas as pd
 
-from core.config import STATUS_COLOURS, STATUS_UNKNOWN
+from core.config import STATUS_COLOURS, STATUS_UNKNOWN, VINCENT_BOUNDARY_PATH
 
 
 def _status_colour(status: str) -> str:
@@ -51,7 +52,7 @@ def build_operational_map(
     """
     mappable_sites = sites.dropna(subset=["Latitude", "Longitude"]).copy()
     if mappable_sites.empty:
-        center = [-31.928, 115.853]  # City of Vincent, WA (North Perth) fallback centre
+        center = [-31.93373, 115.86511]  # real City of Vincent LGA centroid, fallback only
     else:
         center = [mappable_sites["Latitude"].mean(), mappable_sites["Longitude"].mean()]
 
@@ -78,6 +79,21 @@ def build_operational_map(
         attr="Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
         name="Satellite imagery", control=True, overlay=False, show=False,
     ).add_to(fmap)
+
+    # --- Layer: City of Vincent LGA boundary --------------------------------
+    # Real boundary (WA Landgate LGATE-233 dataset), shown as an outline only
+    # (no fill) so it doesn't obscure the basemap or markers underneath.
+    if VINCENT_BOUNDARY_PATH.exists():
+        with open(VINCENT_BOUNDARY_PATH) as f:
+            boundary_geojson = json.load(f)
+        folium.GeoJson(
+            boundary_geojson,
+            name="City of Vincent boundary",
+            style_function=lambda feature: {
+                "fillOpacity": 0, "color": "#2E7D32", "weight": 3, "dashArray": "6, 4",
+            },
+            tooltip="City of Vincent LGA boundary",
+        ).add_to(fmap)
 
     hotspot_site_ids = hotspot_site_ids or set()
     status_lookup = {}
