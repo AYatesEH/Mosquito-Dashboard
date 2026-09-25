@@ -89,13 +89,14 @@ def render():
             st.success("No completed treatments currently awaiting a follow-up survey.")
 
         st.divider()
-        st.subheader("Record a treatment (prototype form)")
+        st.subheader("Record a treatment")
         st.caption(
-            "Prototype only - does not yet write back to the data store. Enter the date/time, product and "
-            "dosage below and the estimated re-dose due date and live weather at the site are computed and "
-            "shown automatically - see README for the data-entry roadmap. Plain widgets (not a Streamlit form) "
-            "are used deliberately here so the preview below updates as soon as you change an entry, rather "
-            "than only after a submit."
+            "Saves to this prototype's CSV data store - fine for a single-user demo/pilot, but not durable on "
+            "Streamlit Community Cloud (its filesystem resets on redeploy/restart) and not safe for several "
+            "people saving at once. See README Section 6 for moving to a real backend. Enter the date/time, "
+            "product and dosage below and the estimated re-dose due date and live weather at the site are "
+            "computed and shown automatically. Plain widgets (not a Streamlit form) are used deliberately here "
+            "so the preview below updates as soon as you change an entry, rather than only after a submit."
         )
         fc1, fc2 = st.columns(2)
         with fc1:
@@ -123,7 +124,32 @@ def render():
             if not (new_product["Rate_Min"] <= new_rate <= new_product["Rate_Max"]):
                 st.caption(f"⚠️ Outside the labelled range ({new_product['Rate_Min']:g}-{new_product['Rate_Max']:g}).")
 
-        st.text_area("Notes", key="new_treatment_notes")
+        fc3, fc4, fc5 = st.columns(3)
+        with fc3:
+            new_status = st.selectbox("Treatment status", TREATMENT_STATUSES, index=TREATMENT_STATUSES.index("Completed"), key="new_treatment_status")
+        with fc4:
+            new_area_ha = (
+                st.number_input("Area treated (ha)", min_value=0.0, value=1.0, step=0.1, key="new_treatment_area")
+                if new_type != "Source Reduction / Habitat Modification" else None
+            )
+        with fc5:
+            new_quantity = st.number_input(
+                "Quantity used (in the product's rate unit - leave 0 if not applicable/not yet known)",
+                min_value=0.0, value=0.0, step=0.1, key="new_treatment_quantity",
+            )
+        new_reason = st.selectbox(
+            "Reason", ["Surveillance threshold exceeded", "Complaint-triggered inspection",
+                       "Routine scheduled treatment", "Follow-up after prior treatment"],
+            key="new_treatment_reason",
+        )
+        new_cancelled_reason = ""
+        if new_status == "Cancelled":
+            new_cancelled_reason = st.selectbox(
+                "Cancelled reason", ["Site access restricted", "Weather unsuitable", "Insufficient surveillance trigger",
+                                      "Resourcing/staff availability", "Product unavailable"],
+                key="new_treatment_cancelled_reason",
+            )
+        new_notes = st.text_area("Notes", key="new_treatment_notes")
 
         st.markdown("**Live preview** _(computed from the entries above - not yet saved)_")
         pcol1, pcol2 = st.columns(2)
@@ -178,7 +204,36 @@ def render():
                                 f"~{tide['next_turn_time'].split('T')[-1] if tide['next_turn_time'] else '-'}."
                             )
 
-        st.button("Save treatment (prototype - not persisted)")
+        if st.button("Save treatment", type="primary"):
+            if new_site_id is None:
+                st.error("Select a site before saving.")
+            else:
+                is_completed = new_status == "Completed"
+                treatment_date_val = new_date.strftime("%Y-%m-%d") if is_completed else ""
+                new_id = ui.add_treatment({
+                    "Site_ID": new_site_id,
+                    "Season": ui.infer_season(new_date),
+                    "Planned_Date": new_date.strftime("%Y-%m-%d"),
+                    "Treatment_Date": treatment_date_val,
+                    "Treatment_Status": new_status,
+                    "Treatment_Type": new_type,
+                    "Product_ID": new_product["Product_ID"] if new_type != "Source Reduction / Habitat Modification" else "",
+                    "Application_Method": new_product["Application_Method"] if new_type != "Source Reduction / Habitat Modification" else "",
+                    "Application_Rate": new_rate if new_rate else "",
+                    "Rate_Unit": new_product["Rate_Unit"] if new_rate else "",
+                    "Area_Treated_Ha": new_area_ha if new_area_ha else "",
+                    "Quantity_Used": new_quantity if new_quantity else "",
+                    "Operator": new_officer,
+                    "Reason": new_reason,
+                    "Cancelled_Reason": new_cancelled_reason,
+                    "Notes": new_notes,
+                    "Created_By": new_officer,
+                    "Created_Date": pd.Timestamp.now().strftime("%Y-%m-%d"),
+                    "Modified_By": new_officer,
+                    "Modified_Date": pd.Timestamp.now().strftime("%Y-%m-%d"),
+                })
+                st.success(f"Saved {new_id}. The register, planning board and re-dose schedule below now include it.")
+                st.rerun()
 
     with tab_redose:
         st.subheader("Re-dose schedule")

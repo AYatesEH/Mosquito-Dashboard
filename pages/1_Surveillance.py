@@ -6,6 +6,9 @@ import streamlit as st
 
 from core import ui, calculations as calc
 
+TRAP_OUTCOMES = ["Successful", "Partial", "Failed - Equipment/Battery", "Missing"]
+DEFAULT_VALIDITY = {"Successful": "Valid", "Partial": "Valid", "Failed - Equipment/Battery": "Invalid", "Missing": "N/A"}
+
 
 def render():
     ui.apply_page_style()
@@ -123,6 +126,85 @@ def render():
         st.info("No usable surveillance data available.")
 
     st.divider()
+
+    with st.expander("+ Log a trap check (deployment + retrieval + results)"):
+        st.caption(
+            "Saves to this prototype's CSV data store - fine for a single-user demo/pilot, see README Section 6 "
+            "for moving to a real backend before relying on this for a live season. Logged as one entry, after "
+            "the trap has been retrieved and read - matching how this is normally done at a desk, not standing "
+            "at the trap."
+        )
+        active_traps = data["trap_sites"][data["trap_sites"]["Trap_Status"] == "Active"].merge(
+            data["sites"][["Site_ID", "Site_Name"]], on="Site_ID", how="left"
+        )
+        if active_traps.empty:
+            st.warning("No active traps to log against.")
+        else:
+            trap_labels = (active_traps["Trap_ID"] + " - " + active_traps["Site_Name"] + " (" + active_traps["Trap_Type"] + ")").tolist()
+            trap_lookup = dict(zip(trap_labels, active_traps["Trap_ID"]))
+
+            sc1, sc2 = st.columns(2)
+            with sc1:
+                new_trap_label = st.selectbox("Trap", trap_labels, key="new_event_trap")
+                new_trap_id = trap_lookup[new_trap_label]
+                new_trap_row = active_traps[active_traps["Trap_ID"] == new_trap_id].iloc[0]
+                new_deploy_date = st.date_input("Deployment date", value=pd.Timestamp.now().date() - pd.Timedelta(days=2), key="new_event_deploy_date")
+                new_retrieve_date = st.date_input("Retrieval date", value=pd.Timestamp.now().date(), key="new_event_retrieve_date")
+            with sc2:
+                new_outcome = st.selectbox("Trap outcome", TRAP_OUTCOMES, key="new_event_outcome")
+                new_validity = st.selectbox(
+                    "Sample validity", ["Valid", "Invalid", "N/A"],
+                    index=["Valid", "Invalid", "N/A"].index(DEFAULT_VALIDITY[new_outcome]), key="new_event_validity",
+                )
+                new_officer = st.selectbox("Officer", data["users"]["Name"].tolist(), key="new_event_officer")
+
+            counts_df = None
+            if new_outcome in ("Successful", "Partial") and new_validity == "Valid":
+                st.caption("Enter the number collected per species (leave at 0 for species not caught):")
+                species_for_count = data["species"][data["species"]["Species_Code"] != "OTHER"][["Species_Code", "Scientific_Name"]].copy()
+                species_for_count["Number_Collected"] = 0
+                counts_df = st.data_editor(
+                    species_for_count, use_container_width=True, hide_index=True, key="new_event_counts",
+                    column_config={
+                        "Species_Code": st.column_config.TextColumn(disabled=True),
+                        "Scientific_Name": st.column_config.TextColumn(disabled=True),
+                        "Number_Collected": st.column_config.NumberColumn(min_value=0, step=1),
+                    },
+                )
+
+            new_event_notes = st.text_area("Notes", key="new_event_notes")
+
+            if st.button("Save trap check", type="primary"):
+                if new_retrieve_date < new_deploy_date:
+                    st.error("Retrieval date can't be before the deployment date.")
+                else:
+                    event_id = ui.add_surveillance_event({
+                        "Trap_ID": new_trap_id,
+                        "Site_ID": new_trap_row["Site_ID"],
+                        "Season": ui.infer_season(new_deploy_date),
+                        "Deployment_DateTime": new_deploy_date.strftime("%Y-%m-%d %H:%M"),
+                        "Retrieval_DateTime": new_retrieve_date.strftime("%Y-%m-%d %H:%M"),
+                        "Trap_Type": new_trap_row["Trap_Type"],
+                        "Trap_Status": new_outcome,
+                        "Sample_Validity": new_validity,
+                        "Officer": new_officer,
+                        "Notes": new_event_notes,
+                        "Created_By": new_officer,
+                        "Created_Date": pd.Timestamp.now().strftime("%Y-%m-%d"),
+                    })
+                    n_results = 0
+                    if counts_df is not None:
+                        for _, r in counts_df.iterrows():
+                            if int(r["Number_Collected"]) > 0:
+                                ui.add_surveillance_result({
+                                    "Event_ID": event_id,
+                                    "Species_Code": r["Species_Code"],
+                                    "Number_Collected": int(r["Number_Collected"]),
+                                    "Notes": "",
+                                })
+                                n_results += 1
+                    st.success(f"Saved {event_id} ({n_results} species result{'s' if n_results != 1 else ''}). The charts and log below now include it.")
+                    st.rerun()
 
     # --- Raw trap results table with filters ---------------------------------
     st.subheader("Surveillance event log")

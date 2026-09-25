@@ -75,6 +75,58 @@ def get_data() -> dict:
 
 
 # ===========================================================================
+# WRITES (add a new treatment/complaint/surveillance record)
+# ===========================================================================
+# Every page's "Add ..." form should go through these, never call
+# get_repository() directly - this is the one place that also clears the
+# cache afterward, so the write shows up everywhere on the very next rerun
+# (Streamlit reruns the whole script after a form submit/button click, so no
+# extra refresh step is needed). See the write-method docstrings in
+# core/data_source.py for the current CSV backend's single-user/non-durable
+# caveat - swapping in a real backend later only touches that one file.
+
+def invalidate_data_cache():
+    load_raw_tables.clear()
+    load_catch_totals.clear()
+
+
+def add_treatment(row: dict) -> str:
+    new_id = get_repository().add_treatment(row)
+    invalidate_data_cache()
+    return new_id
+
+
+def add_complaint(row: dict) -> str:
+    new_id = get_repository().add_complaint(row)
+    invalidate_data_cache()
+    return new_id
+
+
+def add_surveillance_event(row: dict) -> str:
+    new_id = get_repository().add_surveillance_event(row)
+    invalidate_data_cache()
+    return new_id
+
+
+def add_surveillance_result(row: dict) -> str:
+    new_id = get_repository().add_surveillance_result(row)
+    invalidate_data_cache()
+    return new_id
+
+
+def infer_season(d) -> str:
+    """Which SEASON_BOUNDS key a date falls in - used to fill the Season
+    column on a new record without asking the officer to pick it separately.
+    Falls back to the season whose start date is closest, if the date is
+    outside every modelled season's range (e.g. mid-winter, between seasons)."""
+    ts = pd.Timestamp(d)
+    for season, (start, end) in SEASON_BOUNDS.items():
+        if start <= ts <= end:
+            return season
+    return min(SEASON_BOUNDS.items(), key=lambda kv: abs((ts - kv[1][0]).days))[0]
+
+
+# ===========================================================================
 # STYLING
 # ===========================================================================
 

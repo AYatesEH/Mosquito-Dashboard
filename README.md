@@ -259,16 +259,29 @@ Server, SharePoint Lists or Dataverse:
 
 The same principle applies to authentication, permissions and audit trail: `Created_By`/`Modified_By` fields
 are already on the sites and treatments tables, so wiring up Microsoft/organisational sign-in later means
-populating those fields from the logged-in user rather than `"data_generator"`, not restructuring anything.
-Data-entry forms currently shown on the Treatments and Field Observations pages are intentionally left as
-**prototype-only forms that don't persist** (clearly captioned) - the natural next step is wiring their
-`st.form_submit_button` handlers to `DataRepository` write methods once a real backend is chosen.
+populating those fields from the logged-in user rather than an officer picked from a dropdown, not
+restructuring anything.
+
+**Data entry now actually saves - to the CSV files, as an interim step.** The Treatments, Complaints and
+Surveillance pages each have a "+ Log/Record..." form (`DataRepository.add_treatment` /`add_complaint`/
+`add_surveillance_event`/`add_surveillance_result` in `core/data_source.py`, called via `core/ui.py`'s
+`add_*`/`invalidate_data_cache` wrappers) that appends a row and clears the cache, so the new record shows up
+everywhere on the very next rerun - KPIs, charts, the re-dose schedule, all of it, no separate refresh step.
+**This is genuinely useful for a single-user demo or pilot, but it is NOT the real answer for a live season**:
+`CSVDataRepository`'s writes are plain file appends with no locking, so two people saving at the same moment
+can corrupt a file; and Streamlit Community Cloud's filesystem is wiped on every redeploy and on restart after
+the app sleeps from inactivity, so anything written would eventually vanish. Moving to a real backend (Section
+6's numbered steps above) is what makes this safe to rely on - the `add_*` methods just need the same
+treatment as the `get_*` methods: implement them on the new repository class, and every "+ Log..." form keeps
+working unchanged, because pages call `core.ui.add_*`, never `data_source` directly.
 
 ---
 
 ## 7. Known prototype limitations (by design, not oversights)
 
-- Data entry forms (new treatment, new observation) don't persist - see above.
+- Data entry forms (Treatments, Complaints, Surveillance) save to the CSV files - genuinely working, but not
+  durable on Streamlit Community Cloud and not safe for concurrent multi-user writes - see Section 6. Field
+  Observations still has no "add" form yet (a natural next addition, same pattern).
 - Environmental data is region-wide, not per-site; `Site_ID` is already a column on `environmental_data.csv`
   ready for when a real feed can report per-site conditions.
 - Reporting export is CSV today; PDF/formatted-Excel export is a natural near-term addition once report

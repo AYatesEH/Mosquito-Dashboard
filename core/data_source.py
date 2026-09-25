@@ -79,6 +79,28 @@ class DataRepository(abc.ABC):
     @abc.abstractmethod
     def get_program_targets(self) -> pd.DataFrame: ...
 
+    # --- Writes ------------------------------------------------------------
+    # Each returns the new row's generated ID. A future backend (SQL Server,
+    # SharePoint Lists, Dataverse, ...) implements these the same way it
+    # implements the getters above - nothing outside this file needs to
+    # change. IMPORTANT: CSVDataRepository's implementation appends directly
+    # to the flat files, which is fine for a single-user demo/pilot but is
+    # NOT safe for several people editing at once (no locking/transactions)
+    # and NOT durable on Streamlit Community Cloud specifically (its
+    # filesystem is wiped on every redeploy/restart) - see README Section 6.
+
+    @abc.abstractmethod
+    def add_treatment(self, row: dict) -> str: ...
+
+    @abc.abstractmethod
+    def add_complaint(self, row: dict) -> str: ...
+
+    @abc.abstractmethod
+    def add_surveillance_event(self, row: dict) -> str: ...
+
+    @abc.abstractmethod
+    def add_surveillance_result(self, row: dict) -> str: ...
+
 
 class CSVDataRepository(DataRepository):
     """
@@ -174,6 +196,53 @@ class CSVDataRepository(DataRepository):
         for col in ("Planned_Surveillance_Events", "Planned_Treatments", "Target_Sites_Inspected"):
             df[col] = pd.to_numeric(df[col], errors="coerce")
         return df
+
+    # --- Writes --------------------------------------------------------
+    # See the abstract methods' docstring in DataRepository for the
+    # single-user/non-durable-on-Streamlit-Cloud caveat that applies to all
+    # of these.
+
+    def _next_id(self, df: pd.DataFrame, id_col: str, prefix: str, width: int) -> str:
+        """Generates the next sequential ID in this dataset's existing
+        PREFIX-00001 style, so new rows fit the same numbering scheme as the
+        sample data rather than colliding with it."""
+        if df.empty or id_col not in df.columns or df[id_col].dropna().empty:
+            return f"{prefix}-{1:0{width}d}"
+        nums = df[id_col].dropna().str.replace(f"{prefix}-", "", regex=False)
+        nums = pd.to_numeric(nums, errors="coerce").dropna()
+        next_n = int(nums.max()) + 1 if not nums.empty else 1
+        return f"{prefix}-{next_n:0{width}d}"
+
+    def _append_row(self, filename: str, row: dict) -> None:
+        """Appends ONE row to filename, matching the file's existing column
+        order exactly (any key in `row` not in the file is silently dropped;
+        any column not in `row` is written blank) - so the file's header
+        never needs rewriting and a normal read (`_read_csv`) picks the new
+        row straight up next time the cache is cleared."""
+        path = self.data_dir / filename
+        existing_columns = pd.read_csv(path, dtype=str, nrows=0).columns.tolist()
+        row_df = pd.DataFrame([{c: row.get(c, "") for c in existing_columns}])
+        row_df.to_csv(path, mode="a", header=False, index=False)
+
+    def add_treatment(self, row: dict) -> str:
+        new_id = self._next_id(self.get_treatments(), "Treatment_ID", "TRT", 5)
+        self._append_row("treatments.csv", {**row, "Treatment_ID": new_id})
+        return new_id
+
+    def add_complaint(self, row: dict) -> str:
+        new_id = self._next_id(self.get_complaints(), "Complaint_ID", "CMP", 5)
+        self._append_row("complaints.csv", {**row, "Complaint_ID": new_id})
+        return new_id
+
+    def add_surveillance_event(self, row: dict) -> str:
+        new_id = self._next_id(self.get_surveillance_events(), "Event_ID", "EVT", 5)
+        self._append_row("surveillance_events.csv", {**row, "Event_ID": new_id})
+        return new_id
+
+    def add_surveillance_result(self, row: dict) -> str:
+        new_id = self._next_id(self.get_surveillance_results(), "Result_ID", "RES", 6)
+        self._append_row("surveillance_results.csv", {**row, "Result_ID": new_id})
+        return new_id
 
 
 def get_repository() -> DataRepository:
