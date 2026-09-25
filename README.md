@@ -179,6 +179,31 @@ every function has a docstring and nothing here talks to Streamlit.
   labelled duration (30 days for ProLink Pellets, 150 for XR Briquets - see Section 5), the interpolation always
   resolves to that fixed number; the machinery still supports a genuine rate-dependent range if a future product
   needs it.
+- **Area and quantity units** (`Area_Treated_M2` in `treatments.csv`; `core.config.QUANTITY_USED_UNITS`):
+  treated area is recorded and entered in **m² everywhere in this app** (Treatments "Record a treatment", both
+  Dosage Calculator tabs, Products/Season Comparison/Reporting totals) - not hectares - because it's a far
+  easier figure to estimate for the small, discrete water bodies this program mostly treats (a puddle, a
+  drain, a garden pond) than fractions of a hectare. ProLink Pellets' real label rate is still "kg/ha" (the
+  actual label wording, not something this app changes); an entered m² figure is converted to hectares
+  internally only for that one multiplication. Quantity used is separately recorded in whichever unit an
+  officer actually counts/measures in the field - whole **grams** for ProLink Pellets, whole **briquets** for
+  ProLink XR Briquets - deliberately not the same unit as the rate itself; the Treatments form's dosage rate is
+  also a **locked selectbox** of the exact discrete site-condition options each real label defines, not a
+  free-form number, so an officer can't enter a rate that isn't actually on the label.
+- **Larvae Dip Calculator - guided mode** (Dosage Calculator page, "Larvae dip calculator (guided)" tab;
+  suggestions in `core.config.LOCATION_TYPE_GUIDANCE`): enter a water body's area (m²), date/time and a
+  plain-language location type (salt marsh, Swan River foreshore/bank, stormwater drain, neglected pool,
+  ornamental pond, temporary/ephemeral pool, etc.) and it suggests a starting product and site condition, then
+  computes the same locked-label dosage as the Treatments form. Where possible the suggestion is drawn directly
+  from the site-type examples named in each product's own APVMA label (e.g. the Pellets label itself names
+  "freshwater/salt marshes, mangrove swamps, estuarine areas" as its low-rate example); where the label doesn't
+  name a site type (Swan River foreshore, abandoned pools not literally on the Pellets label, etc.) it's this
+  app's own practical judgement, and the code/UI both say so explicitly. **This is a starting suggestion only,
+  never a determination** - the label's actual, operative criteria are the water depth, organic content and
+  larval count observed on site, not the location's name, so the product and site condition stay fully
+  overridable and nothing is saved from this calculator. The manual verification calculator tab (the original
+  Dosage Calculator) is unchanged in spirit - pick a product, enter area/rate directly, see the raw
+  area-times-rate arithmetic - and both tabs now take area in m² only (see the Area unit note below).
 - **Live weather** (`core/weather_api.py`, wrapped/cached in `core/ui.py`): calls the free, no-API-key
   Open-Meteo API to auto-populate current conditions (Environmental Conditions page) and historical/forecast
   weather for a specific site/date (Treatments form preview) - no manual searching or data entry needed. Written
@@ -216,7 +241,9 @@ Marked clearly in the app itself (banners on the relevant pages), but to be expl
   `Rate_Basis` and always verify the exact current APVMA-approved label before any real application, since
   labels are periodically reissued. Note: ProLink XR Briquets' labelled rate is area-covered-per-briquet
   (inverse of the other product's product-per-area rate) - the Dosage Calculator divides rather than multiplies
-  for this product accordingly.
+  for this product accordingly. The Larvae Dip Calculator's guided-mode location-type suggestions (Section 4)
+  are this app's own starting-point guidance built from the labels' own wording where possible, not a third
+  label data source.
 - **Removed from the dashboard on request:** the fictional adulticide ("MosquiZap ULV") and the real
   secondary/knockdown product ("VectoBac G") were both deliberately removed - the program tracks only the two
   S-methoprene ProLink products above.

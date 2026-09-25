@@ -70,6 +70,71 @@ QUANTITY_USED_UNITS = {
     "PRD-02": "briquet(s)",  # ProLink XR Briquets - whole briquets used
 }
 
+# Starting-point guidance for the Larvae Dip Calculator's "guided" mode
+# (pages/6_Dosage_Calculator.py): given a plain-language water body/location
+# type, suggests which real product and which LABEL_RATE_OPTIONS condition
+# (index 0 = shallow/clean/low-larval, index 1 = deep/organic-rich/
+# high-larval) an officer would typically start from. Where possible the
+# suggestion is drawn directly from the site-type examples named in each
+# product's own APVMA label text (see each product's Rate_Basis/Notes in
+# products.csv) - "reasoning" says explicitly which parts are label wording
+# and which are this app's own practical judgement (e.g. no label names
+# "Swan River foreshore" specifically). THIS IS A STARTING SUGGESTION ONLY,
+# not a determination: the label's actual, operative criteria are the
+# measured water depth, organic content and larval count observed on site,
+# never the location's name, so the calculator always leaves the product and
+# condition fully overridable and never saves/locks anything.
+LOCATION_TYPE_GUIDANCE = {
+    "Salt marsh / mangrove / estuarine wetland": {
+        "product_id": "PRD-01", "condition_index": 0,
+        "reasoning": "Named directly on the ProLink Pellets label as an example of a 3 kg/ha 'temporary water "
+                     "site' (shallow, clean, low larval counts) - see its Rate_Basis.",
+    },
+    "Woodland pool / natural water-holding feature": {
+        "product_id": "PRD-01", "condition_index": 0,
+        "reasoning": "Named directly on the ProLink Pellets label alongside marshes, under the same 3 kg/ha "
+                     "'temporary water site' example.",
+    },
+    "Temporary/ephemeral pool (verge, construction site, roadside)": {
+        "product_id": "PRD-01", "condition_index": 0,
+        "reasoning": "Not a named label example - this app's judgement: fits the label's shallow/clean/low-larval "
+                     "'temporary water site' category, and Pellets' 30-day duration suits water expected to dry "
+                     "out sooner than a 150-day briquet's residual life.",
+    },
+    "Stormwater drain / pit / catch basin": {
+        "product_id": "PRD-02", "condition_index": 1,
+        "reasoning": "Named directly on the ProLink XR Briquets label's typical-use list ('storm drains, catch "
+                     "basins'). Drains typically accumulate sediment/organic debris, matching the label's "
+                     "higher-rate (deep/organic-rich) condition.",
+    },
+    "Abandoned / neglected swimming pool": {
+        "product_id": "PRD-02", "condition_index": 1,
+        "reasoning": "Named directly on the ProLink XR Briquets label's typical-use list ('abandoned pools'). A "
+                     "stagnant, untreated pool is typically deep and organic/algae-rich, matching the label's "
+                     "higher-rate condition. A pool still in active use/chlorinated is not usually a breeding "
+                     "risk and would not normally need larvicide.",
+    },
+    "Ornamental pond / water feature": {
+        "product_id": "PRD-02", "condition_index": 1,
+        "reasoning": "Named on BOTH products' labels (Pellets' higher-rate 'permanent water site' example, and "
+                     "Briquets' chronic/semi-permanent site list) - defaults to Briquets as the better fit for a "
+                     "single discrete, semi-permanent feature, at the label's higher-rate (deep/organic) "
+                     "condition consistent with the Pellets label's own categorisation of ornamental ponds.",
+    },
+    "Swan River foreshore / river bank": {
+        "product_id": "PRD-02", "condition_index": 1,
+        "reasoning": "Not a named label example for either product - this app's judgement: bank-edge water "
+                     "re-floods on the tide and typically carries river sediment/organic matter, and an "
+                     "extended-release briquet suits water that keeps returning rather than a one-off broadacre "
+                     "spread. Check the tide indicator shown alongside this calculator before timing application.",
+    },
+    "Other / not listed": {
+        "product_id": None, "condition_index": None,
+        "reasoning": "No default for this location type - select a product and site condition manually below, "
+                     "based on the water depth, organic content and larval counts actually observed on site.",
+    },
+}
+
 # Site type used for the Swan River foreshore site (Claisebrook Cove) - a
 # real, named location tracked because larvae dipping/larviciding along the
 # river bank is a regular part of the program. Defined here (not just in

@@ -510,7 +510,7 @@ def data_quality_report(sites, trap_sites, surv_events, surv_results, treatments
             if r["Treatment_Type"] != "Source Reduction / Habitat Modification" and (
                     pd.isna(r["Product_ID"]) or str(r["Product_ID"]).strip() == ""):
                 add("treatments", r["Treatment_ID"], "High", "Completed treatment is missing a Product_ID.")
-            if pd.isna(r["Area_Treated_Ha"]) or r["Area_Treated_Ha"] == 0:
+            if pd.isna(r["Area_Treated_M2"]) or r["Area_Treated_M2"] == 0:
                 if r["Treatment_Type"] != "Source Reduction / Habitat Modification":
                     add("treatments", r["Treatment_ID"], "Medium", "Completed treatment has zero/blank area treated.")
             if pd.isna(r["Operator"]) or str(r["Operator"]).strip() == "":
@@ -546,7 +546,7 @@ def kpi_summary(catch_totals: pd.DataFrame, treatments: pd.DataFrame, complaints
 
     completed = treatments[treatments["Treatment_Status"] == "Completed"]
     scheduled = treatments[treatments["Treatment_Status"].isin(["Planned", "Scheduled"])]
-    area_treated = completed["Area_Treated_Ha"].fillna(0).sum()
+    area_treated = completed["Area_Treated_M2"].fillna(0).sum()
 
     # Sites currently above threshold / needing follow-up, based on latest usable event per site
     site_statuses = []
@@ -563,7 +563,7 @@ def kpi_summary(catch_totals: pd.DataFrame, treatments: pd.DataFrame, complaints
         "n_trap_sites": int(n_trap_sites),
         "treatments_completed": int(len(completed)),
         "treatments_scheduled": int(len(scheduled)),
-        "area_treated_ha": round(float(area_treated), 1),
+        "area_treated_m2": round(float(area_treated), 0),
         "complaints_received": int(len(complaints)),
         "sites_action_required": sites_action,
         "sites_elevated": sites_elevated,

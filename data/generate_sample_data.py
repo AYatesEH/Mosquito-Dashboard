@@ -514,20 +514,25 @@ products_df.to_csv(OUT_DIR / "products.csv", index=False)
 products_df["_Rate_Mid"] = (products_df["Rate_Min"].astype(float) + products_df["Rate_Max"].astype(float)) / 2
 
 
-def compute_quantity_used(rate_mid, rate_unit, area_ha):
+def compute_quantity_used(rate_mid, rate_unit, area_m2):
     """Rough sample-data proxy for how much product a completed treatment
-    used, given the product's rate and the treated area. Handles the two
-    real rate structures now in products.csv (see the products list above),
-    each recorded in the unit an officer would actually count/measure in the
-    field (see core.config.QUANTITY_USED_UNITS) rather than the rate's own
-    unit:
-      - "...kg/ha..." (ProLink Pellets broadacre rate): quantity = rate *
-        area_ha, converted kg -> GRAMS and rounded to a whole gram.
+    used, given the product's rate and the treated area (area IN M2 - this
+    app records treated area in m2 everywhere, see core.config and
+    Area_Treated_M2 below, since that's a far easier figure to estimate for
+    the small, discrete water bodies this program mostly treats than
+    fractions of a hectare). Handles the two real rate structures now in
+    products.csv (see the products list above), each recorded in the unit an
+    officer would actually count/measure in the field (see
+    core.config.QUANTITY_USED_UNITS) rather than the rate's own unit:
+      - "...kg/ha..." (ProLink Pellets broadacre rate - the REAL label rate
+        unit, kept as-is): area_m2 is converted to hectares only for this
+        multiplication, then quantity = rate * area_ha, converted kg ->
+        GRAMS and rounded to a whole gram.
       - "...per 1 briquet" (ProLink XR Briquets - rate is AREA COVERED PER
-        BRIQUET, i.e. inverse of the other products: a BIGGER rate number
-        means FEWER briquets needed): briquets = ceil((area_ha * 10,000
-        m2/ha) / rate) - a whole number, since you can't place half a
-        briquet (matches the Dosage Calculator's rounding).
+        BRIQUET, already in m2, i.e. inverse of the other products: a BIGGER
+        rate number means FEWER briquets needed): briquets = ceil(area_m2 /
+        rate) - a whole number, since you can't place half a briquet
+        (matches the Dosage Calculator's rounding).
       - anything else (the fictional withdrawn placeholder): falls back to a
         generic rate * area proxy for backward compatibility only.
     """
@@ -535,12 +540,12 @@ def compute_quantity_used(rate_mid, rate_unit, area_ha):
         return ""
     rate_unit_str = str(rate_unit)
     if "ha" in rate_unit_str:
+        area_ha = area_m2 / 10000
         kg = float(rate_mid) * area_ha
         return round(kg * 1000)  # grams, whole number
     if "briquet" in rate_unit_str:
-        area_m2 = area_ha * 10000
         return math.ceil(area_m2 / float(rate_mid))  # whole briquets
-    return round(float(rate_mid) * max(area_ha * 100, 1) / 10, 1)  # generic fallback proxy
+    return round(float(rate_mid) * max(area_m2 / 100, 1) / 10, 1)  # generic fallback proxy
 
 
 # ---------------------------------------------------------------------------
@@ -594,9 +599,17 @@ result_counter = 1
 # Pre-select a handful of "persistent hotspot" sites that will get an elevated
 # baseline abundance all season (for the Hotspot Identification feature),
 # distinct from sites that just have one isolated spike.
-hotspot_persistent_sites = set(rng.choice(active_site_ids, size=3, replace=False))
+#
+# Sorted immediately (not left as a bare set): Python randomizes a set's
+# iteration order per-process (PYTHONHASHSEED), so `for x in some_set` or
+# `list(some_set)` is NOT reproducible run-to-run even with this script's
+# fixed RNG_SEED, and this script is generated/iterated over below (line
+# ~814, ~866) - a bare set here silently broke this script's documented
+# "same seed -> same data every time" guarantee (see README Section 1).
+# Sorting once, right after creation, fixes the order for every later use.
+hotspot_persistent_sites = sorted(set(rng.choice(active_site_ids, size=3, replace=False).tolist()))
 remaining_for_spike = [s for s in active_site_ids if s not in hotspot_persistent_sites]
-hotspot_spike_sites = set(rng.choice(remaining_for_spike, size=2, replace=False))
+hotspot_spike_sites = sorted(set(rng.choice(remaining_for_spike, size=2, replace=False).tolist()))
 
 for season in ALL_SEASONS:
     season_start = SEASONS[season]["start"]
@@ -762,14 +775,14 @@ for season in ALL_SEASONS:
             else:
                 status = "Cancelled"
 
-        area_ha = round(float(rng.uniform(0.5, 12.0)), 2)
+        area_m2 = round(float(rng.uniform(5_000, 120_000)), 0)  # ~0.5-12 ha, expressed in m2
         cancelled_reason = ""
         actual_date = ""
         quantity_used = ""
         if status == "Completed":
             actual_date = (planned_date + timedelta(days=int(rng.integers(0, 3)))).strftime("%Y-%m-%d")
             if approved_rate is not None:
-                quantity_used = compute_quantity_used(approved_rate, rate_unit, area_ha)
+                quantity_used = compute_quantity_used(approved_rate, rate_unit, area_m2)
         elif status == "Cancelled":
             cancelled_reason = rng.choice([
                 "Site access restricted", "Weather unsuitable", "Insufficient surveillance trigger",
@@ -788,7 +801,7 @@ for season in ALL_SEASONS:
             "Application_Method": application_method,
             "Application_Rate": approved_rate if approved_rate is not None else "",
             "Rate_Unit": rate_unit,
-            "Area_Treated_Ha": area_ha if treatment_type != "Source Reduction / Habitat Modification" else "",
+            "Area_Treated_M2": area_m2 if treatment_type != "Source Reduction / Habitat Modification" else "",
             "Quantity_Used": quantity_used,
             "Operator": rng.choice(OFFICERS),
             "Reason": rng.choice([
@@ -811,7 +824,7 @@ for site_id in hotspot_persistent_sites:
         season_start = SEASONS[season]["start"]
         mid = season_start + timedelta(days=int(rng.integers(40, 100)))
         prod = products_df[products_df["Status"] == "Active"].sample(1, random_state=int(rng.integers(0, 1_000_000))).iloc[0]
-        area_ha = round(float(rng.uniform(2.0, 8.0)), 2)
+        area_m2 = round(float(rng.uniform(20_000, 80_000)), 0)  # ~2-8 ha, expressed in m2
         treatments.append({
             "Treatment_ID": f"TRT-{treatment_counter:05d}",
             "Site_ID": site_id, "Season": season,
@@ -819,8 +832,8 @@ for site_id in hotspot_persistent_sites:
             "Treatment_Status": "Completed", "Treatment_Type": "Larvicide Application",
             "Product_ID": prod["Product_ID"], "Application_Method": prod["Application_Method"],
             "Application_Rate": prod["_Rate_Mid"], "Rate_Unit": prod["Rate_Unit"],
-            "Area_Treated_Ha": area_ha,
-            "Quantity_Used": compute_quantity_used(prod["_Rate_Mid"], prod["Rate_Unit"], area_ha),
+            "Area_Treated_M2": area_m2,
+            "Quantity_Used": compute_quantity_used(prod["_Rate_Mid"], prod["Rate_Unit"], area_m2),
             "Operator": rng.choice(OFFICERS), "Reason": "Surveillance threshold exceeded",
             "Cancelled_Reason": "", "Notes": "Targeted treatment at known persistent hotspot.",
             "Created_By": SYSTEM_USER, "Created_Date": mid.strftime("%Y-%m-%d"),
@@ -832,7 +845,7 @@ for site_id in hotspot_persistent_sites:
 # a "Completed" larvicide treatment, missing operator
 treatments_df = pd.DataFrame(treatments)
 if len(treatments_df) > 5:
-    treatments_df.loc[treatments_df.index[3], "Area_Treated_Ha"] = 0
+    treatments_df.loc[treatments_df.index[3], "Area_Treated_M2"] = 0
     treatments_df.loc[treatments_df.index[5], "Operator"] = ""
     idx_completed_larv = treatments_df[(treatments_df["Treatment_Status"] == "Completed") &
                                         (treatments_df["Treatment_Type"] == "Larvicide Application")].index

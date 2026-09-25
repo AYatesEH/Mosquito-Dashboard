@@ -68,7 +68,7 @@ def render():
     ui.kpi_row([
         ("Treatments completed", f"{kpis['treatments_completed']}", None),
         ("Treatments planned/scheduled", f"{kpis['treatments_scheduled']}", None),
-        ("Total area treated (ha)", f"{kpis['area_treated_ha']:,.1f}", None),
+        ("Total area treated (m²)", f"{kpis['area_treated_m2']:,.0f}", None),
         ("Complaints received", f"{kpis['complaints_received']}", None),
         ("Surveillance completion", f"{calc.surveillance_program_completion(events_f, planned_events):.0f}%" if planned_events else "N/A",
          "SAMPLE target - see Program Targets in Reporting."),

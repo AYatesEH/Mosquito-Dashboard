@@ -68,7 +68,7 @@ def render():
         "Treatments": {
             "Completed": str(kpis["treatments_completed"]),
             "Planned/Scheduled": str(kpis["treatments_scheduled"]),
-            "Total area treated (ha)": f"{kpis['area_treated_ha']:,.1f}",
+            "Total area treated (m²)": f"{kpis['area_treated_m2']:,.0f}",
             "Treatment completion (SAMPLE target)": f"{100*kpis['treatments_completed']/planned_treatments:.0f}%" if planned_treatments else "N/A",
         },
         "Treatment effectiveness": {

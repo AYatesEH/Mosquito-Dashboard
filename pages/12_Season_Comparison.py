@@ -38,7 +38,7 @@ def _season_stats(season, data):
         "Surveillance events logged": len(events),
         "Surveillance completion %": calc.surveillance_program_completion(events, planned_events) if planned_events else None,
         "Treatments completed": len(completed),
-        "Area treated (ha)": round(float(completed["Area_Treated_Ha"].fillna(0).sum()), 1),
+        "Area treated (m²)": round(float(completed["Area_Treated_M2"].fillna(0).sum()), 0),
         "Product used (sum, mixed units)": round(float(completed["Quantity_Used"].fillna(0).sum()), 1),
         "Complaints received": len(complaints),
         "Sites flagged as hotspots": len(hotspots) if not hotspots.empty else 0,
@@ -88,7 +88,7 @@ def render():
     col3, col4 = st.columns(2)
     with col3:
         st.subheader("Treatments and area treated")
-        fig3 = px.bar(display_df, x="Season", y="Area treated (ha)")
+        fig3 = px.bar(display_df, x="Season", y="Area treated (m²)")
         fig3.update_layout(height=340)
         st.plotly_chart(fig3, use_container_width=True)
     with col4:

@@ -43,7 +43,7 @@ def render():
     used = treatments[(treatments["Product_ID"] == product_id) & (treatments["Treatment_Status"] == "Completed")]
     c1, c2, c3 = st.columns(3)
     c1.metric("Times used (completed treatments)", len(used))
-    c2.metric("Total area treated (ha)", f"{used['Area_Treated_Ha'].fillna(0).sum():.1f}")
+    c2.metric("Total area treated (m²)", f"{used['Area_Treated_M2'].fillna(0).sum():,.0f}")
     qty_unit = QUANTITY_USED_UNITS.get(product_id, "")
     qty_total = used["Quantity_Used"].fillna(0).sum()
     qty_fmt = f"{qty_total:.0f}" if qty_unit else f"{qty_total:.1f}"
@@ -51,7 +51,7 @@ def render():
     if not used.empty:
         st.dataframe(
             used.merge(data["sites"][["Site_ID", "Site_Name"]], on="Site_ID", how="left")[
-                ["Treatment_ID", "Site_Name", "Treatment_Date", "Area_Treated_Ha", "Quantity_Used", "Operator"]
+                ["Treatment_ID", "Site_Name", "Treatment_Date", "Area_Treated_M2", "Quantity_Used", "Operator"]
             ].sort_values("Treatment_Date", ascending=False),
             use_container_width=True, hide_index=True,
         )

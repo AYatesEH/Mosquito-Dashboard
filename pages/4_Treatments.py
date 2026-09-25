@@ -46,7 +46,7 @@ def render():
         t_display = t[t["Treatment_Status"].isin(status_filter)]
         st.dataframe(
             t_display[["Treatment_ID", "Site_Name", "Treatment_Status", "Treatment_Type", "Product_Name",
-                       "Application_Method", "Area_Treated_Ha", "Quantity_Used", "Planned_Date", "Treatment_Date",
+                       "Application_Method", "Area_Treated_M2", "Quantity_Used", "Planned_Date", "Treatment_Date",
                        "Operator", "Reason", "Cancelled_Reason"]].sort_values("Planned_Date", ascending=False),
             use_container_width=True, hide_index=True, height=420,
         )
@@ -145,32 +145,22 @@ def render():
             if not (new_product["Rate_Min"] <= new_rate <= new_product["Rate_Max"]):
                 st.caption(f"⚠️ Outside the labelled range ({new_product['Rate_Min']:g}-{new_product['Rate_Max']:g}).")
 
-        # The area input's unit follows the selected product's own label
-        # rate: ProLink XR Briquets is labelled per m2 of water surface, not
-        # per hectare, so entering area in ha there would force awkward
-        # decimals (e.g. 0.002 ha for a 20 m2 puddle). Area_Treated_Ha in the
-        # data store is always hectares (other pages sum it directly for
-        # cross-product area totals), so an m2 entry is converted before
-        # saving; the raw, as-entered value is kept separately for the
-        # quantity-used calculation below, since that must divide the actual
-        # m2 figure, not a rounded ha conversion.
-        area_is_m2 = new_type == "Larvicide Application" and "m2" in rate_unit_str and "ha" not in rate_unit_str
+        # Area treated is always entered and stored in m2 (see README) -
+        # easier to estimate for the small, discrete water bodies this
+        # program mostly treats (a puddle, a drain, a garden pond) than
+        # fractions of a hectare. ProLink Pellets' real label rate is still
+        # "kg/ha" (transcribed from the actual label - not something this
+        # app can change), so the quantity calculation below converts the
+        # entered m2 figure to hectares internally, only for that one
+        # multiplication.
         fc3, fc4, fc5 = st.columns(3)
         with fc3:
             new_status = st.selectbox("Treatment status", TREATMENT_STATUSES, index=TREATMENT_STATUSES.index("Completed"), key="new_treatment_status")
         with fc4:
-            new_area_ha = None
-            new_area_raw = None
-            if new_type != "Source Reduction / Habitat Modification":
-                if area_is_m2:
-                    new_area_raw = st.number_input(
-                        "Area/water surface treated (m²)", min_value=0.0, value=100.0, step=10.0, key="new_treatment_area_m2",
-                    )
-                    new_area_ha = round(new_area_raw / 10000, 4)
-                    st.caption(f"= {new_area_ha:g} ha (converted for area-treated totals elsewhere in the app).")
-                else:
-                    new_area_ha = st.number_input("Area treated (ha)", min_value=0.0, value=1.0, step=0.1, key="new_treatment_area")
-                    new_area_raw = new_area_ha
+            new_area_m2 = (
+                st.number_input("Area/water surface treated (m²)", min_value=0.0, value=100.0, step=10.0, key="new_treatment_area")
+                if new_type != "Source Reduction / Habitat Modification" else None
+            )
         with fc5:
             # Quantity used is recorded in whatever unit an officer actually
             # counts/measures in the field for that product - NOT the same
@@ -180,11 +170,11 @@ def render():
             # actual field usage differed.
             qty_unit = QUANTITY_USED_UNITS.get(new_product["Product_ID"])
             suggested_qty = None
-            if new_rate and new_area_raw:
-                if qty_unit == "g":  # kg/ha rate -> total kg -> grams
-                    suggested_qty = round(new_rate * new_area_ha * 1000)
-                elif qty_unit == "briquet(s)":  # m2-per-briquet rate (inverse) -> briquet count
-                    suggested_qty = math.ceil(new_area_raw / new_rate)
+            if new_rate and new_area_m2:
+                if qty_unit == "g":  # kg/ha rate -> convert area to ha -> total kg -> grams
+                    suggested_qty = round(new_rate * (new_area_m2 / 10000) * 1000)
+                elif qty_unit == "briquet(s)":  # m2-per-briquet rate (inverse, already m2) -> briquet count
+                    suggested_qty = math.ceil(new_area_m2 / new_rate)
             if qty_unit:
                 new_quantity = st.number_input(
                     f"Quantity used ({qty_unit})",
@@ -280,7 +270,7 @@ def render():
                     "Application_Method": new_product["Application_Method"] if new_type != "Source Reduction / Habitat Modification" else "",
                     "Application_Rate": new_rate if new_rate else "",
                     "Rate_Unit": new_product["Rate_Unit"] if new_rate else "",
-                    "Area_Treated_Ha": new_area_ha if new_area_ha else "",
+                    "Area_Treated_M2": new_area_m2 if new_area_m2 else "",
                     "Quantity_Used": new_quantity if new_quantity else "",
                     "Operator": new_officer,
                     "Reason": new_reason,
@@ -360,9 +350,9 @@ def render():
             st.subheader("Area treated by treatment type")
             completed_t = t[t["Treatment_Status"] == "Completed"]
             if not completed_t.empty:
-                by_type = completed_t.groupby("Treatment_Type", as_index=False)["Area_Treated_Ha"].sum()
-                fig2 = px.bar(by_type, x="Treatment_Type", y="Area_Treated_Ha")
-                fig2.update_layout(height=320, xaxis_title="", yaxis_title="Area treated (ha)")
+                by_type = completed_t.groupby("Treatment_Type", as_index=False)["Area_Treated_M2"].sum()
+                fig2 = px.bar(by_type, x="Treatment_Type", y="Area_Treated_M2")
+                fig2.update_layout(height=320, xaxis_title="", yaxis_title="Area treated (m²)")
                 st.plotly_chart(fig2, use_container_width=True)
 
             st.subheader("Product usage")

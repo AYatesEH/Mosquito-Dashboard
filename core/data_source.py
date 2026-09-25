@@ -154,7 +154,7 @@ class CSVDataRepository(DataRepository):
             "treatments.csv",
             date_cols=["Planned_Date", "Treatment_Date", "Created_Date", "Modified_Date"],
         )
-        for col in ("Application_Rate", "Area_Treated_Ha", "Quantity_Used"):
+        for col in ("Application_Rate", "Area_Treated_M2", "Quantity_Used"):
             df[col] = pd.to_numeric(df[col], errors="coerce")
         return df
 
