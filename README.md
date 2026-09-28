@@ -17,9 +17,14 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-This opens the Overview page in your browser, with every other page listed in the left-hand sidebar
-(Surveillance, Map, Site Detail, Treatments, Treatment Effectiveness, Dosage Calculator, Products, Complaints,
-Hotspots, Species Reference, Environmental, Season Comparison, Data Quality, Field Observations, Reporting).
+This opens the Overview page in your browser, with every other page listed in the left-hand sidebar (To Do
+List, Surveillance, Map, Site Detail, Treatments, Treatment Effectiveness, Dosage Calculator, Products,
+Complaints, Hotspots, Species Reference, Environmental, Season Comparison, Data Quality, Field Observations,
+Reporting).
+
+The mosquito season runs **October to May** app-wide (`core.config.MOSQUITO_SEASON_START_MONTH`/
+`MOSQUITO_SEASON_END_MONTH`, `core.calculations.is_in_mosquito_season`) - June-September is the off-season the
+program doesn't operate in, and the sample data deliberately contains none for those months.
 
 The sample data already exists under `data/raw/`. If you want to regenerate it (e.g. after changing the
 generator, or to get a clean slate), run:
@@ -54,6 +59,7 @@ should already be correct.
 mosquito_dashboard/
 ├── app.py                        # Overview page - Streamlit entry point
 ├── pages/                        # One file per page (Streamlit's native multipage mechanism)
+│   ├── 0_To_Do_List.py           # Auto-generated weekly priority list - sorts just below the "App" entry point
 │   ├── 1_Surveillance.py
 │   ├── 2_Map.py
 │   ├── 3_Site_Detail.py
@@ -171,6 +177,28 @@ every function has a docstring and nothing here talks to Streamlit.
 - **Data quality** (`data_quality_report`): a fixed set of checks (missing coordinates, orphaned foreign keys,
   retrieval-before-deployment, negative counts, missing species, zero-area completed treatments, and more) that
   only ever **report** - nothing is auto-corrected.
+- **Weekly To Do List** (`build_weekly_todo_list`, To Do List page - just below the entry-point "App" page in
+  the sidebar): an auto-generated, priority-ranked list of trap checks, larvicide treatments and larvae
+  dipping/inspection tasks for a chosen Monday-Sunday week, built entirely by reusing existing functions rather
+  than duplicating their logic - trap checks from surveillance-event gaps against `TRAP_CHECK_INTERVAL_DAYS`;
+  treatments from `treatment_redose_schedule` (re-dose due/overdue) plus `identify_hotspots` (a new hotspot site
+  with persistent trap activity or a confirmed trap+complaint flag and no tracked treatment yet); dipping/
+  inspection from unresolved complaints aged past `COMPLAINT_INSPECTION_AGE_HIGH_DAYS` and single-signal hotspot
+  sites (a lone trap spike or a complaint with no matching trap activity), which are asked to be confirmed by
+  dipping before a treatment is scheduled. **This is a pure, stateless view, recomputed fresh from current data
+  every time the page loads - there is no persisted "to-do" table and no manual "mark done" action.** A task
+  stops being generated, and so disappears from the list on its own, the moment the data it's asking for is
+  actually logged elsewhere in the app: a new surveillance event, a completed/tracked treatment, or a "Larvae
+  dip / inspection" field observation (see the next bullet). This only ever runs within the Oct-May season
+  window above; a week that falls entirely in the off-season shows an explicit "nothing due" message instead of
+  an empty list, so it's clear the absence of tasks is by design, not a bug.
+- **Field Observations write path** (`add_site_observation`; Field Observations page): a genuinely working "+
+  Record a new observation" form, following the same pattern as the Treatments/Complaints/Surveillance forms
+  (same CSV-append mechanism, same non-durable-on-Streamlit-Cloud caveat - see Section 6). Its category list
+  (`core.config.OBSERVATION_CATEGORIES`) is the single source of truth for both this form and the page's
+  filters, and includes "Larvae dip / inspection" - the category an officer picks to record that they actually
+  dipped/inspected a water body, which is what the Weekly To Do List's dipping/inspection tasks look for to
+  know a site has been checked.
 - **Re-dose scheduling** (`estimate_control_window`, `treatment_redose_schedule`): for a larvicide treatment,
   linearly interpolates a control-window duration between the product's `Duration_Min_Days` (at `Rate_Min`) and
   `Duration_Max_Days` (at `Rate_Max`) for the rate actually used, then works out an effective-until date and a
@@ -309,9 +337,11 @@ working unchanged, because pages call `core.ui.add_*`, never `data_source` direc
 
 ## 7. Known prototype limitations (by design, not oversights)
 
-- Data entry forms (Treatments, Complaints, Surveillance) save to the CSV files - genuinely working, but not
-  durable on Streamlit Community Cloud and not safe for concurrent multi-user writes - see Section 6. Field
-  Observations still has no "add" form yet (a natural next addition, same pattern).
+- Data entry forms (Treatments, Complaints, Surveillance, Field Observations) save to the CSV files - genuinely
+  working, but not durable on Streamlit Community Cloud and not safe for concurrent multi-user writes - see
+  Section 6.
+- The Weekly To Do List (Section 4) has no photo/attachment support and doesn't yet let an officer add a manual,
+  ad-hoc task outside its automatic rules - both natural near-term additions, same "+ Record..." form pattern.
 - Environmental data is region-wide, not per-site; `Site_ID` is already a column on `environmental_data.csv`
   ready for when a real feed can report per-site conditions.
 - Reporting export is CSV today; PDF/formatted-Excel export is a natural near-term addition once report

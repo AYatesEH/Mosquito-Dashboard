@@ -25,9 +25,9 @@ from core.config import (
 )
 
 SEASON_BOUNDS = {
-    "2023-24": (pd.Timestamp("2023-10-01"), pd.Timestamp("2024-04-30")),
-    "2024-25": (pd.Timestamp("2024-10-01"), pd.Timestamp("2025-04-30")),
-    "2025-26": (pd.Timestamp("2025-10-01"), pd.Timestamp("2026-04-30")),
+    "2023-24": (pd.Timestamp("2023-10-01"), pd.Timestamp("2024-05-31")),
+    "2024-25": (pd.Timestamp("2024-10-01"), pd.Timestamp("2025-05-31")),
+    "2025-26": (pd.Timestamp("2025-10-01"), pd.Timestamp("2026-05-31")),
 }
 DEFAULT_SEASON = "2025-26"
 
@@ -110,6 +110,12 @@ def add_surveillance_event(row: dict) -> str:
 
 def add_surveillance_result(row: dict) -> str:
     new_id = get_repository().add_surveillance_result(row)
+    invalidate_data_cache()
+    return new_id
+
+
+def add_site_observation(row: dict) -> str:
+    new_id = get_repository().add_site_observation(row)
     invalidate_data_cache()
     return new_id
 

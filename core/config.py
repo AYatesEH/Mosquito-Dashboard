@@ -142,6 +142,49 @@ LOCATION_TYPE_GUIDANCE = {
 # e.g. to show a tide indicator - without hardcoding the string themselves.
 RIVER_SITE_TYPE = "Swan River Foreshore"
 
+# --- Mosquito season window ---------------------------------------------
+# The program only operates October -> May (Southern Hemisphere); the cooler
+# June-September months fall outside the season and get no data or action.
+# `data/generate_sample_data.py` never generates a row dated in those months
+# (see SEASONS there - it stays standalone/dependency-free by design, so
+# this constant is duplicated there rather than imported), and the To Do
+# List page (pages/0_To_Do_List.py) uses these bounds to recognise an
+# off-season week and show "no action needed" instead of an empty list.
+MOSQUITO_SEASON_START_MONTH = 10  # October
+MOSQUITO_SEASON_END_MONTH = 5     # May (inclusive)
+
+# --- Weekly To Do List (pages/0_To_Do_List.py) ---------------------------
+# Transparent, configurable rules - same philosophy as Hotspot Identification
+# (core.calculations.identify_hotspots): no prediction, every threshold here
+# and nowhere else. The list itself is never persisted/checked off - it's
+# recomputed fresh from current data every time the page loads (see
+# calculations.build_weekly_todo_list), so once the treatment/trap-check/
+# observation that a task is asking for has actually been logged, the rule
+# that generated it just stops firing and the task naturally isn't on the
+# next computed list - there is no separate "mark done" action or state.
+TODO_TASK_TRAPPING = "Trap check"
+TODO_TASK_TREATMENT = "Larvicide treatment"
+TODO_TASK_DIPPING = "Larvae dipping / inspection"
+
+TODO_PRIORITY_HIGH = "High"
+TODO_PRIORITY_MEDIUM = "Medium"
+TODO_PRIORITY_COLOURS = {
+    TODO_PRIORITY_HIGH: "#C62828",    # red
+    TODO_PRIORITY_MEDIUM: "#F2A900",  # amber
+}
+
+# A trap is due for its regular check TRAP_CHECK_INTERVAL_DAYS after its last
+# logged event (matches the standard weekly deployment cadence modelled in
+# data/generate_sample_data.py); it's flagged High priority once it's overdue
+# by a further TRAP_CHECK_OVERDUE_GRACE_DAYS on top of that.
+TRAP_CHECK_INTERVAL_DAYS = 7
+TRAP_CHECK_OVERDUE_GRACE_DAYS = 7
+
+# An unresolved complaint (Investigation_Status not yet Site Inspected/
+# Closed) becomes a High-priority inspection task once it's been open at
+# least this many days; a freshly received one is Medium.
+COMPLAINT_INSPECTION_AGE_HIGH_DAYS = 7
+
 # --- Trap effort ---------------------------------------------------------
 # A "trap night" is counted only for events where the trap was deployed,
 # retrieved, and produced a valid sample. See core/calculations.py for the
@@ -156,6 +199,19 @@ VALID_TRAP_STATUSES_FOR_ABUNDANCE = {"Successful", "Partial"}
 INVALID_SAMPLE_VALIDITY = {"Invalid", "N/A"}
 
 TREATMENT_STATUSES = ["Planned", "Scheduled", "Completed", "Cancelled"]
+
+# Field Observations categories. "Larvae dip / inspection" is the category an
+# officer picks to log that they actually dipped/inspected a water body for
+# larvae - this is what the To Do List's "Larvae dipping / inspection" tasks
+# look for to know a site has been checked (see
+# calculations.build_weekly_todo_list). Kept here as the single source of
+# truth for the Field Observations page's form/filters; duplicated (not
+# imported) in data/generate_sample_data.py, which stays a standalone,
+# dependency-free script by design - see the note on RIVER_SITE_TYPE above.
+OBSERVATION_CATEGORIES = [
+    "Larvae dip / inspection", "Standing water observed", "Access issue", "Breeding habitat present",
+    "Treatment access restricted", "Environmental change", "Equipment issue", "Follow-up required",
+]
 
 # --- Operational status labels (see calculations.classify_status) ------
 STATUS_NORMAL = "Normal"

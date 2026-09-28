@@ -1,8 +1,10 @@
 """Field Observations - officer-recorded observations against a Site_ID."""
 
+import pandas as pd
 import streamlit as st
 
 from core import ui
+from core.config import OBSERVATION_CATEGORIES
 
 
 def render():
@@ -39,20 +41,35 @@ def render():
     )
 
     st.divider()
-    st.subheader("Record a new observation (prototype form)")
-    st.caption("Prototype only - does not yet write back to the data store. See README for the data-entry roadmap.")
-    with st.form("new_observation_form"):
+    with st.expander("+ Record a new observation"):
+        st.caption(
+            "Saves to this prototype's CSV data store - fine for a single-user demo/pilot, see README Section 6 "
+            "for moving to a real backend before relying on this for a live season. Logging a \"Larvae dip / "
+            "inspection\" observation here is also what clears a site's dipping/inspection task off the weekly "
+            "To Do List."
+        )
         fc1, fc2 = st.columns(2)
         with fc1:
-            ui.site_picker(data["sites"], key="new_obs_site")
-            st.selectbox("Observation category", [
-                "Standing water observed", "Access issue", "Breeding habitat present",
-                "Treatment access restricted", "Environmental change", "Equipment issue", "Follow-up required",
-            ], key="new_obs_category")
+            new_obs_site = ui.site_picker(data["sites"], key="new_obs_site")
+            new_obs_date = st.date_input("Date", value=pd.Timestamp.now().date(), key="new_obs_date")
+            new_obs_category = st.selectbox("Observation category", OBSERVATION_CATEGORIES, key="new_obs_category")
         with fc2:
-            st.selectbox("Officer", data["users"]["Name"].tolist(), key="new_obs_officer")
-            st.text_area("Notes", key="new_obs_notes")
-        st.form_submit_button("Save observation (prototype - not persisted)")
+            new_obs_officer = st.selectbox("Officer", data["users"]["Name"].tolist(), key="new_obs_officer")
+            new_obs_notes = st.text_area("Notes", key="new_obs_notes")
+
+        if st.button("Save observation", type="primary"):
+            new_id = ui.add_site_observation({
+                "Site_ID": new_obs_site or "",
+                "Season": ui.infer_season(new_obs_date),
+                "DateTime": pd.Timestamp(new_obs_date).strftime("%Y-%m-%d 00:00"),
+                "Officer": new_obs_officer,
+                "Observation_Category": new_obs_category,
+                "Notes": new_obs_notes or "",
+                "Created_By": new_obs_officer,
+                "Created_Date": pd.Timestamp.now().strftime("%Y-%m-%d"),
+            })
+            st.success(f"Saved {new_id}. The log, KPIs and any related To Do List tasks now reflect it.")
+            st.rerun()
     st.caption(
         "Photos/attachments are not yet supported in this prototype, but the data model (Observation_ID + "
         "Site_ID) is designed so they can be associated with an observation later without restructuring the table."

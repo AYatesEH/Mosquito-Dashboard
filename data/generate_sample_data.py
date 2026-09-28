@@ -85,16 +85,19 @@ TODAY = datetime(2026, 9, 25)  # "current" real-world date the prototype is buil
 # ---------------------------------------------------------------------------
 # SEASON DEFINITIONS
 # ---------------------------------------------------------------------------
-# A "mosquito season" runs roughly Oct -> Apr (Southern Hemisphere). We model
+# A "mosquito season" runs October -> May (Southern Hemisphere) - the cooler
+# June-September months fall outside the season and get no data/action at
+# all (see MOSQUITO_SEASON_START_MONTH/END_MONTH in core/config.py, which
+# every other part of the app uses to stay in sync with this). We model
 # three seasons: two fully complete historical seasons, and one "current"
 # season that is deliberately left mid-way through (not up to TODAY) so the
 # dashboard can demonstrate a genuinely in-progress operational season with
 # outstanding surveillance/treatment work. Dates are illustrative only.
 SEASONS = {
-    "2023-24": {"start": datetime(2023, 10, 1), "end": datetime(2024, 4, 30), "complete": True},
-    "2024-25": {"start": datetime(2024, 10, 1), "end": datetime(2025, 4, 30), "complete": True},
-    "2025-26": {"start": datetime(2025, 10, 1), "end": datetime(2026, 4, 30), "complete": True},
-    "2026-27": {"start": datetime(2026, 10, 1), "end": datetime(2027, 4, 30), "complete": False},
+    "2023-24": {"start": datetime(2023, 10, 1), "end": datetime(2024, 5, 31), "complete": True},
+    "2024-25": {"start": datetime(2024, 10, 1), "end": datetime(2025, 5, 31), "complete": True},
+    "2025-26": {"start": datetime(2025, 10, 1), "end": datetime(2026, 5, 31), "complete": True},
+    "2026-27": {"start": datetime(2026, 10, 1), "end": datetime(2027, 5, 31), "complete": False},
 }
 # The 2026-27 season hasn't started relative to TODAY (2026-09-25). We treat
 # 2025-26 as the "current" season for demo purposes, but stop generating its
@@ -551,32 +554,41 @@ def compute_quantity_used(rate_mid, rate_unit, area_m2):
 # ---------------------------------------------------------------------------
 # 5. ENVIRONMENTAL DATA (daily, region-wide - simplified for prototype)
 # ---------------------------------------------------------------------------
+# Generated PER SEASON (Oct-May only), not as one continuous calendar block -
+# the June-September off-season gap between one season's end and the next
+# season's start gets no rows at all, matching every other table (treatments,
+# complaints, surveillance, observations already loop this way) and the
+# principle that this app's whole database only covers the mosquito season.
 env_rows = []
-all_days_start = SEASONS["2023-24"]["start"]
-all_days_end = season_effective_end(CURRENT_SEASON)
-n_days = (all_days_end - all_days_start).days + 1
 env_id = 1
-# Smooth seasonal rainfall/temperature shape + noise, and a simple tidal cycle
-for d in range(n_days):
-    date = all_days_start + timedelta(days=d)
-    # crude seasonal temperature curve (Southern Hemisphere summer peak ~Jan)
-    day_of_season = (date - datetime(date.year if date.month >= 10 else date.year - 1, 10, 1)).days
-    seasonal_phase = np.sin((day_of_season / 210.0) * np.pi)  # 0..1..0 across ~Oct-Apr
-    temp_max = 22 + 10 * max(seasonal_phase, 0) + rng.normal(0, 2)
-    temp_min = temp_max - rng.uniform(6, 10)
-    rainfall = max(0, rng.exponential(2.0) - 1.0) if rng.random() < 0.3 else 0.0
-    tidal = 0.8 + 0.6 * np.sin(2 * np.pi * d / 14.0) + rng.normal(0, 0.05)
-    env_rows.append({
-        "Env_ID": f"ENV-{env_id:05d}",
-        "Date": date.strftime("%Y-%m-%d"),
-        "Site_ID": "",  # region-wide reading; left blank (see README on future site-level feeds)
-        "Rainfall_mm": round(float(rainfall), 1),
-        "Temp_Min_C": round(float(temp_min), 1),
-        "Temp_Max_C": round(float(temp_max), 1),
-        "Tidal_Level_m": round(float(tidal), 2),
-        "Notes": "",
-    })
-    env_id += 1
+d_global = 0  # running day counter across seasons, only for the tidal cycle's phase
+for season in ALL_SEASONS:
+    season_start = SEASONS[season]["start"]
+    season_end = season_effective_end(season)
+    n_days = (season_end - season_start).days + 1
+    for d in range(n_days):
+        date = season_start + timedelta(days=d)
+        # crude seasonal temperature curve (Southern Hemisphere summer peak ~Jan).
+        # 243 =~ the Oct-May season length in days, so the curve returns to
+        # baseline by the season's end instead of flattening out early.
+        day_of_season = (date - datetime(date.year if date.month >= 10 else date.year - 1, 10, 1)).days
+        seasonal_phase = np.sin((day_of_season / 243.0) * np.pi)  # 0..1..0 across Oct-May
+        temp_max = 22 + 10 * max(seasonal_phase, 0) + rng.normal(0, 2)
+        temp_min = temp_max - rng.uniform(6, 10)
+        rainfall = max(0, rng.exponential(2.0) - 1.0) if rng.random() < 0.3 else 0.0
+        tidal = 0.8 + 0.6 * np.sin(2 * np.pi * d_global / 14.0) + rng.normal(0, 0.05)
+        env_rows.append({
+            "Env_ID": f"ENV-{env_id:05d}",
+            "Date": date.strftime("%Y-%m-%d"),
+            "Site_ID": "",  # region-wide reading; left blank (see README on future site-level feeds)
+            "Rainfall_mm": round(float(rainfall), 1),
+            "Temp_Min_C": round(float(temp_min), 1),
+            "Temp_Max_C": round(float(temp_max), 1),
+            "Tidal_Level_m": round(float(tidal), 2),
+            "Notes": "",
+        })
+        env_id += 1
+        d_global += 1
 env_df = pd.DataFrame(env_rows)
 env_df.to_csv(OUT_DIR / "environmental_data.csv", index=False)
 env_df["_date_dt"] = pd.to_datetime(env_df["Date"])
@@ -616,7 +628,7 @@ for season in ALL_SEASONS:
     season_end = season_effective_end(season)
     n_weeks = ((season_end - season_start).days // 7)
     # The seasonal abundance SHAPE is always modelled across the FULL season
-    # length (Oct->Apr), even when a season's data generation is truncated
+    # length (Oct->May), even when a season's data generation is truncated
     # early (the current in-progress season). Otherwise a truncated season's
     # sine curve would be artificially compressed and falsely show abundance
     # tapering off near the cutoff date, when in reality a mid-season export
@@ -878,7 +890,17 @@ for season in ALL_SEASONS:
             site_id = ""
             approx_lat, approx_lon = random_point_in_vincent(rng)
             approx_lat, approx_lon = round(approx_lat, 5), round(approx_lon, 5)
-        status = rng.choice(INVESTIGATION_STATUSES, p=[0.1, 0.15, 0.15, 0.6])
+        # Past (completed) seasons are long over, so every complaint from one
+        # has by now been fully worked through - only the CURRENT season has
+        # a realistic in-progress mix of open/closed complaints. This matters
+        # for the weekly to-do list (core.calculations.build_weekly_todo_list),
+        # which surfaces unresolved complaints as inspection tasks - without
+        # this, complaints from 2+ seasons ago would still show up as an
+        # unrealistic ancient backlog.
+        if season == CURRENT_SEASON:
+            status = rng.choice(INVESTIGATION_STATUSES, p=[0.1, 0.15, 0.15, 0.6])
+        else:
+            status = "Closed"
         complaints.append({
             "Complaint_ID": f"CMP-{complaint_counter:05d}",
             "Date_Received": date_received.strftime("%Y-%m-%d"),
@@ -903,9 +925,14 @@ complaints_df.to_csv(OUT_DIR / "complaints.csv", index=False)
 # ---------------------------------------------------------------------------
 # 9. SITE OBSERVATIONS
 # ---------------------------------------------------------------------------
+# Kept in sync (duplicated, not imported - see the note on RIVER_SITE_TYPE
+# in core/config.py) with core.config.OBSERVATION_CATEGORIES. "Larvae dip /
+# inspection" is deliberately rare in the sample data below (only
+# occasionally rolled) so the To Do List page has realistic outstanding
+# dipping/inspection tasks to show, rather than every site already covered.
 OBS_CATEGORIES = ["Standing water observed", "Access issue", "Breeding habitat present",
                    "Treatment access restricted", "Environmental change", "Equipment issue",
-                   "Follow-up required"]
+                   "Follow-up required", "Larvae dip / inspection"]
 observations = []
 obs_counter = 1
 for season in ALL_SEASONS:

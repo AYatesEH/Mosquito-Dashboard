@@ -38,7 +38,34 @@ from core.config import (
     REDOSE_DUE_SOON,
     REDOSE_OVERDUE,
     REDOSE_NOT_SCHEDULED,
+    MOSQUITO_SEASON_START_MONTH,
+    MOSQUITO_SEASON_END_MONTH,
+    TODO_TASK_TRAPPING,
+    TODO_TASK_TREATMENT,
+    TODO_TASK_DIPPING,
+    TODO_PRIORITY_HIGH,
+    TODO_PRIORITY_MEDIUM,
+    TRAP_CHECK_INTERVAL_DAYS,
+    TRAP_CHECK_OVERDUE_GRACE_DAYS,
+    COMPLAINT_INSPECTION_AGE_HIGH_DAYS,
 )
+
+
+# ===========================================================================
+# MOSQUITO SEASON WINDOW (October -> May; see core/config.py)
+# ===========================================================================
+
+def is_in_mosquito_season(date, start_month: int = MOSQUITO_SEASON_START_MONTH,
+                           end_month: int = MOSQUITO_SEASON_END_MONTH) -> bool:
+    """True if `date` falls in an Oct-May mosquito-season month - i.e. NOT
+    one of the June-September off-season months, when the program does not
+    operate. `start_month > end_month` (10 > 5) models the wrap across the
+    calendar year end; this still works correctly if either boundary is
+    ever reconfigured to a range that doesn't wrap."""
+    month = pd.Timestamp(date).month
+    if start_month <= end_month:
+        return start_month <= month <= end_month
+    return month >= start_month or month <= end_month
 
 
 # ===========================================================================
@@ -460,6 +487,195 @@ def identify_hotspots(catch_totals: pd.DataFrame, complaints: pd.DataFrame, trea
             })
 
     return pd.DataFrame(rows)
+
+
+# ===========================================================================
+# WEEKLY TO-DO LIST (stateless - recomputed fresh every time, see core/config.py)
+# ===========================================================================
+
+def build_weekly_todo_list(
+    week_start: pd.Timestamp,
+    trap_sites: pd.DataFrame,
+    surv_events: pd.DataFrame,
+    catch_totals: pd.DataFrame,
+    complaints: pd.DataFrame,
+    treatments: pd.DataFrame,
+    products: pd.DataFrame,
+    thresholds: pd.DataFrame,
+    site_observations: pd.DataFrame,
+) -> pd.DataFrame:
+    """
+    Builds the operational priority list (trap checks, larvicide treatments,
+    larvae dipping/inspection) for the week starting `week_start` (a Monday).
+
+    This is deliberately a PURE, STATELESS view, computed fresh from current
+    data every time it's called - like treatment_redose_schedule and
+    identify_hotspots, which it reuses rather than duplicating. There is no
+    persisted "to-do" table and no manual "mark done" action: each row is
+    produced by a rule ("this trap hasn't been checked recently enough",
+    "this site's control window has lapsed", "this complaint/hotspot hasn't
+    been inspected yet"), and a task simply stops being generated the moment
+    new data makes its rule false. That's why logging the related surveillance
+    event, treatment, or field observation IS how a task clears itself - there
+    is nothing else to click.
+
+    Returns columns: Task_Type, Site_ID, Ref_ID, Priority, Reason, Due_Date.
+    """
+    week_start = pd.Timestamp(week_start).normalize()
+    week_end = week_start + timedelta(days=6)
+    as_of = week_end
+
+    rows = []
+
+    # --- 1. TRAP CHECKS ----------------------------------------------------
+    # A trap is due again TRAP_CHECK_INTERVAL_DAYS after its last logged
+    # event; it becomes High priority once it's overdue by a further
+    # TRAP_CHECK_OVERDUE_GRACE_DAYS on top of that (or if it has never been
+    # checked at all).
+    active_traps = trap_sites[trap_sites["Trap_Status"] == "Active"]
+    for _, trap in active_traps.iterrows():
+        trap_id = trap["Trap_ID"]
+        site_id = trap["Site_ID"]
+        trap_events = surv_events[(surv_events["Trap_ID"] == trap_id) &
+                                   surv_events["Deployment_DateTime"].notna()]
+        last_check = trap_events["Deployment_DateTime"].max() if not trap_events.empty else None
+
+        if last_check is None:
+            rows.append({
+                "Task_Type": TODO_TASK_TRAPPING, "Site_ID": site_id, "Ref_ID": trap_id,
+                "Priority": TODO_PRIORITY_HIGH,
+                "Reason": "No surveillance event has ever been logged for this trap.",
+                "Due_Date": pd.NaT,
+            })
+            continue
+
+        next_due = last_check + timedelta(days=TRAP_CHECK_INTERVAL_DAYS)
+        if next_due <= as_of:
+            overdue_days = (as_of - next_due).days
+            priority = TODO_PRIORITY_HIGH if overdue_days >= TRAP_CHECK_OVERDUE_GRACE_DAYS else TODO_PRIORITY_MEDIUM
+            rows.append({
+                "Task_Type": TODO_TASK_TRAPPING, "Site_ID": site_id, "Ref_ID": trap_id,
+                "Priority": priority,
+                "Reason": f"Last checked {last_check.date()}; due again {next_due.date()} "
+                          f"({TRAP_CHECK_INTERVAL_DAYS}-day cycle).",
+                "Due_Date": next_due,
+            })
+
+    # --- 2. LARVICIDE TREATMENT ---------------------------------------------
+    # Re-dose an existing, tracked treatment once its control window is due
+    # soon or has lapsed (reuses treatment_redose_schedule directly); on top
+    # of that, flag a FIRST treatment for hotspot sites with persistent trap
+    # activity (or a confirmed trap+complaint hotspot) that don't already
+    # have a tracked treatment covering them.
+    redose = treatment_redose_schedule(treatments, products, as_of=as_of)
+    sites_with_current_treatment = set(redose["Site_ID"].tolist()) if not redose.empty else set()
+    if not redose.empty:
+        for _, r in redose.iterrows():
+            if r["Status"] == REDOSE_OVERDUE:
+                rows.append({
+                    "Task_Type": TODO_TASK_TREATMENT, "Site_ID": r["Site_ID"], "Ref_ID": r["Treatment_ID"],
+                    "Priority": TODO_PRIORITY_HIGH,
+                    "Reason": f"Control window from the last treatment ({r['Treatment_Date'].date()}) "
+                              f"has lapsed - re-dose overdue.",
+                    "Due_Date": r["Redose_Due"],
+                })
+            elif r["Status"] == REDOSE_DUE_SOON:
+                due_str = r["Redose_Due"].date() if pd.notna(r["Redose_Due"]) else "soon"
+                rows.append({
+                    "Task_Type": TODO_TASK_TREATMENT, "Site_ID": r["Site_ID"], "Ref_ID": r["Treatment_ID"],
+                    "Priority": TODO_PRIORITY_MEDIUM,
+                    "Reason": f"Control window closing soon - re-dose due {due_str}.",
+                    "Due_Date": r["Redose_Due"],
+                })
+
+    hotspots = identify_hotspots(catch_totals, complaints, treatments, thresholds, as_of=as_of)
+    if not hotspots.empty:
+        for _, h in hotspots.iterrows():
+            if h["Site_ID"] in sites_with_current_treatment:
+                continue  # already has a tracked treatment - the re-dose rule above covers it
+            confirmed = "Confirmed hotspot (trap + complaint)" in h["Flags"]
+            persistent = h["Elevated_Weeks"] >= HOTSPOT_MIN_ELEVATED_WEEKS
+            if h["Trap_Flagged"] and (persistent or confirmed):
+                rows.append({
+                    "Task_Type": TODO_TASK_TREATMENT, "Site_ID": h["Site_ID"], "Ref_ID": None,
+                    "Priority": TODO_PRIORITY_HIGH if confirmed else TODO_PRIORITY_MEDIUM,
+                    "Reason": "Flagged hotspot with no current tracked treatment - " + "; ".join(h["Flags"]) + ".",
+                    "Due_Date": as_of,
+                })
+
+    # --- 3. LARVAE DIPPING / INSPECTION -------------------------------------
+    # Unresolved complaints become an inspection task once they've been open
+    # a while (High past COMPLAINT_INSPECTION_AGE_HIGH_DAYS); the task clears
+    # the moment a "Larvae dip / inspection" field observation is logged for
+    # that site on or after the complaint's received date.
+    unresolved = complaints[
+        complaints["Investigation_Status"].isin(["Received", "Under Investigation"]) &
+        complaints["Date_Received"].notna() &
+        (complaints["Date_Received"] <= as_of)
+    ]
+    dipping_sites_covered = set()
+    for _, c in unresolved.iterrows():
+        site_id = c["Site_ID"] if pd.notna(c.get("Site_ID")) and c.get("Site_ID") != "" else None
+        if site_id is not None:
+            site_obs = site_observations[
+                (site_observations["Site_ID"] == site_id) &
+                (site_observations["Observation_Category"] == "Larvae dip / inspection") &
+                (site_observations["DateTime"] >= c["Date_Received"])
+            ]
+            if not site_obs.empty:
+                continue  # already inspected since the complaint came in
+        age_days = (as_of - c["Date_Received"]).days
+        priority = TODO_PRIORITY_HIGH if age_days >= COMPLAINT_INSPECTION_AGE_HIGH_DAYS else TODO_PRIORITY_MEDIUM
+        rows.append({
+            "Task_Type": TODO_TASK_DIPPING, "Site_ID": site_id, "Ref_ID": c["Complaint_ID"],
+            "Priority": priority,
+            "Reason": f"Complaint received {c['Date_Received'].date()} ({age_days}d ago), not yet inspected.",
+            "Due_Date": c["Date_Received"] + timedelta(days=COMPLAINT_INSPECTION_AGE_HIGH_DAYS),
+        })
+        if site_id is not None:
+            dipping_sites_covered.add(site_id)
+
+    # Hotspot sites flagged by only ONE signal (a single trap spike with no
+    # complaint, or a complaint alone with no trap activity) get a dipping/
+    # inspection task first, to confirm before a treatment is scheduled -
+    # unless they're already covered by a treatment task above or a
+    # complaint-driven dipping task just added, or a dip/inspection has
+    # already been logged there within the hotspot lookback window.
+    if not hotspots.empty:
+        already_treatment_sites = {row["Site_ID"] for row in rows if row["Task_Type"] == TODO_TASK_TREATMENT}
+        window_start = as_of - timedelta(weeks=HOTSPOT_LOOKBACK_WEEKS)
+        for _, h in hotspots.iterrows():
+            site_id = h["Site_ID"]
+            if site_id in already_treatment_sites or site_id in dipping_sites_covered:
+                continue
+            single_spike_only = h["Elevated_Weeks"] == 1 and not h["Complaint_Flagged"]
+            complaint_only = h["Complaint_Flagged"] and not h["Trap_Flagged"]
+            if not (single_spike_only or complaint_only):
+                continue
+            recent_dip = site_observations[
+                (site_observations["Site_ID"] == site_id) &
+                (site_observations["Observation_Category"] == "Larvae dip / inspection") &
+                (site_observations["DateTime"] >= window_start) &
+                (site_observations["DateTime"] <= as_of)
+            ]
+            if not recent_dip.empty:
+                continue
+            rows.append({
+                "Task_Type": TODO_TASK_DIPPING, "Site_ID": site_id, "Ref_ID": None,
+                "Priority": TODO_PRIORITY_MEDIUM,
+                "Reason": "Flagged by a single signal - confirm by dipping/inspecting before scheduling "
+                          "treatment: " + "; ".join(h["Flags"]) + ".",
+                "Due_Date": as_of,
+            })
+
+    columns = ["Task_Type", "Site_ID", "Ref_ID", "Priority", "Reason", "Due_Date"]
+    todo = pd.DataFrame(rows, columns=columns)
+    if todo.empty:
+        return todo
+    priority_order = {TODO_PRIORITY_HIGH: 0, TODO_PRIORITY_MEDIUM: 1}
+    todo["_priority_sort"] = todo["Priority"].map(priority_order)
+    todo = todo.sort_values(["_priority_sort", "Task_Type", "Site_ID"]).drop(columns="_priority_sort")
+    return todo.reset_index(drop=True)
 
 
 # ===========================================================================
