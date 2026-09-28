@@ -19,8 +19,20 @@ streamlit run app.py
 
 This opens the Overview page in your browser, with every other page listed in the left-hand sidebar (To Do
 List, Surveillance, Map, Site Detail, Treatments, Treatment Effectiveness, Dosage Calculator, Products,
-Complaints, Hotspots, Species Reference, Environmental, Season Comparison, Data Quality, Field Observations,
-Reporting).
+Complaints, Hotspots, Species Reference, Environmental, Data Quality, Reporting).
+
+Season Comparison and Field Observations are currently **hidden** from the sidebar (not needed day-to-day) -
+their code is unchanged and untouched, just moved to `pages_hidden/` so Streamlit's automatic page discovery
+(which only scans `pages/`) doesn't pick them up. To bring either back, move its file back into `pages/`:
+
+```bash
+mv pages_hidden/12_Season_Comparison.py pages/
+mv pages_hidden/14_Field_Observations.py pages/
+```
+
+The one thing Field Observations was needed for - logging a "Larvae dip / inspection" so a matching To Do List
+task clears itself - now has its own quick-log action directly on the To Do List page, so hiding it doesn't
+break that.
 
 The mosquito season runs **October to May** app-wide (`core.config.MOSQUITO_SEASON_START_MONTH`/
 `MOSQUITO_SEASON_END_MONTH`, `core.calculations.is_in_mosquito_season`) - June-September is the off-season the
@@ -71,10 +83,11 @@ mosquito_dashboard/
 │   ├── 9_Hotspots.py
 │   ├── 10_Species_Reference.py
 │   ├── 11_Environmental.py
-│   ├── 12_Season_Comparison.py
 │   ├── 13_Data_Quality.py
-│   ├── 14_Field_Observations.py
 │   └── 15_Reporting.py
+├── pages_hidden/                 # Pages hidden from the sidebar (unchanged code, not deleted - see Section 1)
+│   ├── 12_Season_Comparison.py
+│   └── 14_Field_Observations.py
 ├── core/                         # All logic that isn't page/UI code
 │   ├── config.py                 # Constants, SAMPLE thresholds/targets, status colours
 │   ├── data_source.py            # Data-access abstraction (the ONLY file that reads CSVs)
@@ -205,13 +218,13 @@ every function has a docstring and nothing here talks to Streamlit.
   the list and confirming the matching task drops off. This only ever runs within the Oct-May season window
   above; a week that falls entirely in the off-season shows an explicit "nothing due" message instead of an
   empty list, so it's clear the absence of tasks is by design, not a bug.
-- **Field Observations write path** (`add_site_observation`; Field Observations page): a genuinely working "+
-  Record a new observation" form, following the same pattern as the Treatments/Complaints/Surveillance forms
-  (same CSV-append mechanism, same non-durable-on-Streamlit-Cloud caveat - see Section 6). Its category list
-  (`core.config.OBSERVATION_CATEGORIES`) is the single source of truth for both this form and the page's
-  filters, and includes "Larvae dip / inspection" - the category an officer picks to record that they actually
-  dipped/inspected a water body, which is what the Weekly To Do List's dipping/inspection tasks look for to
-  know a site has been checked.
+- **`add_site_observation` write path**: same CSV-append pattern as the Treatments/Complaints/Surveillance forms
+  (same non-durable-on-Streamlit-Cloud caveat - see Section 6). `core.config.OBSERVATION_CATEGORY_DIP` ("Larvae
+  dip / inspection") is the single source of truth for the one category the rest of the app actually depends
+  on - it's what the Weekly To Do List's dipping/inspection tasks look for to know a site has been checked, and
+  that list has its own "+ Log a larvae dip / inspection" quick-log action calling this same write path. The
+  full Field Observations page (every category, a log/filter view) still exists with a working "+ Record a new
+  observation" form, but is currently hidden from the sidebar - see Section 1.
 - **Re-dose scheduling** (`estimate_control_window`, `treatment_redose_schedule`): for a larvicide treatment,
   linearly interpolates a control-window duration between the product's `Duration_Min_Days` (at `Rate_Min`) and
   `Duration_Max_Days` (at `Rate_Max`) for the rate actually used, then works out an effective-until date and a
@@ -350,9 +363,11 @@ working unchanged, because pages call `core.ui.add_*`, never `data_source` direc
 
 ## 7. Known prototype limitations (by design, not oversights)
 
-- Data entry forms (Treatments, Complaints, Surveillance, Field Observations) save to the CSV files - genuinely
-  working, but not durable on Streamlit Community Cloud and not safe for concurrent multi-user writes - see
-  Section 6.
+- Data entry forms (Treatments, Complaints, Surveillance, and the To Do List's dip-logging quick action) save to
+  the CSV files - genuinely working, but not durable on Streamlit Community Cloud and not safe for concurrent
+  multi-user writes - see Section 6.
+- Season Comparison and Field Observations are hidden from the sidebar (Section 1) - their code and data are
+  untouched, so re-enabling either later is a one-line `mv`.
 - The Weekly To Do List (Section 4) has no photo/attachment support and doesn't yet let an officer add a manual,
   ad-hoc task outside its automatic rules - both natural near-term additions, same "+ Record..." form pattern.
 - Environmental data is region-wide, not per-site; `Site_ID` is already a column on `environmental_data.csv`

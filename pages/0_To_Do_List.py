@@ -22,6 +22,7 @@ from core.config import (
     TODO_PRIORITY_HIGH, TODO_PRIORITY_MEDIUM, TODO_PRIORITY_COLOURS,
     TODO_TASK_TRAPPING, TODO_TASK_TREATMENT, TODO_TASK_DIPPING,
     MOSQUITO_SEASON_START_MONTH, MOSQUITO_SEASON_END_MONTH, WEEKLY_TRAP_COUNT,
+    OBSERVATION_CATEGORY_DIP,
 )
 
 
@@ -40,6 +41,34 @@ def render():
         f"**{WEEKLY_TRAP_COUNT} CO2 traps** are available each week, set out for one night and picked up the "
         f"next morning."
     )
+
+    with st.expander("+ Log a larvae dip / inspection"):
+        st.caption(
+            "This is what clears a \"Larvae dipping / inspection\" task off this list. Saves to this "
+            "prototype's CSV data store - see README Section 6 for the single-user/non-durable-on-Streamlit-"
+            "Cloud caveat that applies to every data-entry form in this app."
+        )
+        dc1, dc2 = st.columns(2)
+        with dc1:
+            dip_site = ui.site_picker(data["sites"], key="todo_dip_site")
+            dip_date = st.date_input("Date", value=pd.Timestamp.now().date(), key="todo_dip_date")
+        with dc2:
+            dip_officer = st.selectbox("Officer", data["users"]["Name"].tolist(), key="todo_dip_officer")
+            dip_notes = st.text_area("Notes", key="todo_dip_notes")
+
+        if st.button("Save dip / inspection", type="primary", key="todo_dip_save"):
+            new_id = ui.add_site_observation({
+                "Site_ID": dip_site or "",
+                "Season": ui.infer_season(dip_date),
+                "DateTime": pd.Timestamp(dip_date).strftime("%Y-%m-%d 00:00"),
+                "Officer": dip_officer,
+                "Observation_Category": OBSERVATION_CATEGORY_DIP,
+                "Notes": dip_notes or "",
+                "Created_By": dip_officer,
+                "Created_Date": pd.Timestamp.now().strftime("%Y-%m-%d"),
+            })
+            st.success(f"Saved {new_id}. Any matching dipping/inspection task for this site clears on the next refresh.")
+            st.rerun()
 
     # --- Week picker ---------------------------------------------------
     candidate_dates = pd.concat([

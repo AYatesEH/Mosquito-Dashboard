@@ -47,6 +47,7 @@ from core.config import (
     TODO_PRIORITY_MEDIUM,
     WEEKLY_TRAP_COUNT,
     COMPLAINT_INSPECTION_AGE_HIGH_DAYS,
+    OBSERVATION_CATEGORY_DIP,
 )
 
 
@@ -661,7 +662,7 @@ def build_weekly_todo_list(
         if site_id is not None:
             site_obs = site_observations[
                 (site_observations["Site_ID"] == site_id) &
-                (site_observations["Observation_Category"] == "Larvae dip / inspection") &
+                (site_observations["Observation_Category"] == OBSERVATION_CATEGORY_DIP) &
                 (site_observations["DateTime"] >= c["Date_Received"])
             ]
             if not site_obs.empty:
@@ -696,7 +697,7 @@ def build_weekly_todo_list(
                 continue
             recent_dip = site_observations[
                 (site_observations["Site_ID"] == site_id) &
-                (site_observations["Observation_Category"] == "Larvae dip / inspection") &
+                (site_observations["Observation_Category"] == OBSERVATION_CATEGORY_DIP) &
                 (site_observations["DateTime"] >= window_start) &
                 (site_observations["DateTime"] <= as_of)
             ]

@@ -183,7 +183,7 @@ def render():
 
     st.caption(
         "Thresholds shown are SAMPLE values for prototype demonstration - see the Data Quality and "
-        "Reporting pages for full detail, and Season Comparison to see how this season compares with prior seasons."
+        "Reporting pages for full detail."
     )
 
 

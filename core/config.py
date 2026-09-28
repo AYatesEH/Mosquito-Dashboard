@@ -202,16 +202,18 @@ INVALID_SAMPLE_VALIDITY = {"Invalid", "N/A"}
 
 TREATMENT_STATUSES = ["Planned", "Scheduled", "Completed", "Cancelled"]
 
-# Field Observations categories. "Larvae dip / inspection" is the category an
+# Field Observations categories. OBSERVATION_CATEGORY_DIP is the category an
 # officer picks to log that they actually dipped/inspected a water body for
 # larvae - this is what the To Do List's "Larvae dipping / inspection" tasks
 # look for to know a site has been checked (see
-# calculations.build_weekly_todo_list). Kept here as the single source of
-# truth for the Field Observations page's form/filters; duplicated (not
+# calculations.build_weekly_todo_list and the quick-log action on the To Do
+# List page itself). Kept here as the single source of truth for the
+# category text everywhere it's compared/displayed; duplicated (not
 # imported) in data/generate_sample_data.py, which stays a standalone,
 # dependency-free script by design - see the note on RIVER_SITE_TYPE above.
+OBSERVATION_CATEGORY_DIP = "Larvae dip / inspection"
 OBSERVATION_CATEGORIES = [
-    "Larvae dip / inspection", "Standing water observed", "Access issue", "Breeding habitat present",
+    OBSERVATION_CATEGORY_DIP, "Standing water observed", "Access issue", "Breeding habitat present",
     "Treatment access restricted", "Environmental change", "Equipment issue", "Follow-up required",
 ]
 
