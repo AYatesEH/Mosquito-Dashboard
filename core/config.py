@@ -158,11 +158,11 @@ MOSQUITO_SEASON_END_MONTH = 5     # May (inclusive)
 # (core.calculations.identify_hotspots): no prediction, every threshold here
 # and nowhere else. The list itself is never persisted/checked off - it's
 # recomputed fresh from current data every time the page loads (see
-# calculations.build_weekly_todo_list), so once the treatment/trap-check/
+# calculations.build_weekly_todo_list), so once the treatment/trap placement/
 # observation that a task is asking for has actually been logged, the rule
 # that generated it just stops firing and the task naturally isn't on the
 # next computed list - there is no separate "mark done" action or state.
-TODO_TASK_TRAPPING = "Trap check"
+TODO_TASK_TRAPPING = "Trap placement"
 TODO_TASK_TREATMENT = "Larvicide treatment"
 TODO_TASK_DIPPING = "Larvae dipping / inspection"
 
@@ -173,12 +173,14 @@ TODO_PRIORITY_COLOURS = {
     TODO_PRIORITY_MEDIUM: "#F2A900",  # amber
 }
 
-# A trap is due for its regular check TRAP_CHECK_INTERVAL_DAYS after its last
-# logged event (matches the standard weekly deployment cadence modelled in
-# data/generate_sample_data.py); it's flagged High priority once it's overdue
-# by a further TRAP_CHECK_OVERDUE_GRACE_DAYS on top of that.
-TRAP_CHECK_INTERVAL_DAYS = 7
-TRAP_CHECK_OVERDUE_GRACE_DAYS = 7
+# Only this many physical CO2 traps are actually owned/deployed each week
+# (set out for one night, picked up the next morning, then moved) - so the
+# To Do List doesn't track individual traps on a per-check cycle, it instead
+# recommends which this-many sites should get this week's traps, ranked by
+# hotspot priority (core.calculations.identify_hotspots) with the
+# least-recently-trapped sites used as a rotation fallback. See
+# calculations.build_weekly_todo_list.
+WEEKLY_TRAP_COUNT = 3
 
 # An unresolved complaint (Investigation_Status not yet Site Inspected/
 # Closed) becomes a High-priority inspection task once it's been open at

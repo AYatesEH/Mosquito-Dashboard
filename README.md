@@ -178,20 +178,33 @@ every function has a docstring and nothing here talks to Streamlit.
   retrieval-before-deployment, negative counts, missing species, zero-area completed treatments, and more) that
   only ever **report** - nothing is auto-corrected.
 - **Weekly To Do List** (`build_weekly_todo_list`, To Do List page - just below the entry-point "App" page in
-  the sidebar): an auto-generated, priority-ranked list of trap checks, larvicide treatments and larvae
-  dipping/inspection tasks for a chosen Monday-Sunday week, built entirely by reusing existing functions rather
-  than duplicating their logic - trap checks from surveillance-event gaps against `TRAP_CHECK_INTERVAL_DAYS`;
-  treatments from `treatment_redose_schedule` (re-dose due/overdue) plus `identify_hotspots` (a new hotspot site
-  with persistent trap activity or a confirmed trap+complaint flag and no tracked treatment yet); dipping/
-  inspection from unresolved complaints aged past `COMPLAINT_INSPECTION_AGE_HIGH_DAYS` and single-signal hotspot
-  sites (a lone trap spike or a complaint with no matching trap activity), which are asked to be confirmed by
-  dipping before a treatment is scheduled. **This is a pure, stateless view, recomputed fresh from current data
-  every time the page loads - there is no persisted "to-do" table and no manual "mark done" action.** A task
-  stops being generated, and so disappears from the list on its own, the moment the data it's asking for is
-  actually logged elsewhere in the app: a new surveillance event, a completed/tracked treatment, or a "Larvae
-  dip / inspection" field observation (see the next bullet). This only ever runs within the Oct-May season
-  window above; a week that falls entirely in the off-season shows an explicit "nothing due" message instead of
-  an empty list, so it's clear the absence of tasks is by design, not a bug.
+  the sidebar): an auto-generated, priority-ranked list of weekly trap placement, larvicide treatments and
+  larvae dipping/inspection tasks for a chosen Monday-Sunday week, built entirely by reusing existing functions
+  rather than duplicating their logic.
+    - **Trap placement**: only `WEEKLY_TRAP_COUNT` (3) physical CO2 traps are actually owned - set out for one
+      night and picked up the next morning, then moved - so instead of tracking individual traps on a fixed
+      check cycle, this recommends WHICH sites should get this week's traps. Sites are ranked by hotspot
+      priority (reusing `identify_hotspots`): a confirmed trap+complaint hotspot first, then persistent
+      elevated activity, then any other flag, then - once flagged sites run out - whichever candidate sites
+      have gone longest without a trap (or have never had one), so the whole network still gets rotated through
+      over time rather than only ever trapping the same few sites. It only ever asks for as many sites as there
+      are traps still unplaced that week: once `WEEKLY_TRAP_COUNT` distinct sites have an actual surveillance
+      event logged for the week, the recommendation clears itself.
+    - **Larvicide treatment**: from `treatment_redose_schedule` (re-dose due/overdue) plus `identify_hotspots`
+      (a new hotspot site with persistent trap activity or a confirmed trap+complaint flag and no tracked
+      treatment yet).
+    - **Dipping/inspection**: from unresolved complaints aged past `COMPLAINT_INSPECTION_AGE_HIGH_DAYS` and
+      single-signal hotspot sites (a lone trap spike or a complaint with no matching trap activity), which are
+      asked to be confirmed by dipping before a treatment is scheduled.
+
+  **This is a pure, stateless view, recomputed fresh from current data every time the page loads - there is no
+  persisted "to-do" table and no manual "mark done" action.** A task stops being generated, and so disappears
+  from the list on its own, the moment the data it's asking for is actually logged elsewhere in the app: a new
+  surveillance event (trap placement), a completed/tracked treatment, or a "Larvae dip / inspection" field
+  observation (see the next bullet) - verified directly by logging each of these against a running instance of
+  the list and confirming the matching task drops off. This only ever runs within the Oct-May season window
+  above; a week that falls entirely in the off-season shows an explicit "nothing due" message instead of an
+  empty list, so it's clear the absence of tasks is by design, not a bug.
 - **Field Observations write path** (`add_site_observation`; Field Observations page): a genuinely working "+
   Record a new observation" form, following the same pattern as the Treatments/Complaints/Surveillance forms
   (same CSV-append mechanism, same non-durable-on-Streamlit-Cloud caveat - see Section 6). Its category list

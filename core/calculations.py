@@ -45,8 +45,7 @@ from core.config import (
     TODO_TASK_DIPPING,
     TODO_PRIORITY_HIGH,
     TODO_PRIORITY_MEDIUM,
-    TRAP_CHECK_INTERVAL_DAYS,
-    TRAP_CHECK_OVERDUE_GRACE_DAYS,
+    WEEKLY_TRAP_COUNT,
     COMPLAINT_INSPECTION_AGE_HIGH_DAYS,
 )
 
@@ -503,16 +502,18 @@ def build_weekly_todo_list(
     products: pd.DataFrame,
     thresholds: pd.DataFrame,
     site_observations: pd.DataFrame,
+    n_traps: int = WEEKLY_TRAP_COUNT,
 ) -> pd.DataFrame:
     """
-    Builds the operational priority list (trap checks, larvicide treatments,
-    larvae dipping/inspection) for the week starting `week_start` (a Monday).
+    Builds the operational priority list (weekly trap placement, larvicide
+    treatments, larvae dipping/inspection) for the week starting `week_start`
+    (a Monday).
 
     This is deliberately a PURE, STATELESS view, computed fresh from current
     data every time it's called - like treatment_redose_schedule and
     identify_hotspots, which it reuses rather than duplicating. There is no
     persisted "to-do" table and no manual "mark done" action: each row is
-    produced by a rule ("this trap hasn't been checked recently enough",
+    produced by a rule ("this many of this week's traps still need a site",
     "this site's control window has lapsed", "this complaint/hotspot hasn't
     been inspected yet"), and a task simply stops being generated the moment
     new data makes its rule false. That's why logging the related surveillance
@@ -527,39 +528,81 @@ def build_weekly_todo_list(
 
     rows = []
 
-    # --- 1. TRAP CHECKS ----------------------------------------------------
-    # A trap is due again TRAP_CHECK_INTERVAL_DAYS after its last logged
-    # event; it becomes High priority once it's overdue by a further
-    # TRAP_CHECK_OVERDUE_GRACE_DAYS on top of that (or if it has never been
-    # checked at all).
-    active_traps = trap_sites[trap_sites["Trap_Status"] == "Active"]
-    for _, trap in active_traps.iterrows():
-        trap_id = trap["Trap_ID"]
-        site_id = trap["Site_ID"]
-        trap_events = surv_events[(surv_events["Trap_ID"] == trap_id) &
-                                   surv_events["Deployment_DateTime"].notna()]
-        last_check = trap_events["Deployment_DateTime"].max() if not trap_events.empty else None
+    # identify_hotspots is reused by both the trap-placement and treatment
+    # sections below, so it's computed once, here, rather than twice.
+    hotspots = identify_hotspots(catch_totals, complaints, treatments, thresholds, as_of=as_of)
+    hotspot_by_site = {h["Site_ID"]: h for h in hotspots.to_dict("records")} if not hotspots.empty else {}
 
-        if last_check is None:
-            rows.append({
-                "Task_Type": TODO_TASK_TRAPPING, "Site_ID": site_id, "Ref_ID": trap_id,
-                "Priority": TODO_PRIORITY_HIGH,
-                "Reason": "No surveillance event has ever been logged for this trap.",
-                "Due_Date": pd.NaT,
-            })
-            continue
+    # --- 1. TRAP PLACEMENT ---------------------------------------------------
+    # Only `n_traps` physical CO2 traps are available (set out for one night
+    # and picked up the next morning) - they're moved to new sites each week
+    # rather than left permanently installed, so this recommends WHICH sites
+    # should get this week's traps rather than tracking a per-trap "overdue
+    # for a check" cycle. Sites are ranked by hotspot priority (reusing
+    # identify_hotspots above): a confirmed trap+complaint hotspot first,
+    # then persistent elevated activity, then any other flag, then - for the
+    # remaining slots once flagged sites run out - the least-recently-trapped
+    # candidate sites, so the whole network still gets rotated through over
+    # time rather than only ever trapping the same few sites. The list only
+    # ever asks for as many sites as there are traps still unplaced THIS
+    # week: once `n_traps` distinct sites have an actual surveillance event
+    # logged for the week, the recommendation clears itself completely -
+    # there's nothing to click, logging the trap catch IS what clears it.
+    candidate_sites = sorted(
+        trap_sites.loc[trap_sites["Trap_Status"] == "Active", "Site_ID"].dropna().unique().tolist()
+    )
+    week_events = surv_events[(surv_events["Deployment_DateTime"] >= week_start) &
+                               (surv_events["Deployment_DateTime"] <= as_of)]
+    trapped_this_week = set(week_events["Site_ID"].dropna().unique().tolist())
+    remaining_slots = max(n_traps - len(trapped_this_week), 0)
 
-        next_due = last_check + timedelta(days=TRAP_CHECK_INTERVAL_DAYS)
-        if next_due <= as_of:
-            overdue_days = (as_of - next_due).days
-            priority = TODO_PRIORITY_HIGH if overdue_days >= TRAP_CHECK_OVERDUE_GRACE_DAYS else TODO_PRIORITY_MEDIUM
-            rows.append({
-                "Task_Type": TODO_TASK_TRAPPING, "Site_ID": site_id, "Ref_ID": trap_id,
-                "Priority": priority,
-                "Reason": f"Last checked {last_check.date()}; due again {next_due.date()} "
-                          f"({TRAP_CHECK_INTERVAL_DAYS}-day cycle).",
-                "Due_Date": next_due,
-            })
+    if remaining_slots > 0:
+        def _trap_priority_tier(site_id: str) -> int:
+            h = hotspot_by_site.get(site_id)
+            if h is None:
+                return 3
+            flags = h["Flags"]
+            if "Confirmed hotspot (trap + complaint)" in flags:
+                return 0
+            if "Persistent elevated activity" in flags:
+                return 1
+            return 2
+
+        def _last_trapped(site_id: str) -> pd.Timestamp:
+            # Only events UP TO this week (as_of) count as "last trapped" - a week
+            # being assessed in the past must ignore events that hadn't happened
+            # yet at that point, or the rotation fallback would rank sites using
+            # trapping that's actually still in their future.
+            site_events = surv_events.loc[
+                (surv_events["Site_ID"] == site_id) & (surv_events["Deployment_DateTime"] <= as_of),
+                "Deployment_DateTime",
+            ]
+            return site_events.max() if not site_events.empty and site_events.notna().any() else pd.Timestamp.min
+
+        ranked = sorted(
+            (s for s in candidate_sites if s not in trapped_this_week),
+            key=lambda s: (_trap_priority_tier(s), _last_trapped(s)),
+        )
+        for site_id in ranked[:remaining_slots]:
+            h = hotspot_by_site.get(site_id)
+            if h is not None:
+                high = ("Confirmed hotspot (trap + complaint)" in h["Flags"] or
+                        "Persistent elevated activity" in h["Flags"])
+                rows.append({
+                    "Task_Type": TODO_TASK_TRAPPING, "Site_ID": site_id, "Ref_ID": None,
+                    "Priority": TODO_PRIORITY_HIGH if high else TODO_PRIORITY_MEDIUM,
+                    "Reason": f"Priority site for this week's {n_traps} traps - " + "; ".join(h["Flags"]) + ".",
+                    "Due_Date": as_of,
+                })
+            else:
+                last_trapped = _last_trapped(site_id)
+                last_str = "never" if last_trapped == pd.Timestamp.min else str(last_trapped.date())
+                rows.append({
+                    "Task_Type": TODO_TASK_TRAPPING, "Site_ID": site_id, "Ref_ID": None,
+                    "Priority": TODO_PRIORITY_MEDIUM,
+                    "Reason": f"No current hotspot signal - selected on rotation (last trapped: {last_str}).",
+                    "Due_Date": as_of,
+                })
 
     # --- 2. LARVICIDE TREATMENT ---------------------------------------------
     # Re-dose an existing, tracked treatment once its control window is due
@@ -588,7 +631,6 @@ def build_weekly_todo_list(
                     "Due_Date": r["Redose_Due"],
                 })
 
-    hotspots = identify_hotspots(catch_totals, complaints, treatments, thresholds, as_of=as_of)
     if not hotspots.empty:
         for _, h in hotspots.iterrows():
             if h["Site_ID"] in sites_with_current_treatment:
