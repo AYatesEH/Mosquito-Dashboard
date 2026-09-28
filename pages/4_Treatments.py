@@ -37,7 +37,7 @@ def render():
     ).merge(data["products"][["Product_ID", "Product_Name"]], on="Product_ID", how="left")
 
     tab_register, tab_planning, tab_redose, tab_summary = st.tabs(
-        ["Treatment register", "Planning board", "Re-dose schedule", "Summary"]
+        ["Treatment register", "Add Treatment Data", "Re-dose schedule", "Summary"]
     )
 
     with tab_register:
