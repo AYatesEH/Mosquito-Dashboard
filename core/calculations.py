@@ -649,7 +649,7 @@ def build_weekly_todo_list(
         for site_id in ranked[:remaining_slots]:
             h = hotspot_by_site.get(site_id)
             if h is not None:
-                high = ("Confirmed hotspot (trap + complaint)" in h["Flags"] or
+                high = (any(f.startswith("Confirmed hotspot") for f in h["Flags"]) or
                         "Persistent elevated activity" in h["Flags"])
                 rows.append({
                     "Task_Type": TODO_TASK_TRAPPING, "Site_ID": site_id, "Ref_ID": None,
