@@ -34,19 +34,23 @@ def render():
     st.title("Weekly To Do List")
     ui.sample_data_banner()
     st.info(
-        f"This list is generated automatically from complaints, recent trapping, hotspots and treatment data - "
-        f"it is recomputed fresh every time this page loads, so **there is no 'mark done' button**. A task drops "
-        f"off the list on its own the moment you log the surveillance event, treatment, or field observation "
-        f"(\"Larvae dip / inspection\") it's asking for, elsewhere in the app. Trap placement assumes only "
+        f"This list is generated automatically from complaints, recent trapping, larvae dip counts, hotspots and "
+        f"treatment data - it is recomputed fresh every time this page loads, so **there is no 'mark done' "
+        f"button**. A task drops off the list on its own the moment you log the surveillance event, treatment, "
+        f"or field observation (\"Larvae dip / inspection\", or an actual dip count on the Surveillance page's "
+        f"Add Dip Data tab) it's asking for, elsewhere in the app. Trap placement assumes only "
         f"**{WEEKLY_TRAP_COUNT} CO2 traps** are available each week, set out for one night and picked up the "
         f"next morning."
     )
 
     with st.expander("+ Log a larvae dip / inspection"):
         st.caption(
-            "This is what clears a \"Larvae dipping / inspection\" task off this list. Saves to this "
-            "prototype's CSV data store - see README Section 6 for the single-user/non-durable-on-Streamlit-"
-            "Cloud caveat that applies to every data-entry form in this app."
+            "This is a quick qualitative log that you inspected a site - it clears a \"Larvae dipping / "
+            "inspection\" task off this list, same as logging an actual larvae count. To record how many "
+            "larvae were actually collected (and feed it into the hotspot calculation), use the Surveillance "
+            "page's **Add Dip Data** tab instead. Saves to this prototype's CSV data store - see README "
+            "Section 6 for the single-user/non-durable-on-Streamlit-Cloud caveat that applies to every "
+            "data-entry form in this app."
         )
         dc1, dc2 = st.columns(2)
         with dc1:
@@ -97,7 +101,7 @@ def render():
 
     todo = calc.build_weekly_todo_list(
         week_start, data["sites"], data["surv_events"], data["catch_totals"], data["complaints"],
-        data["treatments"], data["products"], data["thresholds"], data["observations"],
+        data["treatments"], data["products"], data["thresholds"], data["observations"], data["larvae_dips"],
     )
 
     n_high = int((todo["Priority"] == TODO_PRIORITY_HIGH).sum()) if not todo.empty else 0
@@ -169,17 +173,19 @@ def render():
     st.subheader("How this list is built")
     st.caption(
         f"**Trap placement** recommends up to {WEEKLY_TRAP_COUNT} sites for this week's traps - confirmed "
-        f"trap+complaint hotspots first, then persistent elevated activity, then any other flagged signal, then "
-        f"(once flagged sites run out) whichever candidate sites have gone longest without a trap, so the whole "
-        f"network still gets rotated through over time. The recommendation shrinks as sites are actually trapped "
-        f"this week (a logged surveillance event) and disappears once all {WEEKLY_TRAP_COUNT} traps have a site. "
-        f"**Larvicide treatments** reuse the Re-dose schedule (Treatments page) for sites with an existing "
-        f"tracked treatment, plus new hotspot sites with persistent trap activity or a confirmed trap+complaint "
-        f"hotspot that have no tracked treatment yet. **Larvae dipping/inspection** tasks come from unresolved "
+        f"hotspots first (any 2 of trap/complaint/dip signals agreeing), then persistent elevated activity, then "
+        f"any other flagged signal, then (once flagged sites run out) whichever candidate sites have gone "
+        f"longest without a trap, so the whole network still gets rotated through over time. The recommendation "
+        f"shrinks as sites are actually trapped this week (a logged surveillance event) and disappears once all "
+        f"{WEEKLY_TRAP_COUNT} traps have a site. **Larvicide treatments** reuse the Re-dose schedule (Treatments "
+        f"page) for sites with an existing tracked treatment, plus new hotspot sites with persistent trap "
+        f"activity or a confirmed hotspot that have no tracked treatment yet, plus any site with an elevated "
+        f"larvae dip count on its own (a measured high count is already an actionable signal, with no need for "
+        f"trap/complaint corroboration first). **Larvae dipping/inspection** tasks come from unresolved "
         f"complaints (High once open a week or more) and from hotspot sites flagged by only ONE signal (a single "
         f"trap spike, or a complaint with no matching trap activity) - these are asked to be confirmed by "
-        f"dipping before a treatment is scheduled. Logging the matching surveillance event, treatment, or a "
-        f"\"Larvae dip / inspection\" field observation is what clears each task."
+        f"dipping before a treatment is scheduled. Logging the matching surveillance event, treatment, a "
+        f"\"Larvae dip / inspection\" field observation, or an actual dip count all clear the matching task."
     )
 
 

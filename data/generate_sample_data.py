@@ -716,6 +716,7 @@ hotspot_spike_sites = sorted(set(rng.choice(remaining_for_spike, size=2, replace
 HOTSPOT_RESERVED_SLOTS = max(0, WEEKLY_TRAP_COUNT - 1)
 last_trapped_date = {}  # site_id -> date of its last deployment, persists across seasons
 visit_count = {}  # site_id -> number of times trapped so far, persists across seasons
+spike_week_by_season = {}  # season -> {site_id: spike week number}, kept for section 9b (larvae dips) below
 
 for season in ALL_SEASONS:
     season_start = SEASONS[season]["start"]
@@ -735,6 +736,7 @@ for season in ALL_SEASONS:
     spike_week_for_site = {
         s: int(rng.integers(2, max(n_weeks - 2, 3))) for s in hotspot_spike_sites
     }
+    spike_week_by_season[season] = spike_week_for_site
 
     for w in range(n_weeks):
         deploy_date = season_start + timedelta(days=7 * w)
@@ -1117,6 +1119,73 @@ observations_df.to_csv(OUT_DIR / "site_observations.csv", index=False)
 
 
 # ---------------------------------------------------------------------------
+# 9b. LARVAE DIP COUNTS
+#     A larvae dip is a manual inspection - no trap/equipment needed, unlike
+#     surveillance_events - where an officer dips a sampling cup into
+#     standing water at a site and counts larvae. Kept as its own table
+#     rather than folded into site_observations.csv, because it's a genuine
+#     COUNT used as a hotspot signal (HIGH_LARVAE_COUNT_PER_DIP in
+#     core/config.py reuses the same real ">10/dip" APVMA-label threshold
+#     already referenced by LABEL_RATE_OPTIONS/LOCATION_TYPE_GUIDANCE above),
+#     not a qualitative note like the existing "Larvae dip / inspection"
+#     site_observations category (which just marks that an inspection
+#     happened, with no count of what was found - the two are independent,
+#     and core.calculations.build_weekly_todo_list treats logging either one
+#     as clearing a dipping/inspection task).
+#
+#     Dips are far more frequent at the 3 persistent-hotspot demo sites and
+#     during a spike-hotspot site's designated spike week (mirroring the
+#     surveillance-event model above, so the two signals move together for
+#     the demo sites) than at an ordinary site, which only gets an occasional
+#     routine dip.
+HIGH_LARVAE_COUNT_PER_DIP = 10  # duplicated from core.config.py - see the RIVER_SITE_TYPE note above
+dips = []
+dip_counter = 1
+for season in ALL_SEASONS:
+    season_start = SEASONS[season]["start"]
+    season_end = season_effective_end(season)
+    n_weeks_dip = (season_end - season_start).days // 7
+    full_season_end = SEASONS[season]["end"]
+    full_n_weeks_dip = (full_season_end - season_start).days // 7
+    spike_week_for_site = spike_week_by_season[season]
+    for w in range(n_weeks_dip):
+        week_date = season_start + timedelta(days=7 * w)
+        day_of_season = (week_date - season_start).days
+        seasonal_phase = max(np.sin((day_of_season / (full_n_weeks_dip * 7 + 1)) * np.pi), 0.05)
+        for site_id in active_site_ids:
+            is_persistent = site_id in hotspot_persistent_sites
+            is_spike_week = site_id in hotspot_spike_sites and spike_week_for_site.get(site_id) == w
+            # Weekly chance this site gets dipped at all - hotspot demo sites
+            # checked far more often than an ordinary site's occasional
+            # routine dip.
+            dip_chance = 0.55 if is_persistent else (0.6 if is_spike_week else 0.06)
+            if rng.random() >= dip_chance:
+                continue
+            dip_date = week_date + timedelta(days=int(rng.integers(0, 5)))
+            rain_boost = 1.0 + min(rainfall_lookup(dip_date) / 20.0, 1.5)
+            baseline = 4 * seasonal_phase * rain_boost
+            if is_persistent:
+                baseline *= 3.5
+            if is_spike_week:
+                baseline *= 5.0
+            larvae_count = max(0, int(rng.poisson(baseline)))
+            dips.append({
+                "Dip_ID": f"DIP-{dip_counter:05d}",
+                "Site_ID": site_id,
+                "Season": season,
+                "DateTime": dip_date.strftime("%Y-%m-%d %H:%M"),
+                "Larvae_Count": larvae_count,
+                "Officer": rng.choice(OFFICERS),
+                "Notes": "",
+                "Created_By": SYSTEM_USER,
+                "Created_Date": dip_date.strftime("%Y-%m-%d"),
+            })
+            dip_counter += 1
+dips_df = pd.DataFrame(dips)
+dips_df.to_csv(OUT_DIR / "larvae_dips.csv", index=False)
+
+
+# ---------------------------------------------------------------------------
 # 10. USERS (operators) - minimal, for prototype attribution only
 # ---------------------------------------------------------------------------
 users_df = pd.DataFrame([
@@ -1173,6 +1242,7 @@ print(f"  complaints: {len(complaints_df)}")
 print(f"  environmental_data: {len(env_df)}")
 print(f"  species_reference: {len(species_df)}")
 print(f"  site_observations: {len(observations_df)}")
+print(f"  larvae_dips: {len(dips_df)}")
 print(f"  users: {len(users_df)}")
 print(f"  action_thresholds: {len(thresholds_df)}")
 print(f"  program_targets: {len(targets_df)}")

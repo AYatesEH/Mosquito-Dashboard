@@ -71,6 +71,9 @@ class DataRepository(abc.ABC):
     def get_site_observations(self) -> pd.DataFrame: ...
 
     @abc.abstractmethod
+    def get_larvae_dips(self) -> pd.DataFrame: ...
+
+    @abc.abstractmethod
     def get_users(self) -> pd.DataFrame: ...
 
     @abc.abstractmethod
@@ -106,6 +109,9 @@ class DataRepository(abc.ABC):
 
     @abc.abstractmethod
     def add_site(self, row: dict) -> str: ...
+
+    @abc.abstractmethod
+    def add_larvae_dip(self, row: dict) -> str: ...
 
 
 class CSVDataRepository(DataRepository):
@@ -193,6 +199,16 @@ class CSVDataRepository(DataRepository):
     def get_site_observations(self) -> pd.DataFrame:
         return self._read_csv("site_observations.csv", date_cols=["DateTime", "Created_Date"])
 
+    def get_larvae_dips(self) -> pd.DataFrame:
+        """A dip is a manual larvae-count inspection (no trap/equipment
+        involved) - kept as its own table rather than folded into
+        site_observations.csv because it carries a genuine COUNT used as a
+        hotspot signal (see HIGH_LARVAE_COUNT_PER_DIP in core/config.py),
+        not just a qualitative note that an inspection happened."""
+        df = self._read_csv("larvae_dips.csv", date_cols=["DateTime", "Created_Date"])
+        df["Larvae_Count"] = pd.to_numeric(df["Larvae_Count"], errors="coerce")
+        return df
+
     def get_users(self) -> pd.DataFrame:
         return self._read_csv("users.csv")
 
@@ -263,6 +279,11 @@ class CSVDataRepository(DataRepository):
     def add_site(self, row: dict) -> str:
         new_id = self._next_id(self.get_sites(), "Site_ID", "ST", 3)
         self._append_row("sites.csv", {**row, "Site_ID": new_id})
+        return new_id
+
+    def add_larvae_dip(self, row: dict) -> str:
+        new_id = self._next_id(self.get_larvae_dips(), "Dip_ID", "DIP", 5)
+        self._append_row("larvae_dips.csv", {**row, "Dip_ID": new_id})
         return new_id
 
 

@@ -56,6 +56,7 @@ def load_raw_tables() -> dict:
         "environmental": repo.get_environmental_data(),
         "species": repo.get_species_reference(),
         "observations": repo.get_site_observations(),
+        "larvae_dips": repo.get_larvae_dips(),
         "users": repo.get_users(),
         "thresholds": repo.get_action_thresholds(),
         "targets": repo.get_program_targets(),
@@ -123,6 +124,12 @@ def add_site_observation(row: dict) -> str:
 
 def add_site(row: dict) -> str:
     new_id = get_repository().add_site(row)
+    invalidate_data_cache()
+    return new_id
+
+
+def add_larvae_dip(row: dict) -> str:
+    new_id = get_repository().add_larvae_dip(row)
     invalidate_data_cache()
     return new_id
 

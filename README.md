@@ -146,6 +146,7 @@ duplicating location details:
 | `environmental_data.csv` | Daily rainfall/temperature/tidal readings (region-wide in this prototype) | `Env_ID` |
 | `species_reference.csv` | Mosquito species reference information | `Species_Code` |
 | `site_observations.csv` | Field observations logged against a site | `Observation_ID` → `Site_ID` |
+| `larvae_dips.csv` | Larvae dip counts - a manual inspection (no trap/equipment involved) recording how many larvae were found in a single dip at a site; feeds into the hotspot calculation as its own signal (see Section 4) | `Dip_ID` → `Site_ID` |
 | `users.csv` | Officers (for prototype attribution only) | `User_ID` |
 | `action_thresholds.csv` | SAMPLE configurable action thresholds | `Threshold_ID` |
 | `program_targets.csv` | SAMPLE configurable program targets, per season | keyed by `Season` |
@@ -180,16 +181,19 @@ every function has a docstring and nothing here talks to Streamlit.
   surveillance event on each side of the window, it says so explicitly rather than guessing. Every result is
   worded as an **observed change associated with** the treatment - never a causal claim - because weather,
   tides and surveillance effort can move in the same window.
-- **Hotspot identification** (`identify_hotspots`): four transparent, configurable rules over a lookback window
-  - persistent elevated activity (several elevated weeks), a single spike (exactly one), repeated complaints,
-  and repeated treatments. No machine learning, nothing hidden - every parameter is a slider on the Hotspots
-  page and a constant in `core/config.py`. A site flagged by BOTH the trap-based rule and the complaint-based
-  rule in the same window also gets a "Confirmed hotspot (trap + complaint)" flag, and the function returns
-  `Trap_Flagged`/`Complaint_Flagged` booleans so the Hotspots page can filter to all flagged sites, only the
-  confirmed (both-signal) ones, trap-only, or complaint-only.
+- **Hotspot identification** (`identify_hotspots`): transparent, configurable rules over a lookback window,
+  drawing on three independent signals - persistent elevated trap activity (several elevated weeks) or a single
+  spike (exactly one), repeated complaints, and elevated larvae dip counts (>= a configurable number of dips
+  above `HIGH_LARVAE_COUNT_PER_DIP` - the real APVMA-label "high larval count (>10/dip)" threshold already used
+  on the Dosage Calculator page) - plus repeated treatments, tracked separately. No machine learning, nothing
+  hidden - every parameter is a slider on the Hotspots page and a constant in `core/config.py`. A site flagged
+  by at least 2 of the 3 independent signals in the same window also gets a "Confirmed hotspot (...)" flag
+  naming which ones agree (e.g. "trap + complaint", "trap + dip"), and the function returns
+  `Trap_Flagged`/`Complaint_Flagged`/`Dip_Flagged` booleans so the Hotspots page can filter to all flagged
+  sites, only the confirmed (2+ signal) ones, or just one signal on its own.
 - **Data quality** (`data_quality_report`): a fixed set of checks (missing coordinates, orphaned foreign keys,
-  retrieval-before-deployment, negative counts, missing species, zero-area completed treatments, and more) that
-  only ever **report** - nothing is auto-corrected.
+  retrieval-before-deployment, negative counts, missing species, zero-area completed treatments, negative
+  larvae dip counts, and more) that only ever **report** - nothing is auto-corrected.
 - **Weekly To Do List** (`build_weekly_todo_list`, To Do List page - just below the entry-point "App" page in
   the sidebar): an auto-generated, priority-ranked list of weekly trap placement, larvicide treatments and
   larvae dipping/inspection tasks for a chosen Monday-Sunday week, built entirely by reusing existing functions
@@ -204,11 +208,14 @@ every function has a docstring and nothing here talks to Streamlit.
       are traps still unplaced that week: once `WEEKLY_TRAP_COUNT` distinct sites have an actual surveillance
       event logged for the week, the recommendation clears itself.
     - **Larvicide treatment**: from `treatment_redose_schedule` (re-dose due/overdue) plus `identify_hotspots`
-      (a new hotspot site with persistent trap activity or a confirmed trap+complaint flag and no tracked
-      treatment yet).
+      (a new hotspot site with persistent trap activity or a confirmed (2+ signal) flag and no tracked
+      treatment yet, plus any site with an elevated larvae dip count on its own - a measured high count is
+      already actionable, with no need for trap/complaint corroboration first).
     - **Dipping/inspection**: from unresolved complaints aged past `COMPLAINT_INSPECTION_AGE_HIGH_DAYS` and
       single-signal hotspot sites (a lone trap spike or a complaint with no matching trap activity), which are
-      asked to be confirmed by dipping before a treatment is scheduled.
+      asked to be confirmed by dipping before a treatment is scheduled. Logging either the qualitative "Larvae
+      dip / inspection" field observation OR an actual dip count (Surveillance page's Add Dip Data tab) clears
+      the task.
 
   **This is a pure, stateless view, recomputed fresh from current data every time the page loads - there is no
   persisted "to-do" table and no manual "mark done" action.** A task stops being generated, and so disappears
@@ -341,8 +348,8 @@ Marked clearly in the app itself (banners on the relevant pages), but to be expl
   Facilities directory with coordinates from a places lookup, each verified to fall inside the real LGA
   boundary. `Site_Type` (the inferred breeding-habitat category monitored there) is a plausible inference for
   demo purposes, not a confirmed council asset record, except for Hyde Park and Smiths Lake Reserve, which both
-  have a real, permanent lake. Every trap result, treatment, complaint, environmental reading and observation
-  tied to these sites is still entirely synthetic - only the site names/locations are real.
+  have a real, permanent lake. Every trap result, treatment, complaint, environmental reading, observation and
+  larvae dip count tied to these sites is still entirely synthetic - only the site names/locations are real.
 - **Real, specific location:** one site, "Claisebrook Cove Foreshore (Swan River)", uses real coordinates for
   a real, named Swan River bank location - added because larvae dipping/larviciding along the river bank is a
   regular, named part of the program.
@@ -375,8 +382,9 @@ restructuring anything.
 
 **Data entry now actually saves - to the CSV files, as an interim step.** The Treatments, Complaints,
 Surveillance and Map pages each have a "+ Log/Record/Add..." form (`DataRepository.add_treatment`/
-`add_complaint`/`add_surveillance_event`/`add_surveillance_result`/`add_site`/`add_site_observation` in
-`core/data_source.py`, called via `core/ui.py`'s `add_*`/`invalidate_data_cache` wrappers) that appends a row
+`add_complaint`/`add_surveillance_event`/`add_surveillance_result`/`add_site`/`add_site_observation`/
+`add_larvae_dip` in `core/data_source.py`, called via `core/ui.py`'s `add_*`/`invalidate_data_cache` wrappers)
+that appends a row
 and clears the cache, so the new record shows up everywhere on the very next rerun - KPIs, charts, the re-dose
 schedule, all of it, no separate refresh step.
 **This is genuinely useful for a single-user demo or pilot, but it is NOT the real answer for a live season**:
@@ -391,10 +399,9 @@ working unchanged, because pages call `core.ui.add_*`, never `data_source` direc
 
 ## 7. Known prototype limitations (by design, not oversights)
 
-- Data entry forms (Treatments, Complaints, Surveillance, Map's "Add a new site", and the To Do List's
-  dip-logging quick action) save to the CSV files - genuinely working, but not durable on Streamlit Community
-  Cloud and not safe for concurrent
-  multi-user writes - see Section 6.
+- Data entry forms (Treatments, Complaints, Surveillance - including its Add Dip Data tab, Map's "Add a new
+  site", and the To Do List's qualitative dip-logging quick action) save to the CSV files - genuinely working,
+  but not durable on Streamlit Community Cloud and not safe for concurrent multi-user writes - see Section 6.
 - Season Comparison and Field Observations are hidden from the sidebar (Section 1) - their code and data are
   untouched, so re-enabling either later is a one-line `mv`.
 - The Weekly To Do List (Section 4) has no photo/attachment support and doesn't yet let an officer add a manual,

@@ -33,6 +33,8 @@ from core.config import (
     HOTSPOT_MIN_ELEVATED_WEEKS,
     HOTSPOT_MIN_COMPLAINTS,
     HOTSPOT_MIN_TREATMENTS,
+    HIGH_LARVAE_COUNT_PER_DIP,
+    HOTSPOT_MIN_HIGH_DIPS,
     REDOSE_LEAD_DAYS,
     REDOSE_ON_TRACK,
     REDOSE_DUE_SOON,
@@ -414,7 +416,9 @@ def identify_hotspots(catch_totals: pd.DataFrame, complaints: pd.DataFrame, trea
                        lookback_weeks: int = HOTSPOT_LOOKBACK_WEEKS,
                        min_elevated_weeks: int = HOTSPOT_MIN_ELEVATED_WEEKS,
                        min_complaints: int = HOTSPOT_MIN_COMPLAINTS,
-                       min_treatments: int = HOTSPOT_MIN_TREATMENTS) -> pd.DataFrame:
+                       min_treatments: int = HOTSPOT_MIN_TREATMENTS,
+                       larvae_dips: Optional[pd.DataFrame] = None,
+                       min_high_dips: int = HOTSPOT_MIN_HIGH_DIPS) -> pd.DataFrame:
     """
     Rule-based (not predictive) hotspot flagging. For each site with any
     usable surveillance in the lookback window, flags:
@@ -427,30 +431,48 @@ def identify_hotspots(catch_totals: pd.DataFrame, complaints: pd.DataFrame, trea
          the lookback window.
       - 'Repeatedly treated': >= min_treatments completed treatments at the
          site in the lookback window.
-      - 'Confirmed hotspot (trap + complaint)': added on top of the above
-         when a site is flagged by BOTH the trap-based rule (persistent
-         activity or a spike) AND the complaint-based rule at the same time
-         - the two independent signals corroborate each other, rather than
-         one input alone driving the flag.
-    A site can carry more than one flag. Also returns `Trap_Flagged` and
-    `Complaint_Flagged` boolean columns (independent of `Flags`' text) so a
-    caller can filter sites by which signal(s) actually triggered - e.g. the
-    Hotspots page's "trap only / complaint only / both" filter. All rule
-    parameters are configurable (see core/config.py) rather than hard-coded
-    thresholds on model output.
+      - 'Elevated larvae dip counts': >= min_high_dips larvae dips above
+         HIGH_LARVAE_COUNT_PER_DIP (core/config.py - the real APVMA-label
+         ">10/dip" threshold) at the site in the lookback window. `larvae_dips`
+         is optional (defaults to none, for callers that don't have the table
+         to hand) so this stays backwards compatible.
+      - 'Confirmed hotspot (<signals>)': added on top of the above whenever
+         at least 2 of the 3 independent signals (trap, complaint, dip) fire
+         for the same site in the same window - the signals corroborate each
+         other, rather than one input alone driving the flag. <signals> lists
+         which ones (e.g. 'trap + complaint', 'trap + dip',
+         'trap + complaint + dip').
+    A site can carry more than one flag. Also returns `Trap_Flagged`,
+    `Complaint_Flagged` and `Dip_Flagged` boolean columns (independent of
+    `Flags`' text) so a caller can filter sites by which signal(s) actually
+    triggered - e.g. the Hotspots page's signal filter. All rule parameters
+    are configurable (see core/config.py) rather than hard-coded thresholds
+    on model output.
     """
     window_start = as_of - timedelta(weeks=lookback_weeks)
     window = catch_totals[(catch_totals["Deployment_DateTime"] >= window_start) &
                            (catch_totals["Deployment_DateTime"] <= as_of)].copy()
+    if larvae_dips is None:
+        larvae_dips = pd.DataFrame(columns=["Site_ID", "DateTime", "Larvae_Count"])
+
+    all_site_ids = set(window["Site_ID"].unique().tolist())
+    if not larvae_dips.empty:
+        dips_window = larvae_dips[(larvae_dips["DateTime"] >= window_start) & (larvae_dips["DateTime"] <= as_of)]
+        all_site_ids |= set(dips_window["Site_ID"].unique().tolist())
+    else:
+        dips_window = larvae_dips
 
     rows = []
-    for site_id, site_df in window.groupby("Site_ID"):
-        normal_max, elevated_max = get_threshold_for(thresholds, site_id=site_id)
-        site_df = site_df.copy()
-        site_df["Status"] = site_df["Mosquitoes_Per_Trap_Night"].apply(
-            lambda v: classify_status(v, normal_max, elevated_max))
-        site_df["Week"] = site_df["Deployment_DateTime"].dt.to_period("W")
-        elevated_weeks = site_df.loc[site_df["Status"].isin([STATUS_ELEVATED, STATUS_ACTION]), "Week"].nunique()
+    for site_id in all_site_ids:
+        site_df = window[window["Site_ID"] == site_id]
+        elevated_weeks = 0
+        if not site_df.empty:
+            normal_max, elevated_max = get_threshold_for(thresholds, site_id=site_id)
+            site_df = site_df.copy()
+            site_df["Status"] = site_df["Mosquitoes_Per_Trap_Night"].apply(
+                lambda v: classify_status(v, normal_max, elevated_max))
+            site_df["Week"] = site_df["Deployment_DateTime"].dt.to_period("W")
+            elevated_weeks = site_df.loc[site_df["Status"].isin([STATUS_ELEVATED, STATUS_ACTION]), "Week"].nunique()
 
         site_complaints = complaints[(complaints["Site_ID"] == site_id) &
                                       (complaints["Date_Received"] >= window_start) &
@@ -459,9 +481,12 @@ def identify_hotspots(catch_totals: pd.DataFrame, complaints: pd.DataFrame, trea
                                       (treatments["Treatment_Status"] == "Completed") &
                                       (treatments["Treatment_Date"] >= window_start) &
                                       (treatments["Treatment_Date"] <= as_of)]
+        site_dips = dips_window[dips_window["Site_ID"] == site_id] if not dips_window.empty else dips_window
+        high_dips = site_dips[site_dips["Larvae_Count"] > HIGH_LARVAE_COUNT_PER_DIP] if not site_dips.empty else site_dips
 
         trap_flagged = elevated_weeks >= min_elevated_weeks or elevated_weeks == 1
         complaint_flagged = len(site_complaints) >= min_complaints
+        dip_flagged = len(high_dips) >= min_high_dips
 
         flags = []
         if elevated_weeks >= min_elevated_weeks:
@@ -472,8 +497,18 @@ def identify_hotspots(catch_totals: pd.DataFrame, complaints: pd.DataFrame, trea
             flags.append("Repeated complaints")
         if len(site_treatments) >= min_treatments:
             flags.append("Repeatedly treated")
-        if trap_flagged and complaint_flagged:
-            flags.append("Confirmed hotspot (trap + complaint)")
+        if dip_flagged:
+            flags.append("Elevated larvae dip counts")
+
+        signals_flagged = []
+        if trap_flagged:
+            signals_flagged.append("trap")
+        if complaint_flagged:
+            signals_flagged.append("complaint")
+        if dip_flagged:
+            signals_flagged.append("dip")
+        if len(signals_flagged) >= 2:
+            flags.append(f"Confirmed hotspot ({' + '.join(signals_flagged)})")
 
         if flags:
             rows.append({
@@ -482,8 +517,10 @@ def identify_hotspots(catch_totals: pd.DataFrame, complaints: pd.DataFrame, trea
                 "Elevated_Weeks": elevated_weeks,
                 "Complaints_In_Window": len(site_complaints),
                 "Treatments_In_Window": len(site_treatments),
+                "High_Dips_In_Window": len(high_dips),
                 "Trap_Flagged": trap_flagged,
                 "Complaint_Flagged": complaint_flagged,
+                "Dip_Flagged": dip_flagged,
             })
 
     return pd.DataFrame(rows)
@@ -503,6 +540,7 @@ def build_weekly_todo_list(
     products: pd.DataFrame,
     thresholds: pd.DataFrame,
     site_observations: pd.DataFrame,
+    larvae_dips: pd.DataFrame,
     n_traps: int = WEEKLY_TRAP_COUNT,
 ) -> pd.DataFrame:
     """
@@ -531,8 +569,29 @@ def build_weekly_todo_list(
 
     # identify_hotspots is reused by both the trap-placement and treatment
     # sections below, so it's computed once, here, rather than twice.
-    hotspots = identify_hotspots(catch_totals, complaints, treatments, thresholds, as_of=as_of)
+    hotspots = identify_hotspots(catch_totals, complaints, treatments, thresholds, as_of=as_of,
+                                  larvae_dips=larvae_dips)
     hotspot_by_site = {h["Site_ID"]: h for h in hotspots.to_dict("records")} if not hotspots.empty else {}
+
+    def _dipped_since(site_id: str, since: pd.Timestamp, until: Optional[pd.Timestamp] = None) -> bool:
+        """True if either a qualitative 'Larvae dip / inspection' field
+        observation OR an actual larvae_dips.csv count has been logged for
+        this site on/after `since` (and, if given, on/before `until`) - the
+        two are independent write paths (Surveillance page's Add Dip Data
+        tab vs. the To Do List's quick-log action) that both count as "this
+        site has been checked"."""
+        obs = site_observations[
+            (site_observations["Site_ID"] == site_id) &
+            (site_observations["Observation_Category"] == OBSERVATION_CATEGORY_DIP) &
+            (site_observations["DateTime"] >= since)
+        ]
+        dips = larvae_dips[(larvae_dips["Site_ID"] == site_id) & (larvae_dips["DateTime"] >= since)] \
+            if not larvae_dips.empty else larvae_dips
+        if until is not None:
+            obs = obs[obs["DateTime"] <= until]
+            if not dips.empty:
+                dips = dips[dips["DateTime"] <= until]
+        return not obs.empty or not dips.empty
 
     # --- 1. TRAP PLACEMENT ---------------------------------------------------
     # Only `n_traps` physical CO2 traps are available (set out for one night
@@ -566,7 +625,7 @@ def build_weekly_todo_list(
             if h is None:
                 return 3
             flags = h["Flags"]
-            if "Confirmed hotspot (trap + complaint)" in flags:
+            if any(f.startswith("Confirmed hotspot") for f in flags):
                 return 0
             if "Persistent elevated activity" in flags:
                 return 1
@@ -612,8 +671,11 @@ def build_weekly_todo_list(
     # Re-dose an existing, tracked treatment once its control window is due
     # soon or has lapsed (reuses treatment_redose_schedule directly); on top
     # of that, flag a FIRST treatment for hotspot sites with persistent trap
-    # activity (or a confirmed trap+complaint hotspot) that don't already
-    # have a tracked treatment covering them.
+    # activity (or a confirmed hotspot), or with an elevated larvae dip count
+    # on its own - a real measured larval count above the label's "high"
+    # threshold is itself an actionable signal, not something that needs
+    # trap/complaint corroboration first - that don't already have a tracked
+    # treatment covering them.
     redose = treatment_redose_schedule(treatments, products, as_of=as_of)
     sites_with_current_treatment = set(redose["Site_ID"].tolist()) if not redose.empty else set()
     if not redose.empty:
@@ -639,12 +701,12 @@ def build_weekly_todo_list(
         for _, h in hotspots.iterrows():
             if h["Site_ID"] in sites_with_current_treatment:
                 continue  # already has a tracked treatment - the re-dose rule above covers it
-            confirmed = "Confirmed hotspot (trap + complaint)" in h["Flags"]
+            confirmed = any(f.startswith("Confirmed hotspot") for f in h["Flags"])
             persistent = h["Elevated_Weeks"] >= HOTSPOT_MIN_ELEVATED_WEEKS
-            if h["Trap_Flagged"] and (persistent or confirmed):
+            if (h["Trap_Flagged"] and (persistent or confirmed)) or h["Dip_Flagged"]:
                 rows.append({
                     "Task_Type": TODO_TASK_TREATMENT, "Site_ID": h["Site_ID"], "Ref_ID": None,
-                    "Priority": TODO_PRIORITY_HIGH if confirmed else TODO_PRIORITY_MEDIUM,
+                    "Priority": TODO_PRIORITY_HIGH if (confirmed or h["Dip_Flagged"]) else TODO_PRIORITY_MEDIUM,
                     "Reason": "Flagged hotspot with no current tracked treatment - " + "; ".join(h["Flags"]) + ".",
                     "Due_Date": as_of,
                 })
@@ -662,14 +724,8 @@ def build_weekly_todo_list(
     dipping_sites_covered = set()
     for _, c in unresolved.iterrows():
         site_id = c["Site_ID"] if pd.notna(c.get("Site_ID")) and c.get("Site_ID") != "" else None
-        if site_id is not None:
-            site_obs = site_observations[
-                (site_observations["Site_ID"] == site_id) &
-                (site_observations["Observation_Category"] == OBSERVATION_CATEGORY_DIP) &
-                (site_observations["DateTime"] >= c["Date_Received"])
-            ]
-            if not site_obs.empty:
-                continue  # already inspected since the complaint came in
+        if site_id is not None and _dipped_since(site_id, c["Date_Received"]):
+            continue  # already inspected since the complaint came in
         age_days = (as_of - c["Date_Received"]).days
         priority = TODO_PRIORITY_HIGH if age_days >= COMPLAINT_INSPECTION_AGE_HIGH_DAYS else TODO_PRIORITY_MEDIUM
         rows.append({
@@ -698,13 +754,7 @@ def build_weekly_todo_list(
             complaint_only = h["Complaint_Flagged"] and not h["Trap_Flagged"]
             if not (single_spike_only or complaint_only):
                 continue
-            recent_dip = site_observations[
-                (site_observations["Site_ID"] == site_id) &
-                (site_observations["Observation_Category"] == OBSERVATION_CATEGORY_DIP) &
-                (site_observations["DateTime"] >= window_start) &
-                (site_observations["DateTime"] <= as_of)
-            ]
-            if not recent_dip.empty:
+            if _dipped_since(site_id, window_start, until=as_of):
                 continue
             rows.append({
                 "Task_Type": TODO_TASK_DIPPING, "Site_ID": site_id, "Ref_ID": None,
@@ -753,7 +803,8 @@ def resolve_trap_id(trap_sites: pd.DataFrame, trap_type: str) -> Optional[str]:
 # DATA QUALITY
 # ===========================================================================
 
-def data_quality_report(sites, trap_sites, surv_events, surv_results, treatments, complaints) -> pd.DataFrame:
+def data_quality_report(sites, trap_sites, surv_events, surv_results, treatments, complaints,
+                         larvae_dips: Optional[pd.DataFrame] = None) -> pd.DataFrame:
     """
     Runs a fixed set of transparent, explainable data-quality checks and
     returns one row per issue found: Dataset, Record_ID, Severity,
@@ -821,6 +872,14 @@ def data_quality_report(sites, trap_sites, surv_events, surv_results, treatments
     for _, r in complaints.iterrows():
         if pd.notna(r["Site_ID"]) and str(r["Site_ID"]).strip() != "" and r["Site_ID"] not in valid_site_ids:
             add("complaints", r["Complaint_ID"], "High", f"References Site_ID '{r['Site_ID']}' not found in sites.")
+
+    # Larvae dips: negative counts, orphaned site refs
+    if larvae_dips is not None:
+        for _, r in larvae_dips.iterrows():
+            if r["Site_ID"] not in valid_site_ids:
+                add("larvae_dips", r["Dip_ID"], "High", f"References Site_ID '{r['Site_ID']}' not found in sites.")
+            if pd.notna(r["Larvae_Count"]) and r["Larvae_Count"] < 0:
+                add("larvae_dips", r["Dip_ID"], "High", "Negative larvae count.")
 
     # Invalid samples that would otherwise sneak into abundance stats if not excluded upstream
     invalid_but_nonzero = surv_events[(surv_events["Sample_Validity"].isin(INVALID_SAMPLE_VALIDITY))]

@@ -29,7 +29,8 @@ def render():
     status_df = pd.DataFrame(statuses)
 
     as_of = pd.Timestamp(filters["date_range"][1])
-    hotspots = calc.identify_hotspots(ct, data["complaints"], data["treatments"], data["thresholds"], as_of=as_of)
+    hotspots = calc.identify_hotspots(ct, data["complaints"], data["treatments"], data["thresholds"], as_of=as_of,
+                                       larvae_dips=data["larvae_dips"])
     hotspot_ids = set(hotspots["Site_ID"]) if not hotspots.empty else set()
 
     col_map, col_controls = st.columns([3, 1])

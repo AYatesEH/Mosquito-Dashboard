@@ -18,7 +18,7 @@ def render():
 
     dq = calc.data_quality_report(
         data["sites"], data["trap_sites"], data["surv_events"], data["surv_results"],
-        data["treatments"], data["complaints"],
+        data["treatments"], data["complaints"], larvae_dips=data["larvae_dips"],
     )
 
     ui.kpi_row([
@@ -68,6 +68,7 @@ def render():
         "- Completed treatments missing a product, with zero/blank area treated, or missing an operator\n"
         "- Cancelled treatments with no reason recorded\n"
         "- Complaints referencing a Site_ID not found in the sites table\n"
+        "- Larvae dips referencing a Site_ID not found in the sites table, or with a negative larvae count\n"
         "- Invalid/NA samples (flagged as low-severity/informational - these are already correctly excluded "
         "from all abundance statistics elsewhere in the dashboard, see core/calculations.py)"
     )

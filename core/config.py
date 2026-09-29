@@ -300,6 +300,13 @@ HOTSPOT_MIN_ELEVATED_WEEKS = 3
 HOTSPOT_MIN_COMPLAINTS = 3          # complaints in lookback window to flag "repeated complaints"
 HOTSPOT_MIN_TREATMENTS = 2          # completed treatments in lookback window to flag "repeatedly treated"
 
+# A single dip's larvae count above this is treated as "high" - reusing the
+# real APVMA-label wording already used above in LABEL_RATE_OPTIONS/
+# LOCATION_TYPE_GUIDANCE ("high larval counts (>10/dip)") rather than
+# inventing a separate threshold.
+HIGH_LARVAE_COUNT_PER_DIP = 10
+HOTSPOT_MIN_HIGH_DIPS = 2           # high-count dips in the lookback window to flag "Elevated larvae dip counts"
+
 # --- App metadata -------------------------------------------------------
 APP_TITLE = "Mosquito Season Dashboard"
 APP_SUBTITLE = "Environmental Health - Mosquito Management (Prototype)"

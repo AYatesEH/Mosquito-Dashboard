@@ -5,7 +5,7 @@ import plotly.express as px
 import streamlit as st
 
 from core import ui, calculations as calc
-from core.config import TRAP_TYPES
+from core.config import TRAP_TYPES, HIGH_LARVAE_COUNT_PER_DIP
 
 TRAP_OUTCOMES = ["Successful", "Partial", "Failed - Equipment/Battery", "Missing"]
 DEFAULT_VALIDITY = {"Successful": "Valid", "Partial": "Valid", "Failed - Equipment/Battery": "Invalid", "Missing": "N/A"}
@@ -23,7 +23,7 @@ def render():
     events_f = ui.filter_by_sites(events_f, filters)
     ct = calc.event_catch_totals(events_f, data["surv_results"])
 
-    tab_overview, tab_add, tab_log = st.tabs(["Overview", "Add Trap Data", "Event Log"])
+    tab_overview, tab_add, tab_dip, tab_log = st.tabs(["Overview", "Add Trap Data", "Add Dip Data", "Event Log"])
 
     with tab_overview:
         # --- Trap effort summary (based on ALL logged events, not just usable ones) ---
@@ -211,6 +211,63 @@ def render():
                                 n_results += 1
                     st.success(f"Saved {event_id} ({n_results} species result{'s' if n_results != 1 else ''}). The Overview charts and Event Log now include it.")
                     st.rerun()
+
+    with tab_dip:
+        st.subheader("Add Dip Data")
+        st.caption(
+            f"A larvae dip is a manual inspection - no trap or equipment involved, unlike a surveillance event - "
+            f"where a sampling cup is dipped into standing water at a site and the larvae in it are counted. A "
+            f"count above **{HIGH_LARVAE_COUNT_PER_DIP} larvae/dip** (the real APVMA-label 'high larval count' "
+            f"threshold also used on the Dosage Calculator page) feeds into the Hotspot Identification page as "
+            f"its own signal, alongside trap catch data and complaints. Saves to this prototype's CSV data "
+            f"store - see README Section 6 for the single-user/non-durable-on-Streamlit-Cloud caveat that "
+            f"applies to every data-entry form in this app."
+        )
+        active_sites_dip = data["sites"][data["sites"]["Status"] == "Active"]
+        if active_sites_dip.empty:
+            st.warning("No active sites to log against.")
+        else:
+            dp1, dp2 = st.columns(2)
+            with dp1:
+                new_dip_site = ui.site_picker(active_sites_dip, key="new_dip_site", label="Site")
+                new_dip_date = st.date_input("Dip date", value=pd.Timestamp.now().date(), key="new_dip_date")
+            with dp2:
+                new_dip_count = st.number_input("Larvae count", min_value=0, step=1, key="new_dip_count")
+                new_dip_officer = st.selectbox("Officer", data["users"]["Name"].tolist(), key="new_dip_officer")
+            new_dip_notes = st.text_area("Notes", key="new_dip_notes")
+
+            if st.button("Save dip data", type="primary", key="new_dip_save"):
+                if not new_dip_site:
+                    st.error("Select a site.")
+                else:
+                    dip_id = ui.add_larvae_dip({
+                        "Site_ID": new_dip_site,
+                        "Season": ui.infer_season(new_dip_date),
+                        "DateTime": pd.Timestamp(new_dip_date).strftime("%Y-%m-%d %H:%M"),
+                        "Larvae_Count": int(new_dip_count),
+                        "Officer": new_dip_officer,
+                        "Notes": new_dip_notes,
+                        "Created_By": new_dip_officer,
+                        "Created_Date": pd.Timestamp.now().strftime("%Y-%m-%d"),
+                    })
+                    high_note = " - a high count, will feed into the hotspot calculation" if new_dip_count > HIGH_LARVAE_COUNT_PER_DIP else ""
+                    st.success(f"Saved {dip_id} ({int(new_dip_count)} larvae{high_note}). Any matching dipping/inspection task on the To Do List clears on the next refresh.")
+                    st.rerun()
+
+        st.divider()
+        st.subheader("Dip log")
+        dips_f = ui.filter_by_season_date(data["larvae_dips"], filters, date_col="DateTime")
+        dips_f = ui.filter_by_sites(dips_f, filters)
+        if dips_f.empty:
+            st.info("No larvae dip data logged for the current filter selection.")
+        else:
+            display_dips = dips_f.merge(data["sites"][["Site_ID", "Site_Name"]], on="Site_ID", how="left")
+            display_dips["High count"] = display_dips["Larvae_Count"] > HIGH_LARVAE_COUNT_PER_DIP
+            st.dataframe(
+                display_dips[["Dip_ID", "Site_Name", "DateTime", "Larvae_Count", "High count", "Officer"]]
+                .sort_values("DateTime", ascending=False),
+                use_container_width=True, hide_index=True, height=350,
+            )
 
     with tab_log:
         # --- Raw trap results table with filters ---------------------------------
