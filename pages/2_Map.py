@@ -5,6 +5,7 @@ import streamlit as st
 from streamlit_folium import st_folium
 
 from core import ui, calculations as calc, mapping
+from core.config import VINCENT_CENTER_LAT, VINCENT_CENTER_LON
 
 
 def render():
@@ -84,6 +85,62 @@ def render():
                   if not site_treatments.empty and pd.notna(site_treatments["Treatment_Date"].max()) else "None recorded")
         st.caption(f"Recent complaints (last 6 weeks from end of selected range): {len(site_complaints_recent)}")
         st.caption("For full history, open this site on the Site Detail page.")
+
+    st.divider()
+    with st.expander("+ Add a new site"):
+        st.caption(
+            "Saves to this prototype's CSV data store - fine for a single-user demo/pilot, see README Section 6 "
+            "for moving to a real backend before relying on this for a live season. Click a point on the map "
+            "above first to drop a pin and pre-fill the coordinates below, or enter them directly."
+        )
+        clicked = map_state.get("last_clicked") if map_state else None
+        default_lat = clicked["lat"] if clicked else VINCENT_CENTER_LAT
+        default_lon = clicked["lng"] if clicked else VINCENT_CENTER_LON
+        if clicked:
+            st.caption(f"Using the point you clicked on the map: {default_lat:.5f}, {default_lon:.5f}")
+
+        existing_types = sorted(data["sites"]["Site_Type"].dropna().unique().tolist())
+        nc1, nc2 = st.columns(2)
+        with nc1:
+            new_site_name = st.text_input("Site name", key="new_site_name")
+            new_site_type_choice = st.selectbox(
+                "Site type", existing_types + ["Other (specify)"], key="new_site_type_choice",
+            )
+            new_site_type = (
+                st.text_input("New site type", key="new_site_type_other")
+                if new_site_type_choice == "Other (specify)" else new_site_type_choice
+            )
+            new_site_status = st.selectbox("Status", ["Active", "Inactive"], key="new_site_status")
+        with nc2:
+            new_site_lat = st.number_input("Latitude", value=float(default_lat), format="%.5f", key="new_site_lat")
+            new_site_lon = st.number_input("Longitude", value=float(default_lon), format="%.5f", key="new_site_lon")
+            new_site_officer = st.selectbox("Added by", data["users"]["Name"].tolist(), key="new_site_officer")
+
+        new_site_description = st.text_area("Description", key="new_site_description")
+        new_site_notes = st.text_area("Notes", key="new_site_notes")
+
+        if st.button("Save new site", type="primary", key="new_site_save"):
+            if not new_site_name.strip():
+                st.error("Enter a site name.")
+            elif not new_site_type or not str(new_site_type).strip():
+                st.error("Enter a site type.")
+            else:
+                today_str = pd.Timestamp.now().strftime("%Y-%m-%d")
+                new_id = ui.add_site({
+                    "Site_Name": new_site_name.strip(),
+                    "Site_Type": str(new_site_type).strip(),
+                    "Latitude": new_site_lat,
+                    "Longitude": new_site_lon,
+                    "Status": new_site_status,
+                    "Description": new_site_description,
+                    "Notes": new_site_notes,
+                    "Created_By": new_site_officer,
+                    "Created_Date": today_str,
+                    "Modified_By": new_site_officer,
+                    "Modified_Date": today_str,
+                })
+                st.success(f"Saved {new_id} ({new_site_name.strip()}). It now appears on the map and every site picker.")
+                st.rerun()
 
     st.caption(
         "Corporate GIS layers, shapefiles, GeoJSON boundaries and treatment polygons can be added as additional "

@@ -225,6 +225,12 @@ every function has a docstring and nothing here talks to Streamlit.
   that list has its own "+ Log a larvae dip / inspection" quick-log action calling this same write path. The
   full Field Observations page (every category, a log/filter view) still exists with a working "+ Record a new
   observation" form, but is currently hidden from the sidebar - see Section 1.
+- **`add_site` write path** (Operational Map page, "+ Add a new site" expander below the site summary): same
+  CSV-append pattern as the other forms. Click a point on the map above to drop a pin and pre-fill Latitude/
+  Longitude (via `st_folium`'s `last_clicked`), or type coordinates directly; Site_Type offers the existing
+  types plus a free-text "Other (specify)" so a genuinely new site type isn't blocked. `sites.csv`'s `Site_ID`
+  is the thread the whole data model hangs off (see Section 3), so a newly-added site is immediately usable
+  everywhere - trap placement candidates, every site picker, the map, Data Quality - with no separate step.
 - **Re-dose scheduling** (`estimate_control_window`, `treatment_redose_schedule`): for a larvicide treatment,
   linearly interpolates a control-window duration between the product's `Duration_Min_Days` (at `Rate_Min`) and
   `Duration_Max_Days` (at `Rate_Max`) for the rate actually used, then works out an effective-until date and a
@@ -361,11 +367,12 @@ are already on the sites and treatments tables, so wiring up Microsoft/organisat
 populating those fields from the logged-in user rather than an officer picked from a dropdown, not
 restructuring anything.
 
-**Data entry now actually saves - to the CSV files, as an interim step.** The Treatments, Complaints and
-Surveillance pages each have a "+ Log/Record..." form (`DataRepository.add_treatment` /`add_complaint`/
-`add_surveillance_event`/`add_surveillance_result` in `core/data_source.py`, called via `core/ui.py`'s
-`add_*`/`invalidate_data_cache` wrappers) that appends a row and clears the cache, so the new record shows up
-everywhere on the very next rerun - KPIs, charts, the re-dose schedule, all of it, no separate refresh step.
+**Data entry now actually saves - to the CSV files, as an interim step.** The Treatments, Complaints,
+Surveillance and Map pages each have a "+ Log/Record/Add..." form (`DataRepository.add_treatment`/
+`add_complaint`/`add_surveillance_event`/`add_surveillance_result`/`add_site`/`add_site_observation` in
+`core/data_source.py`, called via `core/ui.py`'s `add_*`/`invalidate_data_cache` wrappers) that appends a row
+and clears the cache, so the new record shows up everywhere on the very next rerun - KPIs, charts, the re-dose
+schedule, all of it, no separate refresh step.
 **This is genuinely useful for a single-user demo or pilot, but it is NOT the real answer for a live season**:
 `CSVDataRepository`'s writes are plain file appends with no locking, so two people saving at the same moment
 can corrupt a file; and Streamlit Community Cloud's filesystem is wiped on every redeploy and on restart after
@@ -378,8 +385,9 @@ working unchanged, because pages call `core.ui.add_*`, never `data_source` direc
 
 ## 7. Known prototype limitations (by design, not oversights)
 
-- Data entry forms (Treatments, Complaints, Surveillance, and the To Do List's dip-logging quick action) save to
-  the CSV files - genuinely working, but not durable on Streamlit Community Cloud and not safe for concurrent
+- Data entry forms (Treatments, Complaints, Surveillance, Map's "Add a new site", and the To Do List's
+  dip-logging quick action) save to the CSV files - genuinely working, but not durable on Streamlit Community
+  Cloud and not safe for concurrent
   multi-user writes - see Section 6.
 - Season Comparison and Field Observations are hidden from the sidebar (Section 1) - their code and data are
   untouched, so re-enabling either later is a one-line `mv`.

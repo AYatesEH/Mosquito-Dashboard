@@ -104,6 +104,9 @@ class DataRepository(abc.ABC):
     @abc.abstractmethod
     def add_site_observation(self, row: dict) -> str: ...
 
+    @abc.abstractmethod
+    def add_site(self, row: dict) -> str: ...
+
 
 class CSVDataRepository(DataRepository):
     """
@@ -255,6 +258,11 @@ class CSVDataRepository(DataRepository):
     def add_site_observation(self, row: dict) -> str:
         new_id = self._next_id(self.get_site_observations(), "Observation_ID", "OBS", 5)
         self._append_row("site_observations.csv", {**row, "Observation_ID": new_id})
+        return new_id
+
+    def add_site(self, row: dict) -> str:
+        new_id = self._next_id(self.get_sites(), "Site_ID", "ST", 3)
+        self._append_row("sites.csv", {**row, "Site_ID": new_id})
         return new_id
 
 

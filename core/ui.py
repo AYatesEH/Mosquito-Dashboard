@@ -121,6 +121,12 @@ def add_site_observation(row: dict) -> str:
     return new_id
 
 
+def add_site(row: dict) -> str:
+    new_id = get_repository().add_site(row)
+    invalidate_data_cache()
+    return new_id
+
+
 def infer_season(d) -> str:
     """Which SEASON_BOUNDS key a date falls in - used to fill the Season
     column on a new record without asking the officer to pick it separately.
