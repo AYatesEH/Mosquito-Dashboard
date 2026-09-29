@@ -38,7 +38,16 @@ def render():
     observations_site = data["observations"][data["observations"]["Site_ID"] == site_id].sort_values("DateTime")
 
     # --- Header / current status --------------------------------------------
-    status_info = calc.site_current_status(site_id, ct_all, data["thresholds"])
+    # Upgraded (never downgraded) by this site's hotspot flags - see
+    # site_map_status - so the badge/mini-map agree with the operational Map
+    # page and reflect complaint/larvae-dip signals, not trap data alone.
+    site_as_of = pd.Timestamp(filters["date_range"][1])
+    site_hotspots = calc.identify_hotspots(
+        ct_all, data["complaints"], data["treatments"], data["thresholds"], as_of=site_as_of,
+        larvae_dips=data["larvae_dips"],
+    )
+    site_hotspot_by_site = {row["Site_ID"]: row for row in site_hotspots.to_dict("records")}
+    status_info = calc.site_map_status(site_id, ct_all, data["thresholds"], hotspots_by_site=site_hotspot_by_site)
     st.subheader(f"{site_row['Site_Name']} ({site_id})")
     c1, c2, c3 = st.columns([2, 2, 1])
     with c1:

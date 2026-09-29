@@ -150,7 +150,15 @@ def render():
     col_map, col_table = st.columns([2, 3])
     with col_map:
         st.markdown("**Task sites on the map**")
-        statuses = [calc.site_current_status(sid, data["catch_totals"], data["thresholds"]) for sid in data["sites"]["Site_ID"]]
+        week_hotspots = calc.identify_hotspots(
+            data["catch_totals"], data["complaints"], data["treatments"], data["thresholds"], as_of=week_end,
+            larvae_dips=data["larvae_dips"],
+        )
+        week_hotspot_by_site = {row["Site_ID"]: row for row in week_hotspots.to_dict("records")}
+        statuses = [
+            calc.site_map_status(sid, data["catch_totals"], data["thresholds"], hotspots_by_site=week_hotspot_by_site)
+            for sid in data["sites"]["Site_ID"]
+        ]
         status_df = pd.DataFrame(statuses)
         task_site_ids = set(view["Site_ID"].dropna())
         fmap = mapping.build_operational_map(

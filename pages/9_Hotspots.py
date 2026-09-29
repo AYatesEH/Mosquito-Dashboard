@@ -106,7 +106,11 @@ def render():
     col_map, col_table = st.columns([2, 3])
     with col_map:
         st.markdown("**Hotspots on the map**")
-        statuses = [calc.site_current_status(sid, ct_all, data["thresholds"]) for sid in data["sites"]["Site_ID"]]
+        hotspot_by_site_all = {row["Site_ID"]: row for row in hotspots_all.to_dict("records")}
+        statuses = [
+            calc.site_map_status(sid, ct_all, data["thresholds"], hotspots_by_site=hotspot_by_site_all)
+            for sid in data["sites"]["Site_ID"]
+        ]
         status_df = pd.DataFrame(statuses)
         fmap = mapping.build_operational_map(
             data["sites"], status_df, hotspot_site_ids=set(hotspots["Site_ID"]),

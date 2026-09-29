@@ -204,6 +204,53 @@ def site_current_status(site_id: str, catch_totals: pd.DataFrame, thresholds: pd
     }
 
 
+_STATUS_SEVERITY = {
+    STATUS_UNKNOWN: -1,
+    STATUS_NORMAL: 0,
+    STATUS_ELEVATED: 1,
+    STATUS_ACTION: 2,
+}
+
+
+def site_map_status(site_id: str, catch_totals: pd.DataFrame, thresholds: pd.DataFrame,
+                     hotspots_by_site: Optional[dict] = None,
+                     as_of: Optional[pd.Timestamp] = None) -> dict:
+    """
+    Combines the raw trap-based current status (site_current_status) with this
+    site's hotspot flags for MAP / AT-A-GLANCE DISPLAY: a site already flagged
+    as a hotspot (from the combined trap + complaint + larvae dip signal model
+    in identify_hotspots) shows at least that severity, even if its single
+    most-recent trap reading alone wouldn't have triggered it - e.g. heavy
+    complaint or larvae dip activity between trap visits, or a quiet latest
+    trap night at an otherwise-active site. Never downgrades below the raw
+    trap-based status. site_current_status's own return value (the literal
+    latest-reading numbers used elsewhere, e.g. Site Detail) is untouched -
+    this is purely an additional, display-oriented view built on top of it.
+
+    hotspots_by_site: dict of Site_ID -> hotspot row (dict-like with a
+    "Flags" list), as produced from identify_hotspots()'s output, e.g.
+    {row["Site_ID"]: row for row in hotspots_df.to_dict("records")}.
+    """
+    info = site_current_status(site_id, catch_totals, thresholds, as_of=as_of)
+    hotspots_by_site = hotspots_by_site or {}
+    h = hotspots_by_site.get(site_id)
+    if not h:
+        return info
+
+    flags = h.get("Flags") or []
+    if any(f.startswith("Confirmed hotspot") for f in flags):
+        target = STATUS_ACTION
+    elif flags:
+        target = STATUS_ELEVATED
+    else:
+        return info
+
+    current_rank = _STATUS_SEVERITY.get(info["Status"], -1)
+    if _STATUS_SEVERITY[target] > current_rank:
+        info = {**info, "Status": target}
+    return info
+
+
 # ===========================================================================
 # TREATMENT EFFECTIVENESS
 # ===========================================================================
@@ -530,6 +577,56 @@ def identify_hotspots(catch_totals: pd.DataFrame, complaints: pd.DataFrame, trea
 # WEEKLY TO-DO LIST (stateless - recomputed fresh every time, see core/config.py)
 # ===========================================================================
 
+def _merge_duplicate_tasks(rows: list) -> list:
+    """Combines multiple task rows for the same (Task_Type, Site_ID) into a
+    single row, rather than showing several near-identical entries for the
+    same site side by side - e.g. a site with two separate open complaints
+    used to get two separate "Larvae dipping / inspection" tasks, one per
+    complaint. The merged row keeps the higher priority, the earliest due
+    date, every distinct Ref_ID (comma-separated) and every distinct reason
+    (so nothing about why it was raised is lost). Rows with no Site_ID (there
+    is nothing to key the merge on) are passed through unchanged."""
+    groups: dict = {}
+    order = []
+    passthrough = []
+    for row in rows:
+        site_id = row.get("Site_ID")
+        if site_id is None or site_id == "":
+            passthrough.append(row)
+            continue
+        key = (row["Task_Type"], site_id)
+        if key not in groups:
+            groups[key] = []
+            order.append(key)
+        groups[key].append(row)
+
+    merged = []
+    for key in order:
+        group = groups[key]
+        if len(group) == 1:
+            merged.append(group[0])
+            continue
+        task_type, site_id = key
+        priority = TODO_PRIORITY_HIGH if any(r["Priority"] == TODO_PRIORITY_HIGH for r in group) \
+            else TODO_PRIORITY_MEDIUM
+        ref_ids = sorted({str(r["Ref_ID"]) for r in group if r.get("Ref_ID")})
+        due_dates = [r["Due_Date"] for r in group if pd.notna(r.get("Due_Date"))]
+        due_date = min(due_dates) if due_dates else None
+        reasons = []
+        for r in group:
+            if r["Reason"] not in reasons:
+                reasons.append(r["Reason"])
+        merged.append({
+            "Task_Type": task_type,
+            "Site_ID": site_id,
+            "Ref_ID": ", ".join(ref_ids) if ref_ids else None,
+            "Priority": priority,
+            "Reason": f"{len(group)} combined tasks - " + " | ".join(reasons),
+            "Due_Date": due_date,
+        })
+    return merged + passthrough
+
+
 def build_weekly_todo_list(
     week_start: pd.Timestamp,
     sites: pd.DataFrame,
@@ -763,6 +860,8 @@ def build_weekly_todo_list(
                           "treatment: " + "; ".join(h["Flags"]) + ".",
                 "Due_Date": as_of,
             })
+
+    rows = _merge_duplicate_tasks(rows)
 
     columns = ["Task_Type", "Site_ID", "Ref_ID", "Priority", "Reason", "Due_Date"]
     todo = pd.DataFrame(rows, columns=columns)

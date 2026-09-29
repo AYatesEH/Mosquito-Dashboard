@@ -24,21 +24,24 @@ def render():
 
     complaints_f = ui.filter_by_season_date(data["complaints"], filters, date_col="Date_Received")
 
-    # Current status per site (based on latest usable event within the filtered window)
-    statuses = [calc.site_current_status(sid, ct, data["thresholds"]) for sid in data["sites"]["Site_ID"]]
-    status_df = pd.DataFrame(statuses)
-
     as_of = pd.Timestamp(filters["date_range"][1])
     hotspots = calc.identify_hotspots(ct, data["complaints"], data["treatments"], data["thresholds"], as_of=as_of,
                                        larvae_dips=data["larvae_dips"])
     hotspot_ids = set(hotspots["Site_ID"]) if not hotspots.empty else set()
+    hotspot_by_site = {row["Site_ID"]: row for row in hotspots.to_dict("records")}
+
+    # Current status per site (based on latest usable event within the filtered window,
+    # upgraded to reflect complaint/larvae-dip hotspot signals - see site_map_status)
+    statuses = [calc.site_map_status(sid, ct, data["thresholds"], hotspots_by_site=hotspot_by_site)
+                for sid in data["sites"]["Site_ID"]]
+    status_df = pd.DataFrame(statuses)
 
     col_map, col_controls = st.columns([3, 1])
     with col_controls:
         st.markdown("**Layers**")
         show_traps = st.checkbox("Trap sites", value=True)
-        show_treatments = st.checkbox("Recent treatments", value=False)
-        show_complaints = st.checkbox("Complaints", value=False)
+        show_treatments = st.checkbox("Recent treatments", value=True)
+        show_complaints = st.checkbox("Complaints", value=True)
         hotspots_only = st.checkbox("Hotspots only", value=False)
         st.divider()
         st.markdown("**Status legend**")
@@ -60,7 +63,7 @@ def render():
     site_id = ui.site_picker(data["sites"], key="map_site_picker")
     if site_id:
         site_row = data["sites"][data["sites"]["Site_ID"] == site_id].iloc[0]
-        status_info = calc.site_current_status(site_id, ct, data["thresholds"])
+        status_info = calc.site_map_status(site_id, ct, data["thresholds"], hotspots_by_site=hotspot_by_site)
         site_treatments = data["treatments"][
             (data["treatments"]["Site_ID"] == site_id) & (data["treatments"]["Treatment_Status"] == "Completed")
         ].sort_values("Treatment_Date")
