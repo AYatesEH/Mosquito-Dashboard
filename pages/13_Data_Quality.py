@@ -56,8 +56,10 @@ def render():
     st.subheader("Checks performed")
     st.markdown(
         "- Missing coordinates on sites\n"
-        "- Orphaned Site_ID / Trap_ID / Event_ID references across trap_sites, surveillance_events, "
-        "surveillance_results, treatments and complaints\n"
+        "- Orphaned Site_ID references in surveillance_events, treatments and complaints; orphaned Trap_ID "
+        "references in surveillance_events (trap_sites is a portable-equipment register with no Site_ID of its "
+        "own - see the Surveillance page's Add Trap Data tab); orphaned Event_ID references in "
+        "surveillance_results\n"
         "- Retrieval date/time before deployment date/time\n"
         "- Implausibly long trap deployments (> 14 days)\n"
         "- Negative mosquito counts\n"

@@ -182,6 +182,18 @@ TODO_PRIORITY_COLOURS = {
 # calculations.build_weekly_todo_list.
 WEEKLY_TRAP_COUNT = 3
 
+# Trap types an officer can pick from on the Surveillance page's "Add Trap
+# Data" form. Traps are portable equipment, not fixed installations - a trap
+# is moved to whichever site needs it that week (see WEEKLY_TRAP_COUNT and
+# trap_sites.csv, which is a plain equipment register with no location of its
+# own) - so the form asks for "Trap location" (any active site) and "Trap
+# type" as two independent dropdowns, rather than a single fixed trap-at-site
+# pick. Kept here as the single source of truth for the option list;
+# duplicated (not imported) in data/generate_sample_data.py, which stays a
+# standalone, dependency-free script by design - see the note on
+# RIVER_SITE_TYPE above.
+TRAP_TYPES = ["EVS (CO2-baited)", "BG-Sentinel", "CDC Light Trap", "Gravid Trap"]
+
 # An unresolved complaint (Investigation_Status not yet Site Inspected/
 # Closed) becomes a High-priority inspection task once it's been open at
 # least this many days; a freshly received one is Medium.

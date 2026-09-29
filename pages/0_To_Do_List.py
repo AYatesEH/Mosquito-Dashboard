@@ -96,7 +96,7 @@ def render():
         st.stop()
 
     todo = calc.build_weekly_todo_list(
-        week_start, data["trap_sites"], data["surv_events"], data["catch_totals"], data["complaints"],
+        week_start, data["sites"], data["surv_events"], data["catch_totals"], data["complaints"],
         data["treatments"], data["products"], data["thresholds"], data["observations"],
     )
 

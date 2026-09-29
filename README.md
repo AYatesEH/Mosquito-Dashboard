@@ -137,8 +137,8 @@ duplicating location details:
 | File | What it holds | Key(s) |
 |---|---|---|
 | `sites.csv` | **The single source of truth for every physical location** - name, type, lat/long, status, description | `Site_ID` |
-| `trap_sites.csv` | Traps installed at a site (a site can have more than one) | `Trap_ID` → `Site_ID` |
-| `surveillance_events.csv` | One row per trap deployment/retrieval cycle | `Event_ID` → `Trap_ID`, `Site_ID` |
+| `trap_sites.csv` | A **portable equipment register** (Trap_ID, Trap_Type, Trap_Status) - no `Site_ID`, since only a handful of physical CO2 traps exist and they're moved to a new site each week rather than permanently installed (see `WEEKLY_TRAP_COUNT` in `core/config.py` and the Surveillance page's Add Trap Data tab) | `Trap_ID` |
+| `surveillance_events.csv` | One row per trap deployment/retrieval cycle, with its own `Site_ID` and `Trap_Type` (independent of `trap_sites.csv`, since that's where a trap actually went that week) | `Event_ID` → `Trap_ID`, `Site_ID` |
 | `surveillance_results.csv` | One row per species caught in an event (an event can have several) | `Result_ID` → `Event_ID` |
 | `treatments.csv` | The treatment register (Planned/Scheduled/Completed/Cancelled) | `Treatment_ID` → `Site_ID`, `Product_ID` |
 | `products.csv` | Controlled product/label reference (fictional) | `Product_ID` |

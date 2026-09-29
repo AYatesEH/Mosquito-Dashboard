@@ -5,6 +5,7 @@ import plotly.express as px
 import streamlit as st
 
 from core import ui, calculations as calc
+from core.config import TRAP_TYPES
 
 TRAP_OUTCOMES = ["Successful", "Partial", "Failed - Equipment/Battery", "Missing"]
 DEFAULT_VALIDITY = {"Successful": "Valid", "Partial": "Valid", "Failed - Equipment/Battery": "Invalid", "Missing": "N/A"}
@@ -131,25 +132,22 @@ def render():
     with tab_add:
         st.subheader("Add Trap Data")
         st.caption(
-            "Saves to this prototype's CSV data store - fine for a single-user demo/pilot, see README Section 6 "
-            "for moving to a real backend before relying on this for a live season. Logged as one entry, after "
-            "the trap has been retrieved and read - matching how this is normally done at a desk, not standing "
-            "at the trap."
+            "Trap location and trap type are separate fields - traps are portable CO2 traps moved to a new site "
+            "each week (see the Weekly To Do List), not permanently installed, so there's no fixed trap code to "
+            "pick. Saves to this prototype's CSV data store - fine for a single-user demo/pilot, see README "
+            "Section 6 for moving to a real backend before relying on this for a live season. Logged as one "
+            "entry, after the trap has been retrieved and read - matching how this is normally done at a desk, "
+            "not standing at the trap."
         )
-        active_traps = data["trap_sites"][data["trap_sites"]["Trap_Status"] == "Active"].merge(
-            data["sites"][["Site_ID", "Site_Name"]], on="Site_ID", how="left"
-        )
-        if active_traps.empty:
-            st.warning("No active traps to log against.")
+        active_traps = data["trap_sites"][data["trap_sites"]["Trap_Status"] == "Active"]
+        active_sites = data["sites"][data["sites"]["Status"] == "Active"]
+        if active_traps.empty or active_sites.empty:
+            st.warning("No active traps/sites to log against.")
         else:
-            trap_labels = (active_traps["Trap_ID"] + " - " + active_traps["Site_Name"] + " (" + active_traps["Trap_Type"] + ")").tolist()
-            trap_lookup = dict(zip(trap_labels, active_traps["Trap_ID"]))
-
             sc1, sc2 = st.columns(2)
             with sc1:
-                new_trap_label = st.selectbox("Trap", trap_labels, key="new_event_trap")
-                new_trap_id = trap_lookup[new_trap_label]
-                new_trap_row = active_traps[active_traps["Trap_ID"] == new_trap_id].iloc[0]
+                new_site_id = ui.site_picker(active_sites, key="new_event_site", label="Trap location")
+                new_trap_type = st.selectbox("Trap type", TRAP_TYPES, key="new_event_trap_type")
                 new_deploy_date = st.date_input("Deployment date", value=pd.Timestamp.now().date() - pd.Timedelta(days=2), key="new_event_deploy_date")
                 new_retrieve_date = st.date_input("Retrieval date", value=pd.Timestamp.now().date(), key="new_event_retrieve_date")
             with sc2:
@@ -179,14 +177,20 @@ def render():
             if st.button("Save trap check", type="primary"):
                 if new_retrieve_date < new_deploy_date:
                     st.error("Retrieval date can't be before the deployment date.")
+                elif not new_site_id:
+                    st.error("Select a trap location.")
                 else:
+                    # Trap_ID is resolved automatically from the equipment register (trap_sites.csv) -
+                    # it's an internal reference only, never shown or picked by the officer (see
+                    # calc.resolve_trap_id).
+                    new_trap_id = calc.resolve_trap_id(data["trap_sites"], new_trap_type)
                     event_id = ui.add_surveillance_event({
                         "Trap_ID": new_trap_id,
-                        "Site_ID": new_trap_row["Site_ID"],
+                        "Site_ID": new_site_id,
                         "Season": ui.infer_season(new_deploy_date),
                         "Deployment_DateTime": new_deploy_date.strftime("%Y-%m-%d %H:%M"),
                         "Retrieval_DateTime": new_retrieve_date.strftime("%Y-%m-%d %H:%M"),
-                        "Trap_Type": new_trap_row["Trap_Type"],
+                        "Trap_Type": new_trap_type,
                         "Trap_Status": new_outcome,
                         "Sample_Validity": new_validity,
                         "Officer": new_officer,
@@ -213,7 +217,7 @@ def render():
         st.subheader("Surveillance event log")
         display_events = events_f.merge(data["sites"][["Site_ID", "Site_Name"]], on="Site_ID", how="left")
         st.dataframe(
-            display_events[["Event_ID", "Site_Name", "Trap_ID", "Deployment_DateTime", "Retrieval_DateTime",
+            display_events[["Event_ID", "Site_Name", "Deployment_DateTime", "Retrieval_DateTime",
                              "Trap_Type", "Trap_Status", "Sample_Validity", "Officer"]].sort_values(
                 "Deployment_DateTime", ascending=False),
             use_container_width=True, hide_index=True, height=420,

@@ -157,10 +157,10 @@ def render():
     timeline_rows = []
     for _, r in events_site.iterrows():
         timeline_rows.append({"Date": r["Deployment_DateTime"], "Type": "Trap deployed",
-                               "Detail": f"{r['Trap_ID']} ({r['Trap_Type']}) - {r['Trap_Status']}"})
+                               "Detail": f"{r['Trap_Type']} - {r['Trap_Status']}"})
         if pd.notna(r["Retrieval_DateTime"]):
             timeline_rows.append({"Date": r["Retrieval_DateTime"], "Type": "Trap collected",
-                                   "Detail": f"{r['Trap_ID']} - sample {r['Sample_Validity']}"})
+                                   "Detail": f"Sample {r['Sample_Validity']}"})
     for _, r in treatments_site.iterrows():
         date = r["Treatment_Date"] if pd.notna(r["Treatment_Date"]) else r["Planned_Date"]
         timeline_rows.append({"Date": date, "Type": f"Treatment ({r['Treatment_Status']})",

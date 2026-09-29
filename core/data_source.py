@@ -138,7 +138,12 @@ class CSVDataRepository(DataRepository):
         return df
 
     def get_trap_sites(self) -> pd.DataFrame:
-        return self._read_csv("trap_sites.csv", date_cols=["Install_Date", "Created_Date"])
+        """A plain equipment register (Trap_ID, Trap_Type, Trap_Status, ...)
+        with no Site_ID - traps are portable and moved to whichever site
+        needs one each week (see WEEKLY_TRAP_COUNT in core/config.py and the
+        Surveillance page's Add Trap Data tab), so no fixed location is
+        modelled here."""
+        return self._read_csv("trap_sites.csv", date_cols=["Created_Date"])
 
     def get_surveillance_events(self) -> pd.DataFrame:
         df = self._read_csv(

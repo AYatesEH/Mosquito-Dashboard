@@ -495,7 +495,7 @@ def identify_hotspots(catch_totals: pd.DataFrame, complaints: pd.DataFrame, trea
 
 def build_weekly_todo_list(
     week_start: pd.Timestamp,
-    trap_sites: pd.DataFrame,
+    sites: pd.DataFrame,
     surv_events: pd.DataFrame,
     catch_totals: pd.DataFrame,
     complaints: pd.DataFrame,
@@ -549,8 +549,11 @@ def build_weekly_todo_list(
     # week: once `n_traps` distinct sites have an actual surveillance event
     # logged for the week, the recommendation clears itself completely -
     # there's nothing to click, logging the trap catch IS what clears it.
+    # Candidate sites are ALL active sites, not a fixed trap-site list - the
+    # traps themselves are portable equipment (trap_sites.csv has no
+    # Site_ID), so any active site is a fair place to put one this week.
     candidate_sites = sorted(
-        trap_sites.loc[trap_sites["Trap_Status"] == "Active", "Site_ID"].dropna().unique().tolist()
+        sites.loc[sites["Status"] == "Active", "Site_ID"].dropna().unique().tolist()
     )
     week_events = surv_events[(surv_events["Deployment_DateTime"] >= week_start) &
                                (surv_events["Deployment_DateTime"] <= as_of)]
@@ -721,6 +724,31 @@ def build_weekly_todo_list(
     return todo.reset_index(drop=True)
 
 
+def resolve_trap_id(trap_sites: pd.DataFrame, trap_type: str) -> Optional[str]:
+    """
+    Picks a Trap_ID to record against a new surveillance event, given only
+    the trap TYPE an officer selected on the "Add Trap Data" form.
+
+    trap_sites.csv is a plain equipment register (Trap_ID, Trap_Type,
+    Trap_Status, ...) with no location of its own - traps are portable and
+    moved to whichever site needs one each week, so the form never asks an
+    officer to pick a specific trap code (e.g. "TRP-001"), only a location
+    and a type. Trap_ID still exists behind the scenes purely so
+    surveillance_events keeps a valid equipment reference (see
+    data_quality_report's Trap_ID check) - it's an internal key, never shown.
+
+    Prefers an Active trap of the requested type; falls back to any Active
+    trap if none of that exact type is registered; returns None if there is
+    no active equipment at all.
+    """
+    active = trap_sites[trap_sites["Trap_Status"] == "Active"]
+    if active.empty:
+        return None
+    matching = active[active["Trap_Type"] == trap_type]
+    pool = matching if not matching.empty else active
+    return str(pool.iloc[0]["Trap_ID"])
+
+
 # ===========================================================================
 # DATA QUALITY
 # ===========================================================================
@@ -741,11 +769,7 @@ def data_quality_report(sites, trap_sites, surv_events, surv_results, treatments
         if pd.isna(r["Latitude"]) or pd.isna(r["Longitude"]):
             add("sites", r["Site_ID"], "High", "Missing latitude/longitude.")
 
-    # Trap sites: orphaned Site_ID reference
     valid_site_ids = set(sites["Site_ID"])
-    for _, r in trap_sites.iterrows():
-        if r["Site_ID"] not in valid_site_ids:
-            add("trap_sites", r["Trap_ID"], "High", f"References Site_ID '{r['Site_ID']}' not found in sites.")
 
     # Surveillance events: retrieval before deployment; orphaned site/trap refs
     valid_trap_ids = set(trap_sites["Trap_ID"])

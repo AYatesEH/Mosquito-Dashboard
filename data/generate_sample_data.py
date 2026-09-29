@@ -270,7 +270,14 @@ sites_df.to_csv(OUT_DIR / "sites.csv", index=False)
 
 
 # ---------------------------------------------------------------------------
-# 2. TRAP SITES  (a trap is deployed AT a site; a site may host >1 trap)
+# 2. TRAP SITES  (trap_sites.csv is a plain EQUIPMENT REGISTER, not a fixed
+#    trap-to-site mapping - see the note by TRAP_TYPES in core/config.py.
+#    Traps are portable and moved to whichever site needs one each week, so
+#    a Trap_ID has no Site_ID of its own; each trap RECORD below still keeps
+#    an in-memory `site_id` purely to drive this generator's realistic
+#    per-site historical abundance simulation further down (section 6) - it
+#    is deliberately dropped before the CSV is written, since it isn't part
+#    of the real equipment register's schema.
 # ---------------------------------------------------------------------------
 TRAP_TYPES = ["EVS (CO2-baited)", "BG-Sentinel", "CDC Light Trap", "Gravid Trap"]
 
@@ -283,18 +290,24 @@ for site_id in active_site_ids:
     for _ in range(n_traps):
         trap_id = f"TRP-{trap_counter:03d}"
         trap_counter += 1
+        trap_type = rng.choice(TRAP_TYPES)
+        # Draw (and discard) the same random value this loop always has, so
+        # removing Install_Date from the written CSV doesn't shift every
+        # later rng call and silently change the rest of the sample dataset
+        # (hotspot site picks, surveillance events, complaints, ...) - see
+        # the reproducibility note by hotspot_persistent_sites below.
+        _ = int(rng.integers(10, 400))
         trap_sites.append({
             "Trap_ID": trap_id,
-            "Site_ID": site_id,
-            "Trap_Type": rng.choice(TRAP_TYPES),
+            "Site_ID": site_id,  # generator-internal only - not written to trap_sites.csv, see note above
+            "Trap_Type": trap_type,
             "Trap_Status": "Active",
-            "Install_Date": (SEASONS["2023-24"]["start"] - timedelta(days=int(rng.integers(10, 400)))).strftime("%Y-%m-%d"),
             "Notes": "",
             "Created_By": SYSTEM_USER,
             "Created_Date": SEASONS["2023-24"]["start"].strftime("%Y-%m-%d"),
         })
 trap_sites_df = pd.DataFrame(trap_sites)
-trap_sites_df.to_csv(OUT_DIR / "trap_sites.csv", index=False)
+trap_sites_df.drop(columns=["Site_ID"]).to_csv(OUT_DIR / "trap_sites.csv", index=False)
 
 
 # ---------------------------------------------------------------------------
