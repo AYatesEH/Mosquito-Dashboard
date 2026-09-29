@@ -22,6 +22,7 @@ from core import calculations as calc
 from core import weather_api
 from core.config import (
     APP_TITLE, SAMPLE_DATA_BANNER, STATUS_COLOURS, STATUS_UNKNOWN,
+    VINCENT_AREAS, VINCENT_CENTER_LAT, VINCENT_CENTER_LON,
 )
 
 SEASON_BOUNDS = {
@@ -337,6 +338,24 @@ def kpi_row(items: list[tuple[str, str, Optional[str]]]):
     for col, (label, value, help_text) in zip(cols, items):
         with col:
             st.metric(label, value, help=help_text)
+
+
+def vincent_area_picker(key: str, label: str = "Area") -> tuple[float, float, str]:
+    """
+    Lets an officer pick a specific City of Vincent suburb (Leederville, East
+    Perth, Mount Hawthorn, ...) instead of always showing weather for one
+    fixed LGA-wide centroid - see core.config.VINCENT_AREAS for the list and
+    its sourcing note. Returns (lat, lon, display_label) for the choice made;
+    "City of Vincent (LGA-wide)" (the default) returns the existing
+    VINCENT_CENTER_LAT/LON centroid, so callers that want a single sensible
+    default don't need special-case handling.
+    """
+    options = ["City of Vincent (LGA-wide)"] + list(VINCENT_AREAS.keys())
+    choice = st.selectbox(label, options, key=key)
+    if choice == options[0]:
+        return VINCENT_CENTER_LAT, VINCENT_CENTER_LON, choice
+    lat, lon = VINCENT_AREAS[choice]
+    return lat, lon, choice
 
 
 def site_picker(sites: pd.DataFrame, key: str, label: str = "Select a site") -> Optional[str]:

@@ -31,6 +31,33 @@ _boundary_ring = _boundary_geojson["features"][0]["geometry"]["coordinates"][0][
 VINCENT_CENTER_LAT = round(sum(c[1] for c in _boundary_ring) / len(_boundary_ring), 5)
 VINCENT_CENTER_LON = round(sum(c[0] for c in _boundary_ring) / len(_boundary_ring), 5)
 
+# Named suburbs within the City of Vincent LGA, each with an approximate
+# reference coordinate (Wikipedia infobox coordinates for that suburb),
+# used to let the live weather feed be shown for a specific part of Vincent
+# (e.g. Leederville, East Perth, Mount Hawthorn) rather than only one
+# LGA-wide centroid - see core/ui.py's vincent_area_picker, used by the
+# Environmental Conditions and Dosage Calculator pages. Suburbs marked
+# "(part)" are shared with a neighbouring council (per Wikipedia's "City of
+# Vincent" article) - only the portion within Vincent is relevant here.
+# Coolbinia is deliberately NOT included: Wikipedia's suburb list names it as
+# shared with the City of Stirling, but per direct confirmation it is not
+# actually part of the City of Vincent.
+# Open-Meteo's weather grid is coarser than the whole LGA (~9 km^2), so
+# figures may come back identical or near-identical between nearby suburbs -
+# this still shows the correct area name, just don't expect large numeric
+# differences over such a small area.
+VINCENT_AREAS = {
+    "Leederville": (-31.936, 115.834),
+    "Highgate": (-31.94, 115.869),
+    "Mount Hawthorn": (-31.921, 115.838),
+    "North Perth": (-31.928, 115.853),
+    "East Perth (part)": (-31.957, 115.876),
+    "West Perth (part)": (-31.94528, 115.84556),
+    "Perth (part)": (-31.95, 115.85),
+    "Mount Lawley (part)": (-31.9301, 115.8746),
+    "Osborne Park (part)": (-31.898, 115.812),
+}
+
 # Discrete, LABEL-DEFINED rate options for the two real S-methoprene
 # products, transcribed exactly from the APVMA-approved labels (see each
 # product's Rate_Basis/Label_Reference in products.csv for the full text).

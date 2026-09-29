@@ -264,12 +264,26 @@ every function has a docstring and nothing here talks to Streamlit.
   area-times-rate arithmetic - and both tabs now take area in m² only (see the Area unit note below).
 - **Live weather** (`core/weather_api.py`, wrapped/cached in `core/ui.py`): calls the free, no-API-key
   Open-Meteo API to auto-populate current conditions (Environmental Conditions page) and historical/forecast
-  weather for a specific site/date (Treatments form preview) - no manual searching or data entry needed. Written
-  and syntax-checked against Open-Meteo's published API docs, but **could not be exercised against the live
-  API from the sandbox this was built in** (its outbound network is restricted to GitHub/package registries
-  only) - the deployed Streamlit Cloud app has normal internet access, so this needs its first real run there to
-  confirm the response shape matches. Every call checks for an `"error"` key before reading fields and degrades
-  to a plain message rather than crashing the page if the lookup fails.
+  weather for a specific site/date (Treatments form preview, Dosage Calculator) - no manual searching or data
+  entry needed. Written and syntax-checked against Open-Meteo's published API docs, but **could not be
+  exercised against the live API from the sandbox this was built in** (its outbound network is restricted to
+  GitHub/package registries only) - the deployed Streamlit Cloud app has normal internet access, so this needs
+  its first real run there to confirm the response shape matches. Every call checks for an `"error"` key before
+  reading fields and degrades to a plain message rather than crashing the page if the lookup fails.
+- **Weather by area, not just one city-wide point** (`core.config.VINCENT_AREAS`, `core.ui.vincent_area_picker`):
+  the Treatments form and Site Detail page already look up live weather/tide using a SITE's own coordinates
+  (`sites.csv` Latitude/Longitude), so those were already area-specific. The Environmental Conditions page's
+  "Live conditions now" panel and the Dosage Calculator's guided tab used to always call one fixed Vincent LGA
+  centroid regardless of where the officer actually cared about - both now have an "Area" picker (Leederville,
+  Highgate, Mount Hawthorn, North Perth, and the parts of East Perth/West Perth/Perth/Mount Lawley/Osborne Park
+  that fall inside Vincent, plus a "City of Vincent (LGA-wide)" default) backed by real per-suburb reference
+  coordinates. The Dosage Calculator's tide lookup was also switched from the LGA centroid to the real
+  Claisebrook Cove Foreshore site's own coordinates, consistent with Site Detail/Environmental Conditions.
+  Suburb list and coordinates are sourced from Wikipedia's "City of Vincent" article and each suburb's own
+  infobox - Coolbinia is deliberately excluded from that list despite Wikipedia naming it as shared with the
+  City of Stirling, per direct confirmation it isn't actually part of Vincent. Note Open-Meteo's forecast grid
+  is coarser than the ~9 km² LGA, so nearby suburbs can return identical or near-identical figures - the picker
+  still shows the correct area name, it just won't always differ numerically over such a small area.
 - **Tide indicator** (`weather_api.fetch_tide_indicator`): a rough rising/falling sea-level indicator for the
   Swan River foreshore site, via Open-Meteo's free Marine Weather API - added because there is **no free,
   no-API-key source of accurate real Swan River tide data**. WA Dept of Transport publishes only an interactive

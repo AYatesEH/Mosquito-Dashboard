@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from core import ui, calculations as calc
-from core.config import VINCENT_CENTER_LAT, VINCENT_CENTER_LON, RIVER_SITE_TYPE
+from core.config import RIVER_SITE_TYPE
 
 
 def render():
@@ -23,7 +23,13 @@ def render():
 
     # --- Live conditions now (real data, Open-Meteo) -----------------------
     st.subheader("Live conditions now")
-    live = ui.get_current_weather(VINCENT_CENTER_LAT, VINCENT_CENTER_LON)
+    area_lat, area_lon, area_label = ui.vincent_area_picker(key="env_live_area")
+    st.caption(
+        "Open-Meteo's weather grid is coarser than the whole LGA (~9 km²), so nearby suburbs may show "
+        "identical or near-identical figures - this still lets you check the specific area, it just won't "
+        "always differ numerically over such a small area."
+    )
+    live = ui.get_current_weather(area_lat, area_lon)
     if "error" in live:
         st.info(f"Live weather unavailable right now: {live['error']}")
     else:
@@ -32,7 +38,7 @@ def render():
         lc2.metric("Humidity", f"{live['humidity_pct']:g}%" if live["humidity_pct"] is not None else "-")
         lc3.metric("Wind speed", f"{live['wind_speed_kmh']:g} km/h" if live["wind_speed_kmh"] is not None else "-")
         lc4.metric("Today's rainfall", f"{live['today_rainfall_mm']:g} mm" if live["today_rainfall_mm"] is not None else "-")
-        st.caption(f"Observed at {live['observed_at']} (Open-Meteo, live, region-wide - Vincent LGA centroid). No API key required.")
+        st.caption(f"Observed at {live['observed_at']} (Open-Meteo, live) for {area_label}. No API key required.")
 
     river_site = data["sites"][data["sites"]["Site_Type"] == RIVER_SITE_TYPE]
     if not river_site.empty:

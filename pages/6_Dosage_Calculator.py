@@ -17,8 +17,7 @@ import streamlit as st
 
 from core import ui
 from core.config import (
-    LABEL_RATE_OPTIONS, LOCATION_TYPE_GUIDANCE, QUANTITY_USED_UNITS,
-    VINCENT_CENTER_LAT, VINCENT_CENTER_LON,
+    LABEL_RATE_OPTIONS, LOCATION_TYPE_GUIDANCE, QUANTITY_USED_UNITS, RIVER_SITE_TYPE,
 )
 
 
@@ -125,23 +124,28 @@ def render():
             st.info("Enter an area greater than zero to see a suggested quantity.")
 
         st.markdown("**Conditions at the date/time entered**")
+        area_lat, area_lon, area_label = ui.vincent_area_picker(key="dip_weather_area", label="Area (for weather)")
         wc1, wc2 = st.columns(2)
         with wc1:
-            weather = ui.get_weather_for_date(VINCENT_CENTER_LAT, VINCENT_CENTER_LON, dip_date)
+            weather = ui.get_weather_for_date(area_lat, area_lon, dip_date)
             if "error" in weather:
                 st.caption(f"Weather lookup unavailable right now: {weather['error']}")
             else:
                 st.metric("Rainfall", f"{weather['rainfall_mm']:g} mm" if weather["rainfall_mm"] is not None else "-")
-                st.caption(f"Source: {weather['source']} (Open-Meteo, live) - region-wide (Vincent centroid), not site-specific.")
+                st.caption(f"Source: {weather['source']} (Open-Meteo, live) for {area_label}.")
         with wc2:
             if "Swan River" in dip_location_type:
-                tide = ui.get_tide_indicator(VINCENT_CENTER_LAT, VINCENT_CENTER_LON)
-                if "error" not in tide:
-                    st.caption(
-                        f"⚠️ Tide (rough approximation only - see Environmental/Site Detail pages for the full "
-                        f"caveat): {tide['trend'] or '-'}, next {tide['next_turn_type'] or 'turn'} "
-                        f"~{tide['next_turn_time'].split('T')[-1] if tide['next_turn_time'] else '-'}."
-                    )
+                river_site = data["sites"][data["sites"]["Site_Type"] == RIVER_SITE_TYPE]
+                if not river_site.empty:
+                    river_row = river_site.iloc[0]
+                    tide = ui.get_tide_indicator(river_row["Latitude"], river_row["Longitude"])
+                    if "error" not in tide:
+                        st.caption(
+                            f"⚠️ Tide at {river_row['Site_Name']} (rough approximation only - see "
+                            f"Environmental/Site Detail pages for the full caveat): {tide['trend'] or '-'}, next "
+                            f"{tide['next_turn_type'] or 'turn'} "
+                            f"~{tide['next_turn_time'].split('T')[-1] if tide['next_turn_time'] else '-'}."
+                        )
             else:
                 st.caption("A tide indicator is shown here only for Swan River foreshore/bank locations.")
 
