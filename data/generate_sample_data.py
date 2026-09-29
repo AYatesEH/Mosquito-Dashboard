@@ -424,8 +424,7 @@ SITE_TYPE_SPECIES_BIAS = {
 # real, current APVMA-approved product labels (supplied directly by the
 # person and read in full) rather than retailer pages or third-party plans -
 # see each product's Label_Reference and Rate_Basis for exact detail and the
-# APVMA approval number. PRD-05 (a fictional withdrawn product) is kept only
-# to exercise Withdrawn-status handling in the app; it is not real.
+# APVMA approval number.
 #
 # Duration_Min_Days/Duration_Max_Days are the numeric form of Duration_Of_
 # Control, added so the Treatments page can calculate an estimated re-dose
@@ -501,13 +500,6 @@ products = [
               "same species). No effect on mosquitoes already at pupal/adult stage at time of treatment. This is "
               "now sourced directly from the real APVMA label (previously an approximation from field practice) "
               "- CONFIRM against the current label before operational use, as labels are periodically reissued."},
-    {"Product_ID": "PRD-05", "Product_Name": "OldStock Larvicide (fictional)", "Active_Ingredient": "Fictional-Discontinued-Compound",
-     "Formulation": "Granule",
-     "Application_Method": "Granular - hand/spreader", "Rate_Min": 4.0, "Rate_Max": 4.0, "Rate_Unit": "kg/ha",
-     "Rate_Basis": "", "Duration_Of_Control": "N/A",
-     "Duration_Min_Days": 0, "Duration_Max_Days": 0,
-     "Status": "Withdrawn", "Label_Reference": "SAMPLE DATA ONLY - NOT FOR OPERATIONAL USE",
-     "Notes": "Fictional withdrawn product retained for historical treatment records / Withdrawn-status testing only."},
 ]
 products_df = pd.DataFrame(products)
 products_df.to_csv(OUT_DIR / "products.csv", index=False)
