@@ -96,9 +96,12 @@ mosquito_dashboard/
 │   └── ui.py                     # Cached data loading, global filters, KPI cards, styling
 ├── data/
 │   ├── generate_sample_data.py   # Generates every CSV under data/raw/ (documented, deterministic)
-│   ├── raw/                      # The CSV files themselves (the prototype's "database")
+│   ├── raw/                      # The CSV files themselves (the default/CSV-backend "database")
 │   └── gis/
 │       └── city_of_vincent_boundary.geojson   # REAL City of Vincent LGA boundary (see note below)
+├── db/                            # Postgres schema + migration - see Section 6a
+│   ├── schema.sql                 # Table definitions, run once against a new database
+│   └── migrate_from_csv.sh        # One-shot loader: data/raw/*.csv -> Postgres
 ├── .streamlit/config.toml        # Theme
 └── requirements.txt
 ```
@@ -365,43 +368,80 @@ Marked clearly in the app itself (banners on the relevant pages), but to be expl
 ## 6. Moving from CSV to a real corporate data source
 
 This is the reason `core/data_source.py` exists as its own file. Every page and every calculation reaches data
-through `core.data_source.get_repository()`, which currently returns a `CSVDataRepository`. To move to SQL
-Server, SharePoint Lists or Dataverse:
+through `core.data_source.get_repository()`. `CSVDataRepository` (the CSV backend used throughout this README
+until now) is genuinely useful for a demo or for building the app itself, but it is **not safe to collect real
+data with**: writes are plain file appends with no locking (two people saving at the same moment can corrupt a
+file), and Streamlit Community Cloud's filesystem is wiped on every redeploy and on restart after the app
+sleeps from inactivity - anything written would eventually just vanish.
 
-1. Write a new class (e.g. `SqlDataRepository`) that implements the same methods as `DataRepository`
-   (`get_sites()`, `get_surveillance_events()`, etc.), returning pandas DataFrames with the **same column
-   names** the CSV version returns (each method's docstring/the table above says what's expected).
-2. Change the one line in `get_repository()` to return your new class instead (a config flag or environment
-   variable is a natural way to choose between them).
-3. Nothing in `core/calculations.py`, `core/ui.py`, `core/mapping.py` or any page needs to change.
+### 6a. Postgres backend (implemented - `PostgresDataRepository`)
+
+`core/data_source.py` also ships `PostgresDataRepository`, a complete second implementation of the same
+`DataRepository` interface backed by a real Postgres database, plus `db/schema.sql` (the table definitions)
+and `db/migrate_from_csv.sh` (one-shot loader for the existing `data/raw/` CSVs, if you want to bring the
+sample or any already-collected data across rather than starting empty). `get_repository()` switches to it
+automatically the moment a `DATABASE_URL` is configured - no other file changes, because every page and every
+calculation only ever goes through `core.ui`/`core.data_source`, never a CSV or a database directly.
+
+**To turn it on:**
+
+1. Provision a Postgres database. Any Postgres works (Render, Supabase, Railway, a self-hosted instance, your
+   own organisation's SQL team); [Neon](https://neon.tech) is a reasonable default if you don't already have
+   one - a free serverless Postgres instance with a connection string ready in under a minute, no server to
+   manage.
+2. Run the schema once: `psql "$DATABASE_URL" -f db/schema.sql`.
+3. Optional - load the current `data/raw/` CSVs into it: `./db/migrate_from_csv.sh "$DATABASE_URL"`. Skip this
+   (leave the database empty after step 2) if you're going live with real data rather than carrying the sample
+   set across - see Section 5's caveat that everything in the CSVs today is fictional.
+4. Set `DATABASE_URL` so the app can find it:
+   - **Locally**: `export DATABASE_URL=postgresql://user:pass@host:5432/dbname` before `streamlit run app.py`.
+   - **On Streamlit Community Cloud**: Manage app → Settings → Secrets, add `DATABASE_URL = "postgresql://..."`.
+     `core/ui.py` copies it from `st.secrets` into the environment at startup, so nothing else needs touching.
+5. Redeploy/restart. The app now reads and writes Postgres - every "+ Log/Record/Add..." form, the KPIs, the
+   To Do List, everything - with no code change, because they all call `core.ui`, which calls
+   `core.data_source.get_repository()`, which now hands back `PostgresDataRepository` instead of
+   `CSVDataRepository`.
+
+**What actually changes, functionally:**
+
+- **Durability.** Data lives in the database, not the app container's filesystem - a redeploy, restart, or the
+  app sleeping/waking no longer risks losing anything.
+- **Safe concurrent writes.** Two officers saving at the same moment can no longer corrupt anything or collide
+  on an ID - each `add_*` method pulls its new ID from a dedicated Postgres `SEQUENCE` (`nextval()` is atomic)
+  inside the same transaction as the insert, rather than CSVDataRepository's "read the file, take the current
+  max, append" approach. IDs keep the exact same `PREFIX-00001` text format everywhere (`ST-014`, `CMP-00285`,
+  ...) - nothing downstream (reports, officers' own notes, anything already referencing an ID) is affected.
+- **Real referential integrity.** `db/schema.sql` adds foreign keys (a treatment's `Site_ID` must be a real
+  site, etc.) that the CSV files never enforced - `data_quality_report` (Section 4/Data Quality page) still
+  exists and is still worth running periodically, but this backend now rejects some bad data outright instead
+  of only flagging it after the fact.
+
+**What does not change:** the schema/columns each page and calculation expects, the ID formats, the sample
+data's caveats (Section 5), and - still genuinely open, and outside what a data-layer swap can fix -
+authentication (Section 7) and periodic re-verification of the product label/threshold data.
+
+### 6b. A different backend entirely (SQL Server, SharePoint Lists, Dataverse, ...)
+
+Same pattern as 6a, generalised: write a new class implementing `DataRepository`'s methods, returning pandas
+DataFrames with the same column names the CSV/Postgres versions return (each method's docstring/the table
+above says what's expected), and change the one branch in `get_repository()` to select it. Nothing in
+`core/calculations.py`, `core/ui.py`, `core/mapping.py` or any page needs to change either way.
 
 The same principle applies to authentication, permissions and audit trail: `Created_By`/`Modified_By` fields
 are already on the sites and treatments tables, so wiring up Microsoft/organisational sign-in later means
 populating those fields from the logged-in user rather than an officer picked from a dropdown, not
 restructuring anything.
 
-**Data entry now actually saves - to the CSV files, as an interim step.** The Treatments, Complaints,
-Surveillance and Map pages each have a "+ Log/Record/Add..." form (`DataRepository.add_treatment`/
-`add_complaint`/`add_surveillance_event`/`add_surveillance_result`/`add_site`/`add_site_observation`/
-`add_larvae_dip` in `core/data_source.py`, called via `core/ui.py`'s `add_*`/`invalidate_data_cache` wrappers)
-that appends a row
-and clears the cache, so the new record shows up everywhere on the very next rerun - KPIs, charts, the re-dose
-schedule, all of it, no separate refresh step.
-**This is genuinely useful for a single-user demo or pilot, but it is NOT the real answer for a live season**:
-`CSVDataRepository`'s writes are plain file appends with no locking, so two people saving at the same moment
-can corrupt a file; and Streamlit Community Cloud's filesystem is wiped on every redeploy and on restart after
-the app sleeps from inactivity, so anything written would eventually vanish. Moving to a real backend (Section
-6's numbered steps above) is what makes this safe to rely on - the `add_*` methods just need the same
-treatment as the `get_*` methods: implement them on the new repository class, and every "+ Log..." form keeps
-working unchanged, because pages call `core.ui.add_*`, never `data_source` directly.
-
 ---
 
 ## 7. Known prototype limitations (by design, not oversights)
 
 - Data entry forms (Treatments, Complaints, Surveillance - including its Add Dip Data tab, Map's "Add a new
-  site", and the To Do List's qualitative dip-logging quick action) save to the CSV files - genuinely working,
-  but not durable on Streamlit Community Cloud and not safe for concurrent multi-user writes - see Section 6.
+  site", and the To Do List's qualitative dip-logging quick action) save through `core.data_source`, whichever
+  backend is configured. **By default (no `DATABASE_URL` set) that's still the CSV files** - genuinely
+  working, but not durable on Streamlit Community Cloud and not safe for concurrent multi-user writes. Setting
+  `DATABASE_URL` switches to the real Postgres backend, which fixes both - see Section 6a. This is the one
+  thing that should happen before any real (non-sample) data is entered into this app.
 - Season Comparison and Field Observations are hidden from the sidebar (Section 1) - their code and data are
   untouched, so re-enabling either later is a one-line `mv`.
 - The Weekly To Do List (Section 4) has no photo/attachment support and doesn't yet let an officer add a manual,

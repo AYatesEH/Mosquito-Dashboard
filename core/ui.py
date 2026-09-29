@@ -12,6 +12,7 @@ than re-implementing filter widgets or cache decorators themselves.
 
 from __future__ import annotations
 
+import os
 from typing import Optional
 
 import pandas as pd
@@ -24,6 +25,21 @@ from core.config import (
     APP_TITLE, SAMPLE_DATA_BANNER, STATUS_COLOURS, STATUS_UNKNOWN,
     VINCENT_AREAS, VINCENT_CENTER_LAT, VINCENT_CENTER_LON,
 )
+
+# Bridges Streamlit Cloud's app secrets into the plain os.environ variable
+# core.data_source.get_repository() checks (DATABASE_URL), so switching to
+# the Postgres backend in production is "add the secret", not a code
+# change. core.data_source deliberately never imports streamlit itself (see
+# its module docstring), so this one-time bridge lives here instead, in the
+# one module allowed to import both. Wrapped defensively: st.secrets raises
+# if the app has no secrets.toml / configured secrets at all, which is the
+# normal case for the CSV-only prototype and for local dev.
+if "DATABASE_URL" not in os.environ:
+    try:
+        if "DATABASE_URL" in st.secrets:
+            os.environ["DATABASE_URL"] = st.secrets["DATABASE_URL"]
+    except Exception:
+        pass
 
 SEASON_BOUNDS = {
     "2023-24": (pd.Timestamp("2023-10-01"), pd.Timestamp("2024-05-31")),

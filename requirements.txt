@@ -5,3 +5,9 @@ numpy>=1.24
 folium>=0.15
 streamlit-folium>=0.20
 requests>=2.31
+
+# Only needed if DATABASE_URL is set (see README "Moving to a real
+# database" / core/data_source.py:PostgresDataRepository). Harmless to
+# leave installed for the CSV-only prototype - they simply go unused.
+sqlalchemy>=2.0
+psycopg2-binary>=2.9
