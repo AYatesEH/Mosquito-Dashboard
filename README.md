@@ -307,10 +307,16 @@ every function has a docstring and nothing here talks to Streamlit.
 
 Marked clearly in the app itself (banners on the relevant pages), but to be explicit:
 
-- **Real, sourced directly from the actual APVMA-approved product labels (supplied by the person) and WA Dept
-  of Health - confirm current details before operational use:** the six mosquito species on the Species
-  Reference page (breeding habitat, biting behaviour, seasonal characteristics and vector significance, sourced
-  from WA Health's "Common mosquitoes in Western Australia"); the two products tracked on the
+- **Real, sourced directly from the actual APVMA-approved product labels (supplied by the person), WA Dept of
+  Health and other cited entomology sources - confirm current details before operational use:** the eleven
+  mosquito species on the Species Reference page (breeding habitat, biting behaviour, seasonal characteristics
+  and vector significance). Six are sourced from WA Health's "Common mosquitoes in Western Australia" (Aedes
+  notoscriptus, Aedes vigilax, Aedes camptorhynchus, Culex annulirostris, Culex quinquefasciatus, Anopheles
+  annulipes); the other five - Aedes alboannulatus, Culex globocoxitus, Culex molestus, Culex australicus and
+  Aedes sagax - aren't on WA Health's own species page but are named on its South-West adult mosquito
+  photographic key as further species present in the region, so their entries are instead sourced from
+  Wikipedia, University of Sydney Medical Entomology, Rutgers University Center for Vector Biology and
+  iNaturalist (cited per-species in each entry's `Notes` field); the two products tracked on the
   Products/Dosage Calculator pages - ProLink Pellets (Active Constituent 40 g/kg (S)-methoprene, APVMA Approval
   No. 58064/1/0705) and ProLink XR Briquets (18 g/kg (S)-methoprene, APVMA Approval No. 58061/100/0505) - whose
   rate, duration-of-control and application-method fields are transcribed directly from the real labels, not a

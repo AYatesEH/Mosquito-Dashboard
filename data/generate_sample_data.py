@@ -271,43 +271,33 @@ sites_df.to_csv(OUT_DIR / "sites.csv", index=False)
 
 # ---------------------------------------------------------------------------
 # 2. TRAP SITES  (trap_sites.csv is a plain EQUIPMENT REGISTER, not a fixed
-#    trap-to-site mapping - see the note by TRAP_TYPES in core/config.py.
-#    Traps are portable and moved to whichever site needs one each week, so
-#    a Trap_ID has no Site_ID of its own; each trap RECORD below still keeps
-#    an in-memory `site_id` purely to drive this generator's realistic
-#    per-site historical abundance simulation further down (section 6) - it
-#    is deliberately dropped before the CSV is written, since it isn't part
-#    of the real equipment register's schema.
+#    trap-to-site mapping - see the note by TRAP_TYPES in core/config.py).
+#    Only WEEKLY_TRAP_COUNT (3) real, portable CO2-baited traps are actually
+#    owned - set out for one night, picked up the next morning, then moved to
+#    a different site the following week - so this is a short, fixed
+#    equipment list, not one row per site, and every trap is the same real
+#    type (no fictional mixed fleet of light traps/gravid traps/etc., which
+#    this council doesn't actually own). See section 6 below for how weekly
+#    site selection works with only 3 traps to go around.
 # ---------------------------------------------------------------------------
-TRAP_TYPES = ["EVS (CO2-baited)", "BG-Sentinel", "CDC Light Trap", "Gravid Trap"]
+WEEKLY_TRAP_COUNT = 3  # duplicated from core.config.WEEKLY_TRAP_COUNT - this script stays standalone/dependency-free by design, see the RIVER_SITE_TYPE note above
+TRAP_TYPES = ["EVS (CO2-baited)"]  # the only trap type actually owned - see note above
 
-trap_sites = []
-trap_counter = 1
-active_site_ids = sites_df.loc[sites_df["Status"] == "Active", "Site_ID"].tolist()
-# Give most active sites one trap; a few get two traps (different trap types)
-for site_id in active_site_ids:
-    n_traps = 2 if rng.random() < 0.2 else 1
-    for _ in range(n_traps):
-        trap_id = f"TRP-{trap_counter:03d}"
-        trap_counter += 1
-        trap_type = rng.choice(TRAP_TYPES)
-        # Draw (and discard) the same random value this loop always has, so
-        # removing Install_Date from the written CSV doesn't shift every
-        # later rng call and silently change the rest of the sample dataset
-        # (hotspot site picks, surveillance events, complaints, ...) - see
-        # the reproducibility note by hotspot_persistent_sites below.
-        _ = int(rng.integers(10, 400))
-        trap_sites.append({
-            "Trap_ID": trap_id,
-            "Site_ID": site_id,  # generator-internal only - not written to trap_sites.csv, see note above
-            "Trap_Type": trap_type,
-            "Trap_Status": "Active",
-            "Notes": "",
-            "Created_By": SYSTEM_USER,
-            "Created_Date": SEASONS["2023-24"]["start"].strftime("%Y-%m-%d"),
-        })
+trap_sites = [
+    {
+        "Trap_ID": f"TRP-{i:03d}",
+        "Trap_Type": TRAP_TYPES[0],
+        "Trap_Status": "Active",
+        "Notes": "",
+        "Created_By": SYSTEM_USER,
+        "Created_Date": SEASONS["2023-24"]["start"].strftime("%Y-%m-%d"),
+    }
+    for i in range(1, WEEKLY_TRAP_COUNT + 1)
+]
 trap_sites_df = pd.DataFrame(trap_sites)
-trap_sites_df.drop(columns=["Site_ID"]).to_csv(OUT_DIR / "trap_sites.csv", index=False)
+trap_sites_df.to_csv(OUT_DIR / "trap_sites.csv", index=False)
+
+active_site_ids = sites_df.loc[sites_df["Status"] == "Active", "Site_ID"].tolist()
 
 
 # ---------------------------------------------------------------------------
@@ -396,13 +386,88 @@ species_reference = [
                  "Western Australia'.",
     },
     {
+        "Species_Code": "AEDALB", "Scientific_Name": "Aedes alboannulatus", "Common_Name": "White-kneed Mosquito",
+        "Typical_Breeding_Habitat": "Rain-filled pools in open, sunlit or forested areas; eggs are laid on the "
+                                     "soil substrate of drying pools and can withstand desiccation between rain "
+                                     "events.",
+        "Biting_Behaviour": "Bites humans readily, usually at dusk or in shaded areas during the day; also feeds "
+                             "on birds.",
+        "Seasonal_Characteristics": "Widely distributed across southern Australia (Qld, NSW, Vic, Tas, SA, WA), "
+                                     "in both coastal and inland areas; its drought-resistant eggs let it "
+                                     "re-establish quickly after rain.",
+        "Vector_Significance": "Can carry Murray Valley encephalitis virus in laboratory studies, but is a "
+                                 "considerably poorer vector than Culex annulirostris or Aedes sagax.",
+        "Notes": "Not covered on WA Health's own 'Common mosquitoes in Western Australia' page - included here "
+                 "as one of the further species named on WA's South-West adult mosquito photographic key. "
+                 "Source: Webb, Doggett & Russell, 'A Guide to Mosquitoes of Australia' (2016), via Wikipedia "
+                 "and iNaturalist (common name 'White-kneed Mosquito').",
+    },
+    {
+        "Species_Code": "CULGLO", "Scientific_Name": "Culex globocoxitus",
+        "Common_Name": "Swamp Mosquito (no widely-used common name found)",
+        "Typical_Breeding_Habitat": "Open swamps and brackish water, including small pools in creek beds and "
+                                     "drainage pits; tolerates heavily polluted water; larvae co-occur with Aedes "
+                                     "camptorhynchus in grassy pools over winter.",
+        "Biting_Behaviour": "Females generally do not bite humans - the host is most likely birds.",
+        "Seasonal_Characteristics": "Active year-round with a peak between July and November; can complete one "
+                                     "to two generations through the cooler months (mating requires temperatures "
+                                     "above 13°C).",
+        "Vector_Significance": "No documented disease-vector significance for humans or animals in the sources "
+                                "reviewed.",
+        "Notes": "Recorded in coastal south-western WA. Not covered on WA Health's own species page - named as "
+                 "one of the further species on WA's South-West adult mosquito photographic key. Source: "
+                 "Wikipedia summary of published taxonomic/ecological references (Dobrotworsky 1953 and later).",
+    },
+    {
+        "Species_Code": "CULMOL", "Scientific_Name": "Culex molestus", "Common_Name": "London Underground Mosquito",
+        "Typical_Breeding_Habitat": "Below-ground or enclosed water - drains, sumps, septic systems, sewers - "
+                                     "rather than open water; females can lay a first egg batch without a blood "
+                                     "meal (autogenous reproduction).",
+        "Biting_Behaviour": "Bites humans and birds readily, including at night; a below-ground/underground "
+                             "domestic pest, since its habitat stays temperature-stable and lets it remain active "
+                             "indoors year-round in warmer areas.",
+        "Seasonal_Characteristics": "Recorded in NSW, Vic and Tas; can be active throughout the year in warmer "
+                                     "locations.",
+        "Vector_Significance": "Can carry Murray Valley encephalitis virus in laboratory studies, but its "
+                                 "importance as an actual disease vector is unclear - mainly significant as a "
+                                 "biting/nuisance pest.",
+        "Notes": "A below-ground biotype of the Culex pipiens complex, distinct from Culex quinquefasciatus "
+                 "already tracked above - named as one of the further species on WA's South-West adult mosquito "
+                 "photographic key. Source: University of Sydney Medical Entomology and Rutgers University "
+                 "Center for Vector Biology.",
+    },
+    {
+        "Species_Code": "CULAUS", "Scientific_Name": "Culex australicus",
+        "Common_Name": "Bird/Rabbit-feeding Culex (no widely-used common name found)",
+        "Typical_Breeding_Habitat": "Not specifically documented in the sources reviewed for this entry.",
+        "Biting_Behaviour": "Does not normally attack humans - feeds predominantly on rabbits and birds.",
+        "Seasonal_Characteristics": "Adults active from spring through autumn in many areas, and year-round in "
+                                     "some warmer zones.",
+        "Vector_Significance": "Murray Valley encephalitis virus and Kunjin virus have been isolated from "
+                                "wild-caught specimens in the Murray Valley, suggesting a role amplifying these "
+                                "viruses among wildlife hosts; may also be a myxomatosis vector among rabbits.",
+        "Notes": "Widespread across south-eastern Australia and also recorded in WA. Not covered on WA Health's "
+                 "own species page. Source: University of Sydney Medical Entomology (dedicated species page).",
+    },
+    {
+        "Species_Code": "AEDSAG", "Scientific_Name": "Aedes sagax",
+        "Common_Name": "Flood-plain Mosquito (no widely-used common name found)",
+        "Typical_Breeding_Habitat": "Fresh, clear water, with or without vegetation.",
+        "Biting_Behaviour": "Bites humans and domestic animals readily.",
+        "Seasonal_Characteristics": "Adults most numerous in summer and spring; larvae persist through winter. "
+                                     "Populations can surge dramatically as a major pest after flooding events.",
+        "Vector_Significance": "A recognised vector of Ross River virus.",
+        "Notes": "Type locality in NSW; also recorded across Western Australia. Not covered on WA Health's own "
+                 "species page - named as one of the further species on WA's South-West adult mosquito "
+                 "photographic key. Source: Wikipedia.",
+    },
+    {
         "Species_Code": "OTHER", "Scientific_Name": "Other / unidentified", "Common_Name": "Other species",
         "Typical_Breeding_Habitat": "Not applicable.", "Biting_Behaviour": "Not applicable.",
         "Seasonal_Characteristics": "Not applicable.", "Vector_Significance": "Not applicable.",
         "Notes": "Catch-all for low-count incidental species not separately identified. WA's South-West adult "
-                 "mosquito photographic key (health.wa.gov.au) lists many further species present in the region "
-                 "(e.g. Culex globocoxitus, Culex molestus, Coquillettidia sp. nr. linealis) for officers "
-                 "identifying a specimen that doesn't match the six species tracked above.",
+                 "mosquito photographic key (health.wa.gov.au) lists further species present in the region "
+                 "(e.g. Coquillettidia sp. nr. linealis) beyond the eleven species tracked above.",
     },
 ]
 species_df = pd.DataFrame(species_reference)
@@ -410,7 +475,10 @@ species_df.to_csv(OUT_DIR / "species_reference.csv", index=False)
 SPECIES_CODES = [s for s in species_df["Species_Code"].tolist() if s != "OTHER"]
 
 # Relative abundance weighting per species (drives realistic composition).
-SPECIES_WEIGHTS = {"AEDNOT": 0.15, "AEDVIG": 0.30, "AEDCAM": 0.12, "CULANN": 0.25, "CULQUI": 0.13, "ANOANN": 0.05}
+SPECIES_WEIGHTS = {
+    "AEDNOT": 0.15, "AEDVIG": 0.30, "AEDCAM": 0.12, "CULANN": 0.25, "CULQUI": 0.13, "ANOANN": 0.05,
+    "AEDALB": 0.05, "CULGLO": 0.03, "CULMOL": 0.06, "CULAUS": 0.03, "AEDSAG": 0.08,
+}
 
 # Assign each site a dominant-species tendency based on its type, so results
 # are internally consistent (saltmarsh sites -> Aedes vigilax, urban drains ->
@@ -606,7 +674,9 @@ def rainfall_lookup(date):
 
 # ---------------------------------------------------------------------------
 # 6. SURVEILLANCE EVENTS + RESULTS
-#    Weekly deployment/retrieval cycle per trap across each season.
+#    Only WEEKLY_TRAP_COUNT (3) traps exist, so at most 3 sites get a
+#    deployment/retrieval cycle each week, not every site every week - see
+#    the site-selection note below.
 # ---------------------------------------------------------------------------
 surv_events = []
 surv_results = []
@@ -620,19 +690,38 @@ result_counter = 1
 # Sorted immediately (not left as a bare set): Python randomizes a set's
 # iteration order per-process (PYTHONHASHSEED), so `for x in some_set` or
 # `list(some_set)` is NOT reproducible run-to-run even with this script's
-# fixed RNG_SEED, and this script is generated/iterated over below (line
-# ~814, ~866) - a bare set here silently broke this script's documented
-# "same seed -> same data every time" guarantee (see README Section 1).
-# Sorting once, right after creation, fixes the order for every later use.
+# fixed RNG_SEED, and this script is generated/iterated over below - a bare
+# set here silently broke this script's documented "same seed -> same data
+# every time" guarantee (see README Section 1). Sorting once, right after
+# creation, fixes the order for every later use.
 hotspot_persistent_sites = sorted(set(rng.choice(active_site_ids, size=3, replace=False).tolist()))
 remaining_for_spike = [s for s in active_site_ids if s not in hotspot_persistent_sites]
 hotspot_spike_sites = sorted(set(rng.choice(remaining_for_spike, size=2, replace=False).tolist()))
+
+# Most weeks' few available traps go to the persistent-hotspot demo sites, so
+# they keep accumulating the "elevated in >=HOTSPOT_MIN_ELEVATED_WEEKS of the
+# last HOTSPOT_LOOKBACK_WEEKS weeks" signal core.calculations.identify_hotspots
+# looks for - reserving all but one of the week's WEEKLY_TRAP_COUNT slots for
+# whichever persistent-hotspot site has gone longest without a visit means
+# each of them gets picked roughly 2 weeks out of every 3 (never left out two
+# weeks running), comfortably enough within a 6-week lookback. The one
+# remaining slot each week goes to a spike site on its designated week, else
+# whichever OTHER active site has gone longest without a trap - so the rest
+# of the ~20 non-hotspot sites still get rotated through and get SOME
+# historical coverage over the season, rather than only ever the 3 hotspot
+# sites getting data (mirrors core.calculations.build_weekly_todo_list's own
+# trap-placement rotation rules, duplicated here rather than imported - this
+# script stays standalone/dependency-free by design, see the RIVER_SITE_TYPE
+# note above).
+HOTSPOT_RESERVED_SLOTS = max(0, WEEKLY_TRAP_COUNT - 1)
+last_trapped_date = {}  # site_id -> date of its last deployment, persists across seasons
+visit_count = {}  # site_id -> number of times trapped so far, persists across seasons
 
 for season in ALL_SEASONS:
     season_start = SEASONS[season]["start"]
     season_end = season_effective_end(season)
     n_weeks = ((season_end - season_start).days // 7)
-    # The seasonal abundance SHAPE is always modelled across the FULL season
+    # The seasonal abundance SHAPE is always modelled against the FULL season
     # length (Oct->May), even when a season's data generation is truncated
     # early (the current in-progress season). Otherwise a truncated season's
     # sine curve would be artificially compressed and falsely show abundance
@@ -640,20 +729,50 @@ for season in ALL_SEASONS:
     # simply hasn't reached the seasonal peak/decline yet.
     full_season_end = SEASONS[season]["end"]
     full_n_weeks = ((full_season_end - season_start).days // 7)
-    for trap in trap_sites:
-        trap_id = trap["Trap_ID"]
-        site_id = trap["Site_ID"]
-        site_row = sites_df.loc[sites_df["Site_ID"] == site_id].iloc[0]
-        site_type = site_row["Site_Type"]
-        bias_species = SITE_TYPE_SPECIES_BIAS.get(site_type, "CULANN")
-        is_persistent_hotspot = site_id in hotspot_persistent_sites
-        is_spike_hotspot = site_id in hotspot_spike_sites
-        # random single-trap-night spike week for spike-hotspot sites
-        spike_week = int(rng.integers(2, max(n_weeks - 2, 3))) if is_spike_hotspot else -1
+    # One randomly-chosen "spike week" per spike-hotspot site, drawn fresh
+    # each season (a single-trap-night spike is a one-off event, not a
+    # recurring pattern).
+    spike_week_for_site = {
+        s: int(rng.integers(2, max(n_weeks - 2, 3))) for s in hotspot_spike_sites
+    }
 
-        for w in range(n_weeks):
-            deploy_date = season_start + timedelta(days=7 * w)
-            retrieve_date = deploy_date + timedelta(days=2)  # standard 2-night set
+    for w in range(n_weeks):
+        deploy_date = season_start + timedelta(days=7 * w)
+        retrieve_date = deploy_date + timedelta(days=2)  # standard 2-night set
+
+        # --- Choose which WEEKLY_TRAP_COUNT sites get a trap this week ---
+        # Ranked by (visits so far, last-visited date) rather than date alone:
+        # with exactly 3 persistent-hotspot sites competing for 2 reserved
+        # slots, ranking by date alone lets a recurring tie (two sites last
+        # visited in the same week) resolve the same way every time, locking
+        # into a degenerate cycle where one site gets a slot every week and
+        # another gets left on a fixed fortnightly cadence - too sparse for
+        # the Treatment Effectiveness page's 7-day pre/post windows. Visit
+        # count as the primary key guarantees an even ~2-of-3-weeks rotation
+        # across all three sites instead.
+        persistent_by_overdue = sorted(
+            hotspot_persistent_sites,
+            key=lambda s: (visit_count.get(s, 0), last_trapped_date.get(s, datetime.min)),
+        )
+        chosen_sites = persistent_by_overdue[:HOTSPOT_RESERVED_SLOTS]
+        spike_due = [s for s in hotspot_spike_sites
+                     if spike_week_for_site.get(s) == w and s not in chosen_sites]
+        remaining_pool = [s for s in active_site_ids if s not in chosen_sites]
+        if spike_due:
+            chosen_sites.append(spike_due[0])
+        elif remaining_pool:
+            remaining_sorted = sorted(remaining_pool, key=lambda s: last_trapped_date.get(s, datetime.min))
+            chosen_sites.append(remaining_sorted[0])
+        chosen_sites = chosen_sites[:WEEKLY_TRAP_COUNT]
+
+        for slot_idx, site_id in enumerate(chosen_sites):
+            trap = trap_sites[slot_idx % len(trap_sites)]
+            trap_id, trap_type = trap["Trap_ID"], trap["Trap_Type"]
+            site_row = sites_df.loc[sites_df["Site_ID"] == site_id].iloc[0]
+            site_type = site_row["Site_Type"]
+            bias_species = SITE_TYPE_SPECIES_BIAS.get(site_type, "CULANN")
+            is_persistent_hotspot = site_id in hotspot_persistent_sites
+            is_spike_hotspot_week = spike_week_for_site.get(site_id) == w
 
             event_id = f"EVT-{event_counter:05d}"
             event_counter += 1
@@ -681,7 +800,7 @@ for season in ALL_SEASONS:
                 "Deployment_DateTime": deploy_date.strftime("%Y-%m-%d %H:%M"),
                 "Retrieval_DateTime": (deploy_date - timedelta(days=5)).strftime("%Y-%m-%d %H:%M")
                                        if inject_bad_dates else retrieve_date.strftime("%Y-%m-%d %H:%M"),
-                "Trap_Type": trap["Trap_Type"],
+                "Trap_Type": trap_type,
                 "Trap_Status": trap_status,
                 "Sample_Validity": sample_validity,
                 "Officer": rng.choice(OFFICERS),
@@ -689,6 +808,8 @@ for season in ALL_SEASONS:
                 "Created_By": SYSTEM_USER,
                 "Created_Date": retrieve_date.strftime("%Y-%m-%d"),
             })
+            last_trapped_date[site_id] = deploy_date
+            visit_count[site_id] = visit_count.get(site_id, 0) + 1
 
             if trap_status in ("Missing",):
                 continue  # no results possible
@@ -702,7 +823,7 @@ for season in ALL_SEASONS:
             baseline = 8 * seasonal_phase * rain_boost
             if is_persistent_hotspot:
                 baseline *= 3.0
-            if is_spike_hotspot and w == spike_week:
+            if is_spike_hotspot_week:
                 baseline *= 6.0
 
             if trap_status == "Partial":
@@ -835,11 +956,39 @@ for season in ALL_SEASONS:
         treatment_counter += 1
 
 # Ensure the persistent-hotspot sites get several completed treatments across
-# the season so the Treatment Effectiveness page has real before/after data
+# the season so the Treatment Effectiveness page has real before/after data.
+# With only WEEKLY_TRAP_COUNT (3) traps rotating around ~22 sites, a treatment
+# date picked purely at random (as before) often lands between infrequent
+# visits and silently starves the Treatment Effectiveness page's 7-day
+# pre/post windows (DEFAULT_PRE/POST_WINDOW_DAYS in core/calculations.py,
+# duplicated here as PRE_POST_WINDOW_DAYS - see the RIVER_SITE_TYPE/
+# WEEKLY_TRAP_COUNT note above on staying standalone/dependency-free) of
+# usable data - so instead this looks up the site's ACTUAL trap-visit dates
+# for that season and places the treatment at the midpoint of a consecutive
+# pair close enough together that both a pre- and a post-visit are guaranteed
+# to fall inside their window.
+PRE_POST_WINDOW_DAYS = 7
+site_season_deploys = {}
+for ev in surv_events:
+    site_season_deploys.setdefault((ev["Site_ID"], ev["Season"]), []).append(
+        datetime.strptime(ev["Deployment_DateTime"], "%Y-%m-%d %H:%M")
+    )
+for _key in site_season_deploys:
+    site_season_deploys[_key].sort()
+
 for site_id in hotspot_persistent_sites:
     for season in ALL_SEASONS:
         season_start = SEASONS[season]["start"]
-        mid = season_start + timedelta(days=int(rng.integers(40, 100)))
+        deploys = site_season_deploys.get((site_id, season), [])
+        candidate_gaps = [
+            (deploys[i], deploys[i + 1]) for i in range(len(deploys) - 1)
+            if (deploys[i + 1] - deploys[i]).days <= 2 * PRE_POST_WINDOW_DAYS
+        ]
+        if candidate_gaps:
+            d1, d2 = candidate_gaps[int(rng.integers(40, 100)) % len(candidate_gaps)]
+            mid = d1 + (d2 - d1) / 2
+        else:
+            mid = season_start + timedelta(days=int(rng.integers(40, 100)))  # fallback, shouldn't happen
         prod = products_df[products_df["Status"] == "Active"].sample(1, random_state=int(rng.integers(0, 1_000_000))).iloc[0]
         area_m2 = round(float(rng.uniform(20_000, 80_000)), 0)  # ~2-8 ha, expressed in m2
         treatments.append({
@@ -883,7 +1032,11 @@ complaint_counter = 1
 for season in ALL_SEASONS:
     season_start = SEASONS[season]["start"]
     season_end = season_effective_end(season)
-    n_complaints = int(rng.integers(20, 35))
+    # ~2-5 complaints/week of the season, drawn week-by-week (rather than one
+    # flat per-season roll) so the average holds regardless of season length,
+    # including the current, still-in-progress season.
+    weeks_in_season = max(1, (season_end - season_start).days // 7)
+    n_complaints = int(sum(rng.integers(2, 6) for _ in range(weeks_in_season)))
     for _ in range(n_complaints):
         date_received = season_start + timedelta(days=int(rng.integers(0, max((season_end - season_start).days, 1))))
         # Bias complaints toward hotspot sites, but allow general ones without a Site_ID

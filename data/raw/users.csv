@@ -1,7 +1,7 @@
 User_ID,Name,Role
 U01,Officer A,Team Leader
-U02,Officer B,Team Leader
-U03,Officer C,Environmental Health Officer
-U04,Officer D,Environmental Health Officer
-U05,Officer E,Team Leader
-U06,Officer F,Team Leader
+U02,Officer B,Environmental Health Officer
+U03,Officer C,Team Leader
+U04,Officer D,Team Leader
+U05,Officer E,Senior EHO
+U06,Officer F,Environmental Health Officer

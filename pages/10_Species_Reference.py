@@ -14,12 +14,17 @@ def render():
 
     st.title("Species Reference")
     st.info(
-        "The six species below are sourced from WA Department of Health public guidance ('Common mosquitoes in "
-        "Western Australia'), chosen for relevance to an inner-Perth council area like Vincent - Aedes "
+        "The eleven species below are chosen for relevance to an inner-Perth council area like Vincent. Six come "
+        "from WA Department of Health public guidance ('Common mosquitoes in Western Australia') - Aedes "
         "notoscriptus (the dominant urban/backyard-container species), the saltmarsh/estuarine species Aedes "
         "vigilax and Aedes camptorhynchus (relevant given the Swan River foreshore site and their long dispersal "
         "range), and the freshwater/urban species Culex annulirostris, Culex quinquefasciatus and Anopheles "
-        "annulipes. For identifying a specimen that doesn't match one of these, see WA Health's "
+        "annulipes. The other five - Aedes alboannulatus, Culex globocoxitus, Culex molestus, Culex australicus "
+        "and Aedes sagax - aren't on WA Health's own species page but are named on its South-West adult mosquito "
+        "photographic key as further species present in the region; their reference entries below are instead "
+        "sourced from Wikipedia, University of Sydney Medical Entomology, Rutgers University Center for Vector "
+        "Biology and iNaturalist (cited per-species in each entry's notes). For identifying a specimen that "
+        "doesn't match one of these eleven, see WA Health's "
         "[South-West adult mosquito photographic key](https://www.health.wa.gov.au/~/media/Corp/Documents/"
         "Health-for/Mosquitoes/PDF/South-West-adult-mosquito-photographic-key.pdf), which covers the broader "
         "range of species present in the region. Always confirm current guidance directly with WA Health for "
