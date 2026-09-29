@@ -247,8 +247,9 @@ every function has a docstring and nothing here talks to Streamlit.
   ProLink XR Briquets - deliberately not the same unit as the rate itself; the Treatments form's dosage rate is
   also a **locked selectbox** of the exact discrete site-condition options each real label defines, not a
   free-form number, so an officer can't enter a rate that isn't actually on the label.
-- **Larvae Dip Calculator - guided mode** (Dosage Calculator page, "Larvae dip calculator (guided)" tab;
-  suggestions in `core.config.LOCATION_TYPE_GUIDANCE`): enter a water body's area (m²), date/time and a
+- **Guided dosage calculator** (Dosage Calculator page, "Guided dosage calculator" tab; suggestions in
+  `core.config.LOCATION_TYPE_GUIDANCE`) - not to be confused with logging a "Larvae dip / inspection"
+  (the field-inspection activity, logged via the To Do List's quick-log action): enter a water body's area (m²), date/time and a
   plain-language location type (salt marsh, Swan River foreshore/bank, stormwater drain, neglected pool,
   ornamental pond, temporary/ephemeral pool, etc.) and it suggests a starting product and site condition, then
   computes the same locked-label dosage as the Treatments form. Where possible the suggestion is drawn directly
@@ -298,7 +299,7 @@ Marked clearly in the app itself (banners on the relevant pages), but to be expl
   `Rate_Basis` and always verify the exact current APVMA-approved label before any real application, since
   labels are periodically reissued. Note: ProLink XR Briquets' labelled rate is area-covered-per-briquet
   (inverse of the other product's product-per-area rate) - the Dosage Calculator divides rather than multiplies
-  for this product accordingly. The Larvae Dip Calculator's guided-mode location-type suggestions (Section 4)
+  for this product accordingly. The Dosage Calculator's guided-mode location-type suggestions (Section 4)
   are this app's own starting-point guidance built from the labels' own wording where possible, not a third
   label data source.
 - **Removed from the dashboard on request:** the fictional adulticide ("MosquiZap ULV") and the real

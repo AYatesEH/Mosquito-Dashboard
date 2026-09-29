@@ -70,8 +70,8 @@ QUANTITY_USED_UNITS = {
     "PRD-02": "briquet(s)",  # ProLink XR Briquets - whole briquets used
 }
 
-# Starting-point guidance for the Larvae Dip Calculator's "guided" mode
-# (pages/6_Dosage_Calculator.py): given a plain-language water body/location
+# Starting-point guidance for the Dosage Calculator's "Guided dosage
+# calculator" tab (pages/6_Dosage_Calculator.py): given a plain-language water body/location
 # type, suggests which real product and which LABEL_RATE_OPTIONS condition
 # (index 0 = shallow/clean/low-larval, index 1 = deep/organic-rich/
 # high-larval) an officer would typically start from. Where possible the

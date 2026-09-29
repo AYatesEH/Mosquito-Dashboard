@@ -1,8 +1,13 @@
-"""Dosage Calculator - a guided Larvae Dip Calculator (by water body/location type) plus a manual
-verification calculator. Rate/label data for the two selectable products (ProLink Pellets, ProLink XR
-Briquets) is real, sourced from their APVMA-approved labels - the arithmetic itself (area x rate, no
-safety margins or label conditions applied) and the guided mode's location-type suggestions are still
-what an officer must independently verify on site, not a substitute for the product data or the label."""
+"""Dosage Calculator - a guided calculator that suggests a starting product/dosage by water body/
+location type, plus a manual verification calculator. Rate/label data for the two selectable products
+(ProLink Pellets, ProLink XR Briquets) is real, sourced from their APVMA-approved labels - the
+arithmetic itself (area x rate, no safety margins or label conditions applied) and the guided mode's
+location-type suggestions are still what an officer must independently verify on site, not a
+substitute for the product data or the label.
+
+NOT to be confused with logging a "Larvae dip / inspection" (the field-inspection activity, logged via
+the To Do List's quick-log action or core.ui.add_site_observation) - this page only suggests HOW MUCH
+product to apply, once a treatment has already been decided on; it doesn't record anything."""
 
 import math
 from datetime import time as dt_time
@@ -41,17 +46,18 @@ def render():
     products = data["products"]
     active_products = products[products["Status"] == "Active"]
 
-    tab_guided, tab_manual = st.tabs(["Larvae dip calculator (guided)", "Manual verification calculator"])
+    tab_guided, tab_manual = st.tabs(["Guided dosage calculator", "Manual verification calculator"])
 
     with tab_guided:
         st.caption(
             "Enter the water body area, date/time and a location type to get a suggested product, site "
-            "condition and dosage to start from. The location-type suggestion is this app's own starting "
-            "point - built from each product's own APVMA label wording where possible (see the note shown "
-            "below the location type) - it is NOT a label determination. The label's actual, operative "
-            "criteria are the water depth, organic content and larval count observed on site, never the "
-            "location's name, so always confirm those on site and override the product/condition below if "
-            "they don't match what you find."
+            "condition and dosage to start from. This is a dosage/quantity suggestion, not a substitute for "
+            "physically inspecting the site - log an actual \"Larvae dip / inspection\" from the To Do List "
+            "page instead. The location-type suggestion here is this app's own starting point - built from "
+            "each product's own APVMA label wording where possible (see the note shown below the location "
+            "type) - it is NOT a label determination. The label's actual, operative criteria are the water "
+            "depth, organic content and larval count observed on site, never the location's name, so always "
+            "confirm those on site and override the product/condition below if they don't match what you find."
         )
 
         gc1, gc2 = st.columns(2)
