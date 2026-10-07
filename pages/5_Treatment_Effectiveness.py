@@ -23,9 +23,13 @@ def render():
 
     ct_all = calc.event_catch_totals(data["surv_events"], data["surv_results"])
 
-    c1, c2 = st.columns(2)
-    pre_days = c1.slider("Pre-treatment comparison window (days)", 3, 14, DEFAULT_PRE_WINDOW_DAYS)
-    post_days = c2.slider("Post-treatment comparison window (days)", 3, 14, DEFAULT_POST_WINDOW_DAYS)
+    with st.expander("Advanced: comparison windows"):
+        st.caption("How many days of trap results before and after a treatment are compared. "
+                   "The defaults suit most cases; longer windows catch more treatments with enough data "
+                   "but blur the effect with weather and seasonal change.")
+        c1, c2 = st.columns(2)
+        pre_days = c1.slider("Days before treatment", 3, 14, DEFAULT_PRE_WINDOW_DAYS)
+        post_days = c2.slider("Days after treatment", 3, 14, DEFAULT_POST_WINDOW_DAYS)
 
     treatments = data["treatments"]
     in_season = treatments[(treatments["Season"] == filters["season"]) & (treatments["Treatment_Status"] == "Completed")]
