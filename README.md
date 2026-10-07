@@ -31,7 +31,7 @@ mv pages_hidden/14_Field_Observations.py pages/
 ```
 
 The one thing Field Observations was needed for - logging a "Larvae dip / inspection" so a matching To Do List
-task clears itself - now has its own quick-log action directly on the To Do List page, so hiding it doesn't
+task clears itself - is now done from the Enter Data page (Site observation form), so hiding it doesn't
 break that.
 
 The mosquito season runs **October to May** app-wide (`core.config.MOSQUITO_SEASON_START_MONTH`/
@@ -232,9 +232,8 @@ every function has a docstring and nothing here talks to Streamlit.
   (same non-durable-on-Streamlit-Cloud caveat - see Section 6). `core.config.OBSERVATION_CATEGORY_DIP` ("Larvae
   dip / inspection") is the single source of truth for the one category the rest of the app actually depends
   on - it's what the Weekly To Do List's dipping/inspection tasks look for to know a site has been checked, and
-  that list has its own "+ Log a larvae dip / inspection" quick-log action calling this same write path. The
-  full Field Observations page (every category, a log/filter view) still exists with a working "+ Record a new
-  observation" form, but is currently hidden from the sidebar - see Section 1.
+  it is recorded from the Enter Data page's Site observation form (this same write path). The
+  Field Observations page (a log/filter view) still exists but is currently hidden from the sidebar - see Section 1.
 - **`add_site` write path** (Operational Map page, "+ Add a new site" expander below the site summary): same
   CSV-append pattern as the other forms. Click a point on the map above to drop a pin and pre-fill Latitude/
   Longitude (via `st_folium`'s `last_clicked`), or type coordinates directly; Site_Type offers the existing
@@ -265,7 +264,7 @@ every function has a docstring and nothing here talks to Streamlit.
   free-form number, so an officer can't enter a rate that isn't actually on the label.
 - **Guided dosage calculator** (Dosage Calculator page, "Guided dosage calculator" tab; suggestions in
   `core.config.LOCATION_TYPE_GUIDANCE`) - not to be confused with logging a "Larvae dip / inspection"
-  (the field-inspection activity, logged via the To Do List's quick-log action): enter a water body's area (m²), date/time and a
+  (the field-inspection activity, logged from the Enter Data page's Site observation form): enter a water body's area (m²), date/time and a
   plain-language location type (salt marsh, Swan River foreshore/bank, stormwater drain, neglected pool,
   ornamental pond, temporary/ephemeral pool, etc.) and it suggests a starting product and site condition, then
   computes the same locked-label dosage as the Treatments form. Where possible the suggestion is drawn directly
@@ -437,7 +436,7 @@ restructuring anything.
 ## 7. Known prototype limitations (by design, not oversights)
 
 - Data entry forms (Treatments, Complaints, Surveillance - now all on the Enter Data page, Map's "Add a new
-  site", and the To Do List's qualitative dip-logging quick action) save through `core.data_source`, whichever
+  site") save through `core.data_source`, whichever
   backend is configured. **By default (no `DATABASE_URL` set) that's still the CSV files** - genuinely
   working, but not durable on Streamlit Community Cloud and not safe for concurrent multi-user writes. Setting
   `DATABASE_URL` switches to the real Postgres backend, which fixes both - see Section 6a. This is the one
@@ -552,6 +551,5 @@ and its own password.
 `pages/1_Enter_Data.py` holds the entry forms (trap check, larvae dip,
 treatment, complaint, site observation); the code lives in `core/forms.py`.
 The Surveillance, Treatments and Complaints pages are view-only. Exceptions kept
-where the context is: budget time/spend on the Budget page, the To Do List's
-quick dip/inspection log, and Map -> "Add a new site". After saving, a
+where the context is: budget time/spend on the Budget page and Map -> "Add a new site". After saving, a
 confirmation is shown at the top of the Enter Data page.

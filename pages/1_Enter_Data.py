@@ -1,9 +1,9 @@
 """Enter Data - every data-entry form in one place.
 
 Reading/analysis pages (Surveillance, Treatments, Complaints...) are view-only.
-Budget time and spend are logged on the Budget page. Two quick shortcuts stay
-where the context is: the To Do List's dip/inspection log and the Map's
-"Add a new site".
+Budget time and spend are logged on the Budget page, and new sites are added
+from the Map ("Add a new site"). To clear a To Do List dipping/inspection task
+without a count, record a Site observation with category "Larvae dip / inspection".
 """
 
 import streamlit as st
@@ -15,7 +15,7 @@ FORMS = {
     "Larvae dip": ("Log a larvae dip count", forms.dip_form),
     "Treatment": ("Record a treatment", forms.treatment_form),
     "Complaint": ("Log a complaint", forms.complaint_form),
-    "Site observation": ("Record a site observation", forms.observation_form),
+    "Site observation": ("Record a site observation or inspection", forms.observation_form),
 }
 
 
