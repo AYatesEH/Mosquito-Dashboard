@@ -42,7 +42,7 @@ def show_flash():
 
 
 def trap_form(data: dict):
-    """Log a trap check (one event + per-species counts)."""
+    """Record a trap result (one set-and-retrieve event + per-species counts)."""
     st.caption(
         "Trap location and trap type are separate fields - traps are portable CO2 traps moved to a new site "
         "each week (see the Weekly To Do List), not permanently installed, so there's no fixed trap code to "
@@ -60,7 +60,7 @@ def trap_form(data: dict):
         with sc1:
             new_site_id = ui.site_picker(active_sites, key="new_event_site", label="Trap location")
             new_trap_type = st.selectbox("Trap type", TRAP_TYPES, key="new_event_trap_type")
-            new_deploy_date = st.date_input("Deployment date", value=pd.Timestamp.now().date() - pd.Timedelta(days=2), key="new_event_deploy_date")
+            new_deploy_date = st.date_input("Deployment date", value=pd.Timestamp.now().date() - pd.Timedelta(days=1), key="new_event_deploy_date")
             new_retrieve_date = st.date_input("Retrieval date", value=pd.Timestamp.now().date(), key="new_event_retrieve_date")
         with sc2:
             new_outcome = st.selectbox("Trap outcome", TRAP_OUTCOMES, key="new_event_outcome")
@@ -86,7 +86,7 @@ def trap_form(data: dict):
 
         new_event_notes = st.text_area("Notes", key="new_event_notes")
 
-        if st.button("Save trap check", type="primary"):
+        if st.button("Save trap result", type="primary"):
             if new_retrieve_date < new_deploy_date:
                 st.error("Retrieval date can't be before the deployment date.")
             elif not new_site_id:

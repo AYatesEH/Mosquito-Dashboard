@@ -203,7 +203,7 @@ class CSVDataRepository(DataRepository):
         """A plain equipment register (Trap_ID, Trap_Type, Trap_Status, ...)
         with no Site_ID - traps are portable and moved to whichever site
         needs one each week (see WEEKLY_TRAP_COUNT in core/config.py and the
-        Enter Data page's Trap check form), so no fixed location is
+        Enter Data page's Trap result form), so no fixed location is
         modelled here."""
         return self._read_csv("trap_sites.csv", date_cols=["Created_Date"])
 

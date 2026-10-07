@@ -88,9 +88,9 @@ def render():
     last_trap = data["surv_events"]["Deployment_DateTime"].max() if not data["surv_events"].empty else pd.NaT
     if pd.isna(last_trap) or week_start > last_trap:
         st.info(
-            "Trap suggestions are based on the trap checks logged so far, so weeks after your last logged check "
+            "Trap suggestions are based on the trap results logged so far, so weeks after your last logged trap "
             "show the same sites until that trapping is entered on the **Enter Data** page - the list can't "
-            "know where traps will have gone in the meantime. Log each week's trap checks and the next week's "
+            "know where traps will have gone in the meantime. Log each week's trap results and the next week's "
             "suggestions move on to the sites trapped longest ago."
         )
 

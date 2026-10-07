@@ -140,7 +140,7 @@ duplicating location details:
 | File | What it holds | Key(s) |
 |---|---|---|
 | `sites.csv` | **The single source of truth for every physical location** - name, type, lat/long, status, description | `Site_ID` |
-| `trap_sites.csv` | A **portable equipment register** (Trap_ID, Trap_Type, Trap_Status) - no `Site_ID`, since only a handful of physical CO2 traps exist and they're moved to a new site each week rather than permanently installed (see `WEEKLY_TRAP_COUNT` in `core/config.py` and the Enter Data page's Trap check form) | `Trap_ID` |
+| `trap_sites.csv` | A **portable equipment register** (Trap_ID, Trap_Type, Trap_Status) - no `Site_ID`, since only a handful of physical CO2 traps exist and they're moved to a new site each week rather than permanently installed (see `WEEKLY_TRAP_COUNT` in `core/config.py` and the Enter Data page's Trap result form) | `Trap_ID` |
 | `surveillance_events.csv` | One row per trap deployment/retrieval cycle, with its own `Site_ID` and `Trap_Type` (independent of `trap_sites.csv`, since that's where a trap actually went that week) | `Event_ID` → `Trap_ID`, `Site_ID` |
 | `surveillance_results.csv` | One row per species caught in an event (an event can have several) | `Result_ID` → `Event_ID` |
 | `treatments.csv` | The treatment register (Planned/Scheduled/Completed/Cancelled) | `Treatment_ID` → `Site_ID`, `Product_ID` |
@@ -548,7 +548,7 @@ and its own password.
 
 ## 12. Where data is entered
 
-`pages/1_Enter_Data.py` holds the entry forms (trap check, larvae dip,
+`pages/1_Enter_Data.py` holds the entry forms (trap result, larvae dip,
 treatment, complaint, site observation); the code lives in `core/forms.py`.
 The Surveillance, Treatments and Complaints pages are view-only. Exceptions kept
 where the context is: budget time/spend on the Budget page and Map -> "Add a new site". After saving, a

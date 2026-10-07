@@ -58,7 +58,7 @@ def render():
         "- Missing coordinates on sites\n"
         "- Orphaned Site_ID references in surveillance_events, treatments and complaints; orphaned Trap_ID "
         "references in surveillance_events (trap_sites is a portable-equipment register with no Site_ID of its "
-        "own - see the Enter Data page's Trap check form); orphaned Event_ID references in "
+        "own - see the Enter Data page's Trap result form); orphaned Event_ID references in "
         "surveillance_results\n"
         "- Retrieval date/time before deployment date/time\n"
         "- Implausibly long trap deployments (> 14 days)\n"

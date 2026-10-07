@@ -888,7 +888,7 @@ def build_weekly_todo_list(
 def resolve_trap_id(trap_sites: pd.DataFrame, trap_type: str) -> Optional[str]:
     """
     Picks a Trap_ID to record against a new surveillance event, given only
-    the trap TYPE an officer selected on the Enter Data "Trap check" form.
+    the trap TYPE an officer selected on the Enter Data "Trap result" form.
 
     trap_sites.csv is a plain equipment register (Trap_ID, Trap_Type,
     Trap_Status, ...) with no location of its own - traps are portable and

@@ -11,7 +11,7 @@ import streamlit as st
 from core import ui, forms
 
 FORMS = {
-    "Trap check": ("Log a trap check", forms.trap_form),
+    "Trap result": ("Record a trap result (set one day, retrieved the next morning)", forms.trap_form),
     "Larvae dip": ("Log a larvae dip count", forms.dip_form),
     "Treatment": ("Record a treatment", forms.treatment_form),
     "Complaint": ("Log a complaint", forms.complaint_form),
