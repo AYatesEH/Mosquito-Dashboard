@@ -1,0 +1,56 @@
+Cost_ID,Season,Date,Category,Description,Product_ID,Quantity,Quantity_Unit,Total_Cost,Supplier,Invoice_Ref,Created_By,Created_Date
+CST-00001,2023-24,2023-10-01,Dry ice,Dry ice for CO2 traps (SAMPLE),,20.3,kg,70.61,Sample Supplier Pty Ltd,SAMPLE-0001,Officer A,2023-10-01
+CST-00002,2023-24,2023-10-15,Dry ice,Dry ice for CO2 traps (SAMPLE),,23.2,kg,73.45,Sample Supplier Pty Ltd,SAMPLE-0002,Officer A,2023-10-15
+CST-00003,2023-24,2023-10-29,Dry ice,Dry ice for CO2 traps (SAMPLE),,19.8,kg,60.65,Sample Supplier Pty Ltd,SAMPLE-0003,Officer A,2023-10-29
+CST-00004,2023-24,2023-11-12,Dry ice,Dry ice for CO2 traps (SAMPLE),,27.7,kg,96.05,Sample Supplier Pty Ltd,SAMPLE-0004,Officer A,2023-11-12
+CST-00005,2023-24,2023-11-26,Dry ice,Dry ice for CO2 traps (SAMPLE),,22.9,kg,79.37,Sample Supplier Pty Ltd,SAMPLE-0005,Officer A,2023-11-26
+CST-00006,2023-24,2023-12-10,Dry ice,Dry ice for CO2 traps (SAMPLE),,25.6,kg,86.05,Sample Supplier Pty Ltd,SAMPLE-0006,Officer A,2023-12-10
+CST-00007,2023-24,2023-12-24,Dry ice,Dry ice for CO2 traps (SAMPLE),,23.1,kg,78.75,Sample Supplier Pty Ltd,SAMPLE-0007,Officer A,2023-12-24
+CST-00008,2023-24,2024-01-07,Dry ice,Dry ice for CO2 traps (SAMPLE),,20.7,kg,69.14,Sample Supplier Pty Ltd,SAMPLE-0008,Officer A,2024-01-07
+CST-00009,2023-24,2024-01-21,Dry ice,Dry ice for CO2 traps (SAMPLE),,18.1,kg,58.18,Sample Supplier Pty Ltd,SAMPLE-0009,Officer A,2024-01-21
+CST-00010,2023-24,2024-02-04,Dry ice,Dry ice for CO2 traps (SAMPLE),,20.0,kg,69.54,Sample Supplier Pty Ltd,SAMPLE-0010,Officer A,2024-02-04
+CST-00011,2023-24,2024-02-18,Dry ice,Dry ice for CO2 traps (SAMPLE),,28.3,kg,93.1,Sample Supplier Pty Ltd,SAMPLE-0011,Officer A,2024-02-18
+CST-00012,2023-24,2024-03-03,Dry ice,Dry ice for CO2 traps (SAMPLE),,24.5,kg,86.21,Sample Supplier Pty Ltd,SAMPLE-0012,Officer A,2024-03-03
+CST-00013,2023-24,2024-03-17,Dry ice,Dry ice for CO2 traps (SAMPLE),,18.1,kg,58.81,Sample Supplier Pty Ltd,SAMPLE-0013,Officer A,2024-03-17
+CST-00014,2023-24,2024-03-31,Dry ice,Dry ice for CO2 traps (SAMPLE),,28.7,kg,99.64,Sample Supplier Pty Ltd,SAMPLE-0014,Officer A,2024-03-31
+CST-00015,2023-24,2024-04-14,Dry ice,Dry ice for CO2 traps (SAMPLE),,21.3,kg,72.06,Sample Supplier Pty Ltd,SAMPLE-0015,Officer A,2024-04-14
+CST-00016,2023-24,2024-04-28,Dry ice,Dry ice for CO2 traps (SAMPLE),,25.7,kg,85.48,Sample Supplier Pty Ltd,SAMPLE-0016,Officer A,2024-04-28
+CST-00017,2023-24,2024-05-12,Dry ice,Dry ice for CO2 traps (SAMPLE),,23.3,kg,73.36,Sample Supplier Pty Ltd,SAMPLE-0017,Officer A,2024-05-12
+CST-00018,2023-24,2024-05-26,Dry ice,Dry ice for CO2 traps (SAMPLE),,26.6,kg,87.71,Sample Supplier Pty Ltd,SAMPLE-0018,Officer A,2024-05-26
+CST-00019,2023-24,2023-10-06,Larvicide,ProLink Pellets 10 kg bags (SAMPLE),PRD-01,40000.0,g,1640.0,Sample Supplier Pty Ltd,SAMPLE-0019,Officer A,2023-10-06
+CST-00020,2023-24,2023-10-06,Larvicide,"ProLink XR Briquets, 100/carton (SAMPLE)",PRD-02,300.0,briquet(s),1560.0,Sample Supplier Pty Ltd,SAMPLE-0020,Officer A,2023-10-06
+CST-00021,2023-24,2023-10-13,Other consumables / equipment,"Sample jars, labels, PPE (SAMPLE)",,1.0,lot,317.05,Sample Supplier Pty Ltd,SAMPLE-0021,Officer A,2023-10-13
+CST-00022,2024-25,2024-10-01,Dry ice,Dry ice for CO2 traps (SAMPLE),,20.1,kg,64.8,Sample Supplier Pty Ltd,SAMPLE-0022,Officer A,2024-10-01
+CST-00023,2024-25,2024-10-15,Dry ice,Dry ice for CO2 traps (SAMPLE),,19.9,kg,68.15,Sample Supplier Pty Ltd,SAMPLE-0023,Officer A,2024-10-15
+CST-00024,2024-25,2024-10-29,Dry ice,Dry ice for CO2 traps (SAMPLE),,21.3,kg,67.65,Sample Supplier Pty Ltd,SAMPLE-0024,Officer A,2024-10-29
+CST-00025,2024-25,2024-11-12,Dry ice,Dry ice for CO2 traps (SAMPLE),,19.9,kg,65.08,Sample Supplier Pty Ltd,SAMPLE-0025,Officer A,2024-11-12
+CST-00026,2024-25,2024-11-26,Dry ice,Dry ice for CO2 traps (SAMPLE),,20.4,kg,68.34,Sample Supplier Pty Ltd,SAMPLE-0026,Officer A,2024-11-26
+CST-00027,2024-25,2024-12-10,Dry ice,Dry ice for CO2 traps (SAMPLE),,23.6,kg,78.28,Sample Supplier Pty Ltd,SAMPLE-0027,Officer A,2024-12-10
+CST-00028,2024-25,2024-12-24,Dry ice,Dry ice for CO2 traps (SAMPLE),,29.6,kg,99.86,Sample Supplier Pty Ltd,SAMPLE-0028,Officer A,2024-12-24
+CST-00029,2024-25,2025-01-07,Dry ice,Dry ice for CO2 traps (SAMPLE),,24.7,kg,84.91,Sample Supplier Pty Ltd,SAMPLE-0029,Officer A,2025-01-07
+CST-00030,2024-25,2025-01-21,Dry ice,Dry ice for CO2 traps (SAMPLE),,19.0,kg,60.37,Sample Supplier Pty Ltd,SAMPLE-0030,Officer A,2025-01-21
+CST-00031,2024-25,2025-02-04,Dry ice,Dry ice for CO2 traps (SAMPLE),,29.6,kg,93.79,Sample Supplier Pty Ltd,SAMPLE-0031,Officer A,2025-02-04
+CST-00032,2024-25,2025-02-18,Dry ice,Dry ice for CO2 traps (SAMPLE),,21.7,kg,67.46,Sample Supplier Pty Ltd,SAMPLE-0032,Officer A,2025-02-18
+CST-00033,2024-25,2025-03-04,Dry ice,Dry ice for CO2 traps (SAMPLE),,19.9,kg,61.55,Sample Supplier Pty Ltd,SAMPLE-0033,Officer A,2025-03-04
+CST-00034,2024-25,2025-03-18,Dry ice,Dry ice for CO2 traps (SAMPLE),,28.5,kg,95.08,Sample Supplier Pty Ltd,SAMPLE-0034,Officer A,2025-03-18
+CST-00035,2024-25,2025-04-01,Dry ice,Dry ice for CO2 traps (SAMPLE),,29.6,kg,95.54,Sample Supplier Pty Ltd,SAMPLE-0035,Officer A,2025-04-01
+CST-00036,2024-25,2025-04-15,Dry ice,Dry ice for CO2 traps (SAMPLE),,29.0,kg,94.51,Sample Supplier Pty Ltd,SAMPLE-0036,Officer A,2025-04-15
+CST-00037,2024-25,2025-04-29,Dry ice,Dry ice for CO2 traps (SAMPLE),,20.7,kg,70.51,Sample Supplier Pty Ltd,SAMPLE-0037,Officer A,2025-04-29
+CST-00038,2024-25,2025-05-13,Dry ice,Dry ice for CO2 traps (SAMPLE),,24.6,kg,86.08,Sample Supplier Pty Ltd,SAMPLE-0038,Officer A,2025-05-13
+CST-00039,2024-25,2025-05-27,Dry ice,Dry ice for CO2 traps (SAMPLE),,23.7,kg,73.54,Sample Supplier Pty Ltd,SAMPLE-0039,Officer A,2025-05-27
+CST-00040,2024-25,2024-10-06,Larvicide,ProLink Pellets 10 kg bags (SAMPLE),PRD-01,20000.0,g,820.0,Sample Supplier Pty Ltd,SAMPLE-0040,Officer A,2024-10-06
+CST-00041,2024-25,2024-10-06,Larvicide,"ProLink XR Briquets, 100/carton (SAMPLE)",PRD-02,300.0,briquet(s),1560.0,Sample Supplier Pty Ltd,SAMPLE-0041,Officer A,2024-10-06
+CST-00042,2024-25,2024-10-13,Other consumables / equipment,"Sample jars, labels, PPE (SAMPLE)",,1.0,lot,178.88,Sample Supplier Pty Ltd,SAMPLE-0042,Officer A,2024-10-13
+CST-00043,2025-26,2025-10-01,Dry ice,Dry ice for CO2 traps (SAMPLE),,25.6,kg,86.54,Sample Supplier Pty Ltd,SAMPLE-0043,Officer A,2025-10-01
+CST-00044,2025-26,2025-10-15,Dry ice,Dry ice for CO2 traps (SAMPLE),,28.8,kg,96.77,Sample Supplier Pty Ltd,SAMPLE-0044,Officer A,2025-10-15
+CST-00045,2025-26,2025-10-29,Dry ice,Dry ice for CO2 traps (SAMPLE),,24.4,kg,83.89,Sample Supplier Pty Ltd,SAMPLE-0045,Officer A,2025-10-29
+CST-00046,2025-26,2025-11-12,Dry ice,Dry ice for CO2 traps (SAMPLE),,21.5,kg,72.48,Sample Supplier Pty Ltd,SAMPLE-0046,Officer A,2025-11-12
+CST-00047,2025-26,2025-11-26,Dry ice,Dry ice for CO2 traps (SAMPLE),,18.9,kg,61.31,Sample Supplier Pty Ltd,SAMPLE-0047,Officer A,2025-11-26
+CST-00048,2025-26,2025-12-10,Dry ice,Dry ice for CO2 traps (SAMPLE),,27.5,kg,84.0,Sample Supplier Pty Ltd,SAMPLE-0048,Officer A,2025-12-10
+CST-00049,2025-26,2025-12-24,Dry ice,Dry ice for CO2 traps (SAMPLE),,27.4,kg,93.12,Sample Supplier Pty Ltd,SAMPLE-0049,Officer A,2025-12-24
+CST-00050,2025-26,2026-01-07,Dry ice,Dry ice for CO2 traps (SAMPLE),,29.3,kg,101.82,Sample Supplier Pty Ltd,SAMPLE-0050,Officer A,2026-01-07
+CST-00051,2025-26,2026-01-21,Dry ice,Dry ice for CO2 traps (SAMPLE),,18.9,kg,62.05,Sample Supplier Pty Ltd,SAMPLE-0051,Officer A,2026-01-21
+CST-00052,2025-26,2026-02-04,Dry ice,Dry ice for CO2 traps (SAMPLE),,20.4,kg,70.33,Sample Supplier Pty Ltd,SAMPLE-0052,Officer A,2026-02-04
+CST-00053,2025-26,2025-10-06,Larvicide,ProLink Pellets 10 kg bags (SAMPLE),PRD-01,20000.0,g,820.0,Sample Supplier Pty Ltd,SAMPLE-0053,Officer A,2025-10-06
+CST-00054,2025-26,2025-10-06,Larvicide,"ProLink XR Briquets, 100/carton (SAMPLE)",PRD-02,200.0,briquet(s),1040.0,Sample Supplier Pty Ltd,SAMPLE-0054,Officer A,2025-10-06
+CST-00055,2025-26,2025-10-13,Other consumables / equipment,"Sample jars, labels, PPE (SAMPLE)",,1.0,lot,232.45,Sample Supplier Pty Ltd,SAMPLE-0055,Officer A,2025-10-13

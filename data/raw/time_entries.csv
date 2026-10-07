@@ -1,0 +1,965 @@
+Entry_ID,Season,Date,Officer,Activity,Hours,Site_ID,Notes,Created_By,Created_Date
+TIME-00001,2023-24,2023-10-01,Officer C,Data entry / reporting,2.75,,,Officer C,2023-10-01
+TIME-00002,2023-24,2023-10-01,Officer D,Trapping (set / retrieve),1.0,ST-014,,Officer D,2023-10-01
+TIME-00003,2023-24,2023-10-01,Officer E,Trapping (set / retrieve),2.0,ST-002,,Officer E,2023-10-01
+TIME-00004,2023-24,2023-10-01,Officer F,Trapping (set / retrieve),1.0,ST-001,,Officer F,2023-10-01
+TIME-00005,2023-24,2023-10-03,Officer B,Complaint investigation,1.0,ST-014,,Officer B,2023-10-03
+TIME-00006,2023-24,2023-10-03,Officer D,Complaint investigation,0.5,ST-008,,Officer D,2023-10-03
+TIME-00007,2023-24,2023-10-03,Officer E,Larvae dipping / inspection,0.5,ST-014,,Officer E,2023-10-03
+TIME-00008,2023-24,2023-10-04,Officer A,Larvae dipping / inspection,0.5,ST-008,,Officer A,2023-10-04
+TIME-00009,2023-24,2023-10-04,Officer B,Complaint investigation,0.75,ST-020,,Officer B,2023-10-04
+TIME-00010,2023-24,2023-10-04,Officer C,Complaint investigation,0.75,,,Officer C,2023-10-04
+TIME-00011,2023-24,2023-10-05,Officer D,Complaint investigation,1.0,,,Officer D,2023-10-05
+TIME-00012,2023-24,2023-10-05,Officer D,Complaint investigation,0.5,,,Officer D,2023-10-05
+TIME-00013,2023-24,2023-10-05,Officer F,Complaint investigation,1.25,ST-002,,Officer F,2023-10-05
+TIME-00014,2023-24,2023-10-06,Officer B,Complaint investigation,0.5,ST-019,,Officer B,2023-10-06
+TIME-00015,2023-24,2023-10-06,Officer B,Complaint investigation,1.5,ST-006,,Officer B,2023-10-06
+TIME-00016,2023-24,2023-10-08,Officer B,Trapping (set / retrieve),2.25,ST-020,,Officer B,2023-10-08
+TIME-00017,2023-24,2023-10-08,Officer C,Data entry / reporting,2.75,,,Officer C,2023-10-08
+TIME-00018,2023-24,2023-10-08,Officer D,Trapping (set / retrieve),1.25,ST-003,,Officer D,2023-10-08
+TIME-00019,2023-24,2023-10-08,Officer E,Trapping (set / retrieve),2.0,ST-002,,Officer E,2023-10-08
+TIME-00020,2023-24,2023-10-11,Officer B,Larvae dipping / inspection,0.25,ST-014,,Officer B,2023-10-11
+TIME-00021,2023-24,2023-10-11,Officer E,Larvicide treatment,2.0,ST-009,,Officer E,2023-10-11
+TIME-00022,2023-24,2023-10-12,Officer E,Complaint investigation,1.5,ST-006,,Officer E,2023-10-12
+TIME-00023,2023-24,2023-10-12,Officer E,Larvae dipping / inspection,0.5,ST-020,,Officer E,2023-10-12
+TIME-00024,2023-24,2023-10-15,Officer A,Trapping (set / retrieve),1.75,ST-005,,Officer A,2023-10-15
+TIME-00025,2023-24,2023-10-15,Officer C,Trapping (set / retrieve),1.5,ST-020,,Officer C,2023-10-15
+TIME-00026,2023-24,2023-10-15,Officer E,Complaint investigation,1.0,,,Officer E,2023-10-15
+TIME-00027,2023-24,2023-10-15,Officer F,Trapping (set / retrieve),2.25,ST-014,,Officer F,2023-10-15
+TIME-00028,2023-24,2023-10-15,Officer F,Data entry / reporting,1.75,,,Officer F,2023-10-15
+TIME-00029,2023-24,2023-10-16,Officer A,Larvae dipping / inspection,0.75,ST-014,,Officer A,2023-10-16
+TIME-00030,2023-24,2023-10-19,Officer E,Larvae dipping / inspection,0.75,ST-020,,Officer E,2023-10-19
+TIME-00031,2023-24,2023-10-21,Officer C,Complaint investigation,1.5,ST-001,,Officer C,2023-10-21
+TIME-00032,2023-24,2023-10-22,Officer B,Trapping (set / retrieve),1.75,ST-002,,Officer B,2023-10-22
+TIME-00033,2023-24,2023-10-22,Officer B,Complaint investigation,1.25,ST-001,,Officer B,2023-10-22
+TIME-00034,2023-24,2023-10-22,Officer C,Data entry / reporting,2.25,,,Officer C,2023-10-22
+TIME-00035,2023-24,2023-10-22,Officer D,Trapping (set / retrieve),2.25,ST-006,,Officer D,2023-10-22
+TIME-00036,2023-24,2023-10-22,Officer E,Trapping (set / retrieve),2.5,ST-014,,Officer E,2023-10-22
+TIME-00037,2023-24,2023-10-23,Officer B,Larvae dipping / inspection,0.75,ST-002,,Officer B,2023-10-23
+TIME-00038,2023-24,2023-10-23,Officer F,Complaint investigation,1.75,ST-014,,Officer F,2023-10-23
+TIME-00039,2023-24,2023-10-27,Officer C,Complaint investigation,0.5,ST-020,,Officer C,2023-10-27
+TIME-00040,2023-24,2023-10-28,Officer A,Complaint investigation,1.0,ST-014,,Officer A,2023-10-28
+TIME-00041,2023-24,2023-10-28,Officer C,Complaint investigation,1.75,ST-020,,Officer C,2023-10-28
+TIME-00042,2023-24,2023-10-29,Officer A,Trapping (set / retrieve),1.5,ST-020,,Officer A,2023-10-29
+TIME-00043,2023-24,2023-10-29,Officer B,Data entry / reporting,1.0,,,Officer B,2023-10-29
+TIME-00044,2023-24,2023-10-29,Officer C,Trapping (set / retrieve),1.75,ST-007,,Officer C,2023-10-29
+TIME-00045,2023-24,2023-10-29,Officer F,Trapping (set / retrieve),1.5,ST-002,,Officer F,2023-10-29
+TIME-00046,2023-24,2023-10-30,Officer C,Larvicide treatment,2.25,ST-002,,Officer C,2023-10-30
+TIME-00047,2023-24,2023-10-30,Officer D,Larvae dipping / inspection,0.25,ST-020,,Officer D,2023-10-30
+TIME-00048,2023-24,2023-10-30,Officer E,Complaint investigation,0.75,,,Officer E,2023-10-30
+TIME-00049,2023-24,2023-10-31,Officer A,Complaint investigation,1.5,,,Officer A,2023-10-31
+TIME-00050,2023-24,2023-10-31,Officer E,Larvae dipping / inspection,0.5,ST-002,,Officer E,2023-10-31
+TIME-00051,2023-24,2023-11-02,Officer F,Complaint investigation,1.0,,,Officer F,2023-11-02
+TIME-00052,2023-24,2023-11-03,Officer F,Complaint investigation,0.75,,,Officer F,2023-11-03
+TIME-00053,2023-24,2023-11-04,Officer A,Complaint investigation,0.5,ST-007,,Officer A,2023-11-04
+TIME-00054,2023-24,2023-11-04,Officer D,Complaint investigation,0.75,ST-005,,Officer D,2023-11-04
+TIME-00055,2023-24,2023-11-05,Officer A,Data entry / reporting,2.75,,,Officer A,2023-11-05
+TIME-00056,2023-24,2023-11-05,Officer B,Trapping (set / retrieve),2.5,ST-008,,Officer B,2023-11-05
+TIME-00057,2023-24,2023-11-05,Officer F,Trapping (set / retrieve),1.0,ST-014,,Officer F,2023-11-05
+TIME-00058,2023-24,2023-11-05,Officer F,Trapping (set / retrieve),1.5,ST-020,,Officer F,2023-11-05
+TIME-00059,2023-24,2023-11-06,Officer D,Complaint investigation,1.0,ST-003,,Officer D,2023-11-06
+TIME-00060,2023-24,2023-11-08,Officer E,Complaint investigation,0.5,,,Officer E,2023-11-08
+TIME-00061,2023-24,2023-11-08,Officer F,Complaint investigation,1.0,,,Officer F,2023-11-08
+TIME-00062,2023-24,2023-11-09,Officer C,Larvae dipping / inspection,0.5,ST-014,,Officer C,2023-11-09
+TIME-00063,2023-24,2023-11-11,Officer D,Complaint investigation,1.5,ST-007,,Officer D,2023-11-11
+TIME-00064,2023-24,2023-11-12,Officer C,Trapping (set / retrieve),1.75,ST-009,,Officer C,2023-11-12
+TIME-00065,2023-24,2023-11-12,Officer E,Trapping (set / retrieve),2.25,ST-002,,Officer E,2023-11-12
+TIME-00066,2023-24,2023-11-12,Officer E,Trapping (set / retrieve),1.75,ST-014,,Officer E,2023-11-12
+TIME-00067,2023-24,2023-11-12,Officer F,Data entry / reporting,1.5,,,Officer F,2023-11-12
+TIME-00068,2023-24,2023-11-13,Officer D,Larvae dipping / inspection,0.25,ST-020,,Officer D,2023-11-13
+TIME-00069,2023-24,2023-11-14,Officer B,Complaint investigation,1.25,ST-007,,Officer B,2023-11-14
+TIME-00070,2023-24,2023-11-15,Officer F,Larvicide treatment,2.0,ST-001,,Officer F,2023-11-15
+TIME-00071,2023-24,2023-11-15,Officer F,Larvae dipping / inspection,0.5,ST-002,,Officer F,2023-11-15
+TIME-00072,2023-24,2023-11-16,Officer C,Complaint investigation,0.75,,,Officer C,2023-11-16
+TIME-00073,2023-24,2023-11-18,Officer B,Complaint investigation,1.0,ST-002,,Officer B,2023-11-18
+TIME-00074,2023-24,2023-11-18,Officer C,Complaint investigation,1.25,ST-014,,Officer C,2023-11-18
+TIME-00075,2023-24,2023-11-19,Officer A,Complaint investigation,0.75,,,Officer A,2023-11-19
+TIME-00076,2023-24,2023-11-19,Officer D,Trapping (set / retrieve),2.5,ST-020,,Officer D,2023-11-19
+TIME-00077,2023-24,2023-11-19,Officer D,Larvae dipping / inspection,0.5,ST-008,,Officer D,2023-11-19
+TIME-00078,2023-24,2023-11-19,Officer E,Data entry / reporting,2.25,,,Officer E,2023-11-19
+TIME-00079,2023-24,2023-11-19,Officer F,Trapping (set / retrieve),2.0,ST-002,,Officer F,2023-11-19
+TIME-00080,2023-24,2023-11-19,Officer F,Trapping (set / retrieve),2.5,ST-008,,Officer F,2023-11-19
+TIME-00081,2023-24,2023-11-19,Officer F,Larvicide treatment,3.25,ST-014,,Officer F,2023-11-19
+TIME-00082,2023-24,2023-11-23,Officer C,Complaint investigation,0.5,ST-014,,Officer C,2023-11-23
+TIME-00083,2023-24,2023-11-23,Officer C,Larvae dipping / inspection,0.5,ST-007,,Officer C,2023-11-23
+TIME-00084,2023-24,2023-11-24,Officer C,Larvicide treatment,3.0,ST-018,,Officer C,2023-11-24
+TIME-00085,2023-24,2023-11-25,Officer B,Complaint investigation,1.0,ST-007,,Officer B,2023-11-25
+TIME-00086,2023-24,2023-11-26,Officer A,Trapping (set / retrieve),2.5,ST-014,,Officer A,2023-11-26
+TIME-00087,2023-24,2023-11-26,Officer C,Trapping (set / retrieve),1.0,ST-020,,Officer C,2023-11-26
+TIME-00088,2023-24,2023-11-26,Officer E,Trapping (set / retrieve),1.25,ST-019,,Officer E,2023-11-26
+TIME-00089,2023-24,2023-11-26,Officer E,Data entry / reporting,1.75,,,Officer E,2023-11-26
+TIME-00090,2023-24,2023-11-26,Officer F,Larvicide treatment,3.25,ST-002,,Officer F,2023-11-26
+TIME-00091,2023-24,2023-11-26,Officer F,Larvae dipping / inspection,0.5,ST-020,,Officer F,2023-11-26
+TIME-00092,2023-24,2023-11-27,Officer D,Larvae dipping / inspection,0.5,ST-019,,Officer D,2023-11-27
+TIME-00093,2023-24,2023-11-29,Officer D,Complaint investigation,1.25,ST-008,,Officer D,2023-11-29
+TIME-00094,2023-24,2023-11-29,Officer D,Larvae dipping / inspection,0.5,ST-022,,Officer D,2023-11-29
+TIME-00095,2023-24,2023-11-30,Officer B,Complaint investigation,1.5,ST-019,,Officer B,2023-11-30
+TIME-00096,2023-24,2023-12-03,Officer A,Data entry / reporting,2.25,,,Officer A,2023-12-03
+TIME-00097,2023-24,2023-12-03,Officer C,Trapping (set / retrieve),1.25,ST-014,,Officer C,2023-12-03
+TIME-00098,2023-24,2023-12-03,Officer D,Trapping (set / retrieve),1.5,ST-010,,Officer D,2023-12-03
+TIME-00099,2023-24,2023-12-03,Officer F,Trapping (set / retrieve),2.25,ST-002,,Officer F,2023-12-03
+TIME-00100,2023-24,2023-12-04,Officer C,Larvae dipping / inspection,0.25,ST-007,,Officer C,2023-12-04
+TIME-00101,2023-24,2023-12-04,Officer D,Complaint investigation,1.5,,,Officer D,2023-12-04
+TIME-00102,2023-24,2023-12-05,Officer D,Larvae dipping / inspection,0.5,ST-002,,Officer D,2023-12-05
+TIME-00103,2023-24,2023-12-07,Officer B,Complaint investigation,0.5,ST-019,,Officer B,2023-12-07
+TIME-00104,2023-24,2023-12-07,Officer B,Larvae dipping / inspection,0.25,ST-020,,Officer B,2023-12-07
+TIME-00105,2023-24,2023-12-07,Officer E,Larvae dipping / inspection,0.75,ST-011,,Officer E,2023-12-07
+TIME-00106,2023-24,2023-12-08,Officer E,Complaint investigation,1.5,ST-001,,Officer E,2023-12-08
+TIME-00107,2023-24,2023-12-10,Officer A,Trapping (set / retrieve),1.75,ST-002,,Officer A,2023-12-10
+TIME-00108,2023-24,2023-12-10,Officer B,Trapping (set / retrieve),1.5,ST-020,,Officer B,2023-12-10
+TIME-00109,2023-24,2023-12-10,Officer B,Trapping (set / retrieve),1.0,ST-011,,Officer B,2023-12-10
+TIME-00110,2023-24,2023-12-10,Officer B,Larvae dipping / inspection,0.5,ST-020,,Officer B,2023-12-10
+TIME-00111,2023-24,2023-12-10,Officer E,Complaint investigation,1.5,ST-002,,Officer E,2023-12-10
+TIME-00112,2023-24,2023-12-10,Officer E,Larvicide treatment,3.0,ST-005,,Officer E,2023-12-10
+TIME-00113,2023-24,2023-12-10,Officer E,Data entry / reporting,2.25,,,Officer E,2023-12-10
+TIME-00114,2023-24,2023-12-13,Officer E,Larvae dipping / inspection,0.75,ST-012,,Officer E,2023-12-13
+TIME-00115,2023-24,2023-12-14,Officer D,Complaint investigation,1.75,ST-003,,Officer D,2023-12-14
+TIME-00116,2023-24,2023-12-14,Officer E,Larvae dipping / inspection,0.5,ST-014,,Officer E,2023-12-14
+TIME-00117,2023-24,2023-12-15,Officer F,Complaint investigation,1.25,ST-002,,Officer F,2023-12-15
+TIME-00118,2023-24,2023-12-17,Officer A,Complaint investigation,1.0,,,Officer A,2023-12-17
+TIME-00119,2023-24,2023-12-17,Officer B,Trapping (set / retrieve),1.75,ST-014,,Officer B,2023-12-17
+TIME-00120,2023-24,2023-12-17,Officer E,Trapping (set / retrieve),1.25,ST-012,,Officer E,2023-12-17
+TIME-00121,2023-24,2023-12-17,Officer E,Data entry / reporting,1.25,,,Officer E,2023-12-17
+TIME-00122,2023-24,2023-12-17,Officer F,Trapping (set / retrieve),1.75,ST-020,,Officer F,2023-12-17
+TIME-00123,2023-24,2023-12-19,Officer A,Larvae dipping / inspection,0.5,ST-014,,Officer A,2023-12-19
+TIME-00124,2023-24,2023-12-19,Officer E,Complaint investigation,0.75,ST-005,,Officer E,2023-12-19
+TIME-00125,2023-24,2023-12-20,Officer D,Larvae dipping / inspection,0.25,ST-020,,Officer D,2023-12-20
+TIME-00126,2023-24,2023-12-21,Officer B,Complaint investigation,1.25,ST-014,,Officer B,2023-12-21
+TIME-00127,2023-24,2023-12-22,Officer B,Complaint investigation,1.75,ST-003,,Officer B,2023-12-22
+TIME-00128,2023-24,2023-12-22,Officer D,Complaint investigation,1.5,ST-008,,Officer D,2023-12-22
+TIME-00129,2023-24,2023-12-24,Officer A,Trapping (set / retrieve),1.5,ST-002,,Officer A,2023-12-24
+TIME-00130,2023-24,2023-12-24,Officer C,Trapping (set / retrieve),1.75,ST-014,,Officer C,2023-12-24
+TIME-00131,2023-24,2023-12-24,Officer D,Complaint investigation,1.25,,,Officer D,2023-12-24
+TIME-00132,2023-24,2023-12-24,Officer E,Trapping (set / retrieve),1.5,ST-013,,Officer E,2023-12-24
+TIME-00133,2023-24,2023-12-24,Officer F,Data entry / reporting,2.5,,,Officer F,2023-12-24
+TIME-00134,2023-24,2023-12-25,Officer C,Complaint investigation,1.5,ST-001,,Officer C,2023-12-25
+TIME-00135,2023-24,2023-12-26,Officer A,Complaint investigation,1.0,,,Officer A,2023-12-26
+TIME-00136,2023-24,2023-12-26,Officer F,Complaint investigation,1.0,,,Officer F,2023-12-26
+TIME-00137,2023-24,2023-12-27,Officer D,Complaint investigation,1.0,ST-020,,Officer D,2023-12-27
+TIME-00138,2023-24,2023-12-28,Officer F,Complaint investigation,1.25,ST-005,,Officer F,2023-12-28
+TIME-00139,2023-24,2023-12-31,Officer A,Trapping (set / retrieve),1.75,ST-020,,Officer A,2023-12-31
+TIME-00140,2023-24,2023-12-31,Officer A,Trapping (set / retrieve),1.5,ST-002,,Officer A,2023-12-31
+TIME-00141,2023-24,2023-12-31,Officer C,Trapping (set / retrieve),1.25,ST-015,,Officer C,2023-12-31
+TIME-00142,2023-24,2023-12-31,Officer C,Larvae dipping / inspection,0.5,ST-007,,Officer C,2023-12-31
+TIME-00143,2023-24,2023-12-31,Officer E,Complaint investigation,1.5,ST-005,,Officer E,2023-12-31
+TIME-00144,2023-24,2023-12-31,Officer F,Data entry / reporting,1.25,,,Officer F,2023-12-31
+TIME-00145,2023-24,2024-01-03,Officer F,Larvae dipping / inspection,0.5,ST-019,,Officer F,2024-01-03
+TIME-00146,2023-24,2024-01-04,Officer C,Complaint investigation,0.75,ST-002,,Officer C,2024-01-04
+TIME-00147,2023-24,2024-01-04,Officer E,Complaint investigation,1.75,ST-020,,Officer E,2024-01-04
+TIME-00148,2023-24,2024-01-06,Officer D,Complaint investigation,1.5,ST-020,,Officer D,2024-01-06
+TIME-00149,2023-24,2024-01-07,Officer A,Trapping (set / retrieve),2.0,ST-014,,Officer A,2024-01-07
+TIME-00150,2023-24,2024-01-07,Officer A,Trapping (set / retrieve),1.0,ST-020,,Officer A,2024-01-07
+TIME-00151,2023-24,2024-01-07,Officer A,Data entry / reporting,2.75,,,Officer A,2024-01-07
+TIME-00152,2023-24,2024-01-07,Officer B,Trapping (set / retrieve),1.75,ST-016,,Officer B,2024-01-07
+TIME-00153,2023-24,2024-01-07,Officer B,Complaint investigation,1.75,,,Officer B,2024-01-07
+TIME-00154,2023-24,2024-01-07,Officer B,Larvicide treatment,3.5,ST-020,,Officer B,2024-01-07
+TIME-00155,2023-24,2024-01-07,Officer B,Larvae dipping / inspection,0.75,ST-014,,Officer B,2024-01-07
+TIME-00156,2023-24,2024-01-07,Officer F,Complaint investigation,1.0,,,Officer F,2024-01-07
+TIME-00157,2023-24,2024-01-09,Officer B,Complaint investigation,0.75,ST-005,,Officer B,2024-01-09
+TIME-00158,2023-24,2024-01-11,Officer B,Larvae dipping / inspection,0.75,ST-017,,Officer B,2024-01-11
+TIME-00159,2023-24,2024-01-11,Officer E,Larvae dipping / inspection,0.25,ST-016,,Officer E,2024-01-11
+TIME-00160,2023-24,2024-01-12,Officer B,Complaint investigation,0.5,ST-008,,Officer B,2024-01-12
+TIME-00161,2023-24,2024-01-13,Officer F,Complaint investigation,1.75,ST-014,,Officer F,2024-01-13
+TIME-00162,2023-24,2024-01-14,Officer B,Data entry / reporting,1.25,,,Officer B,2024-01-14
+TIME-00163,2023-24,2024-01-14,Officer C,Trapping (set / retrieve),1.0,ST-002,,Officer C,2024-01-14
+TIME-00164,2023-24,2024-01-14,Officer C,Trapping (set / retrieve),1.75,ST-014,,Officer C,2024-01-14
+TIME-00165,2023-24,2024-01-14,Officer D,Larvae dipping / inspection,0.75,ST-014,,Officer D,2024-01-14
+TIME-00166,2023-24,2024-01-14,Officer F,Trapping (set / retrieve),2.25,ST-017,,Officer F,2024-01-14
+TIME-00167,2023-24,2024-01-14,Officer F,Larvicide treatment,2.75,ST-020,,Officer F,2024-01-14
+TIME-00168,2023-24,2024-01-17,Officer F,Larvae dipping / inspection,0.5,ST-002,,Officer F,2024-01-17
+TIME-00169,2023-24,2024-01-18,Officer C,Complaint investigation,1.75,ST-006,,Officer C,2024-01-18
+TIME-00170,2023-24,2024-01-19,,Larvicide treatment,2.75,ST-002,,,2024-01-19
+TIME-00171,2023-24,2024-01-21,Officer A,Trapping (set / retrieve),1.5,ST-020,,Officer A,2024-01-21
+TIME-00172,2023-24,2024-01-21,Officer D,Trapping (set / retrieve),1.5,ST-018,,Officer D,2024-01-21
+TIME-00173,2023-24,2024-01-21,Officer E,Trapping (set / retrieve),1.0,ST-002,,Officer E,2024-01-21
+TIME-00174,2023-24,2024-01-21,Officer F,Data entry / reporting,2.75,,,Officer F,2024-01-21
+TIME-00175,2023-24,2024-01-23,Officer A,Larvicide treatment,1.25,ST-021,,Officer A,2024-01-23
+TIME-00176,2023-24,2024-01-24,Officer C,Complaint investigation,1.25,ST-006,,Officer C,2024-01-24
+TIME-00177,2023-24,2024-01-25,Officer B,Complaint investigation,1.0,ST-019,,Officer B,2024-01-25
+TIME-00178,2023-24,2024-01-25,Officer B,Larvae dipping / inspection,0.25,ST-008,,Officer B,2024-01-25
+TIME-00179,2023-24,2024-01-25,Officer D,Complaint investigation,0.5,,,Officer D,2024-01-25
+TIME-00180,2023-24,2024-01-25,Officer E,Larvae dipping / inspection,0.5,ST-012,,Officer E,2024-01-25
+TIME-00181,2023-24,2024-01-25,Officer F,Complaint investigation,1.25,ST-007,,Officer F,2024-01-25
+TIME-00182,2023-24,2024-01-28,Officer C,Trapping (set / retrieve),2.0,ST-020,,Officer C,2024-01-28
+TIME-00183,2023-24,2024-01-28,Officer E,Trapping (set / retrieve),1.75,ST-014,,Officer E,2024-01-28
+TIME-00184,2023-24,2024-01-28,Officer E,Complaint investigation,1.5,ST-020,,Officer E,2024-01-28
+TIME-00185,2023-24,2024-01-28,Officer E,Data entry / reporting,2.25,,,Officer E,2024-01-28
+TIME-00186,2023-24,2024-01-28,Officer F,Trapping (set / retrieve),1.25,ST-021,,Officer F,2024-01-28
+TIME-00187,2023-24,2024-01-29,Officer D,Complaint investigation,1.25,ST-019,,Officer D,2024-01-29
+TIME-00188,2023-24,2024-01-30,Officer C,Larvae dipping / inspection,0.5,ST-014,,Officer C,2024-01-30
+TIME-00189,2023-24,2024-01-30,Officer F,Larvae dipping / inspection,0.75,ST-017,,Officer F,2024-01-30
+TIME-00190,2023-24,2024-01-31,Officer D,Larvae dipping / inspection,0.75,ST-002,,Officer D,2024-01-31
+TIME-00191,2023-24,2024-01-31,Officer E,Larvae dipping / inspection,0.25,ST-019,,Officer E,2024-01-31
+TIME-00192,2023-24,2024-01-31,Officer E,Larvae dipping / inspection,0.25,ST-020,,Officer E,2024-01-31
+TIME-00193,2023-24,2024-02-01,Officer B,Larvicide treatment,1.75,ST-011,,Officer B,2024-02-01
+TIME-00194,2023-24,2024-02-01,Officer D,Complaint investigation,1.25,ST-002,,Officer D,2024-02-01
+TIME-00195,2023-24,2024-02-02,Officer F,Complaint investigation,0.75,ST-008,,Officer F,2024-02-02
+TIME-00196,2023-24,2024-02-04,Officer B,Trapping (set / retrieve),1.75,ST-022,,Officer B,2024-02-04
+TIME-00197,2023-24,2024-02-04,Officer B,Data entry / reporting,1.25,,,Officer B,2024-02-04
+TIME-00198,2023-24,2024-02-04,Officer C,Trapping (set / retrieve),2.25,ST-014,,Officer C,2024-02-04
+TIME-00199,2023-24,2024-02-04,Officer C,Complaint investigation,0.75,ST-008,,Officer C,2024-02-04
+TIME-00200,2023-24,2024-02-04,Officer D,Trapping (set / retrieve),1.0,ST-002,,Officer D,2024-02-04
+TIME-00201,2023-24,2024-02-04,Officer D,Larvae dipping / inspection,0.25,ST-002,,Officer D,2024-02-04
+TIME-00202,2023-24,2024-02-05,Officer B,Larvae dipping / inspection,0.5,ST-020,,Officer B,2024-02-05
+TIME-00203,2023-24,2024-02-05,Officer F,Complaint investigation,1.5,ST-014,,Officer F,2024-02-05
+TIME-00204,2023-24,2024-02-08,Officer D,Larvicide treatment,2.0,ST-002,,Officer D,2024-02-08
+TIME-00205,2023-24,2024-02-09,Officer A,Complaint investigation,1.0,,,Officer A,2024-02-09
+TIME-00206,2023-24,2024-02-10,Officer E,Larvicide treatment,1.25,ST-015,,Officer E,2024-02-10
+TIME-00207,2023-24,2024-02-11,Officer A,Trapping (set / retrieve),1.75,ST-020,,Officer A,2024-02-11
+TIME-00208,2023-24,2024-02-11,Officer A,Trapping (set / retrieve),2.25,ST-002,,Officer A,2024-02-11
+TIME-00209,2023-24,2024-02-11,Officer B,Trapping (set / retrieve),2.25,ST-001,,Officer B,2024-02-11
+TIME-00210,2023-24,2024-02-11,Officer F,Data entry / reporting,2.25,,,Officer F,2024-02-11
+TIME-00211,2023-24,2024-02-12,Officer B,Larvae dipping / inspection,0.5,ST-014,,Officer B,2024-02-12
+TIME-00212,2023-24,2024-02-12,Officer C,Larvae dipping / inspection,0.5,ST-020,,Officer C,2024-02-12
+TIME-00213,2023-24,2024-02-13,Officer A,Larvae dipping / inspection,0.75,ST-002,,Officer A,2024-02-13
+TIME-00214,2023-24,2024-02-13,Officer B,Larvae dipping / inspection,0.5,ST-007,,Officer B,2024-02-13
+TIME-00215,2023-24,2024-02-14,Officer A,Complaint investigation,0.75,,,Officer A,2024-02-14
+TIME-00216,2023-24,2024-02-16,Officer F,Larvicide treatment,3.0,ST-014,,Officer F,2024-02-16
+TIME-00217,2023-24,2024-02-18,Officer B,Trapping (set / retrieve),1.5,ST-020,,Officer B,2024-02-18
+TIME-00218,2023-24,2024-02-18,Officer C,Larvae dipping / inspection,0.5,ST-020,,Officer C,2024-02-18
+TIME-00219,2023-24,2024-02-18,Officer E,Trapping (set / retrieve),2.25,ST-014,,Officer E,2024-02-18
+TIME-00220,2023-24,2024-02-18,Officer E,Data entry / reporting,2.25,,,Officer E,2024-02-18
+TIME-00221,2023-24,2024-02-18,Officer F,Trapping (set / retrieve),1.25,ST-003,,Officer F,2024-02-18
+TIME-00222,2023-24,2024-02-19,Officer C,Complaint investigation,1.25,ST-006,,Officer C,2024-02-19
+TIME-00223,2023-24,2024-02-19,Officer E,Complaint investigation,0.75,ST-020,,Officer E,2024-02-19
+TIME-00224,2023-24,2024-02-20,Officer C,Larvae dipping / inspection,0.25,ST-002,,Officer C,2024-02-20
+TIME-00225,2023-24,2024-02-21,Officer E,Larvae dipping / inspection,0.75,ST-016,,Officer E,2024-02-21
+TIME-00226,2023-24,2024-02-24,Officer D,Larvicide treatment,2.5,ST-021,,Officer D,2024-02-24
+TIME-00227,2023-24,2024-02-25,Officer A,Larvae dipping / inspection,0.5,ST-005,,Officer A,2024-02-25
+TIME-00228,2023-24,2024-02-25,Officer B,Complaint investigation,1.0,ST-008,,Officer B,2024-02-25
+TIME-00229,2023-24,2024-02-25,Officer B,Data entry / reporting,2.75,,,Officer B,2024-02-25
+TIME-00230,2023-24,2024-02-25,Officer C,Complaint investigation,0.5,ST-020,,Officer C,2024-02-25
+TIME-00231,2023-24,2024-02-25,Officer C,Larvae dipping / inspection,0.5,ST-003,,Officer C,2024-02-25
+TIME-00232,2023-24,2024-02-25,Officer D,Trapping (set / retrieve),1.0,ST-002,,Officer D,2024-02-25
+TIME-00233,2023-24,2024-02-25,Officer E,Trapping (set / retrieve),2.0,ST-005,,Officer E,2024-02-25
+TIME-00234,2023-24,2024-02-25,Officer F,Trapping (set / retrieve),1.5,ST-014,,Officer F,2024-02-25
+TIME-00235,2023-24,2024-02-26,Officer C,Larvae dipping / inspection,0.5,ST-014,,Officer C,2024-02-26
+TIME-00236,2023-24,2024-02-26,Officer D,Larvae dipping / inspection,0.75,ST-002,,Officer D,2024-02-26
+TIME-00237,2023-24,2024-02-27,Officer B,Complaint investigation,1.25,,,Officer B,2024-02-27
+TIME-00238,2023-24,2024-02-27,Officer F,Larvae dipping / inspection,0.75,ST-006,,Officer F,2024-02-27
+TIME-00239,2023-24,2024-02-29,Officer C,Complaint investigation,1.0,,,Officer C,2024-02-29
+TIME-00240,2023-24,2024-03-01,Officer E,Complaint investigation,1.5,,,Officer E,2024-03-01
+TIME-00241,2023-24,2024-03-02,Officer F,Complaint investigation,1.25,ST-003,,Officer F,2024-03-02
+TIME-00242,2023-24,2024-03-03,Officer A,Trapping (set / retrieve),2.25,ST-006,,Officer A,2024-03-03
+TIME-00243,2023-24,2024-03-03,Officer B,Trapping (set / retrieve),2.25,ST-002,,Officer B,2024-03-03
+TIME-00244,2023-24,2024-03-03,Officer F,Trapping (set / retrieve),1.75,ST-020,,Officer F,2024-03-03
+TIME-00245,2023-24,2024-03-03,Officer F,Larvae dipping / inspection,0.25,ST-014,,Officer F,2024-03-03
+TIME-00246,2023-24,2024-03-03,Officer F,Data entry / reporting,2.75,,,Officer F,2024-03-03
+TIME-00247,2023-24,2024-03-04,Officer A,Larvae dipping / inspection,0.5,ST-020,,Officer A,2024-03-04
+TIME-00248,2023-24,2024-03-06,Officer A,Complaint investigation,0.75,ST-002,,Officer A,2024-03-06
+TIME-00249,2023-24,2024-03-07,Officer F,Complaint investigation,0.5,ST-014,,Officer F,2024-03-07
+TIME-00250,2023-24,2024-03-10,Officer A,Data entry / reporting,2.0,,,Officer A,2024-03-10
+TIME-00251,2023-24,2024-03-10,Officer D,Trapping (set / retrieve),1.75,ST-007,,Officer D,2024-03-10
+TIME-00252,2023-24,2024-03-10,Officer D,Larvae dipping / inspection,0.25,ST-002,,Officer D,2024-03-10
+TIME-00253,2023-24,2024-03-10,Officer E,Trapping (set / retrieve),1.75,ST-014,,Officer E,2024-03-10
+TIME-00254,2023-24,2024-03-10,Officer F,Trapping (set / retrieve),1.25,ST-020,,Officer F,2024-03-10
+TIME-00255,2023-24,2024-03-11,Officer F,Complaint investigation,1.5,,,Officer F,2024-03-11
+TIME-00256,2023-24,2024-03-14,Officer E,Larvae dipping / inspection,0.5,ST-020,,Officer E,2024-03-14
+TIME-00257,2023-24,2024-03-14,Officer F,Complaint investigation,0.75,ST-002,,Officer F,2024-03-14
+TIME-00258,2023-24,2024-03-14,Officer F,Complaint investigation,1.0,ST-008,,Officer F,2024-03-14
+TIME-00259,2023-24,2024-03-16,Officer E,Complaint investigation,1.5,ST-002,,Officer E,2024-03-16
+TIME-00260,2023-24,2024-03-17,Officer A,Trapping (set / retrieve),2.25,ST-014,,Officer A,2024-03-17
+TIME-00261,2023-24,2024-03-17,Officer A,Data entry / reporting,1.0,,,Officer A,2024-03-17
+TIME-00262,2023-24,2024-03-17,Officer B,Trapping (set / retrieve),2.5,ST-002,,Officer B,2024-03-17
+TIME-00263,2023-24,2024-03-17,Officer B,Trapping (set / retrieve),2.0,ST-009,,Officer B,2024-03-17
+TIME-00264,2023-24,2024-03-17,Officer D,Larvae dipping / inspection,0.5,ST-002,,Officer D,2024-03-17
+TIME-00265,2023-24,2024-03-17,Officer E,Complaint investigation,1.5,ST-005,,Officer E,2024-03-17
+TIME-00266,2023-24,2024-03-19,Officer B,Complaint investigation,1.75,,,Officer B,2024-03-19
+TIME-00267,2023-24,2024-03-20,Officer D,Larvae dipping / inspection,0.25,ST-014,,Officer D,2024-03-20
+TIME-00268,2023-24,2024-03-22,Officer A,Complaint investigation,1.25,ST-019,,Officer A,2024-03-22
+TIME-00269,2023-24,2024-03-24,Officer B,Trapping (set / retrieve),2.25,ST-002,,Officer B,2024-03-24
+TIME-00270,2023-24,2024-03-24,Officer B,Trapping (set / retrieve),2.0,ST-008,,Officer B,2024-03-24
+TIME-00271,2023-24,2024-03-24,Officer C,Data entry / reporting,1.75,,,Officer C,2024-03-24
+TIME-00272,2023-24,2024-03-24,Officer D,Trapping (set / retrieve),2.0,ST-020,,Officer D,2024-03-24
+TIME-00273,2023-24,2024-03-24,Officer F,Complaint investigation,0.75,ST-003,,Officer F,2024-03-24
+TIME-00274,2023-24,2024-03-25,Officer C,Larvae dipping / inspection,0.5,ST-020,,Officer C,2024-03-25
+TIME-00275,2023-24,2024-03-26,Officer B,Larvae dipping / inspection,0.25,ST-002,,Officer B,2024-03-26
+TIME-00276,2023-24,2024-03-26,Officer E,Complaint investigation,1.0,ST-007,,Officer E,2024-03-26
+TIME-00277,2023-24,2024-03-27,Officer C,Complaint investigation,0.75,,,Officer C,2024-03-27
+TIME-00278,2023-24,2024-03-27,Officer D,Larvae dipping / inspection,0.5,ST-014,,Officer D,2024-03-27
+TIME-00279,2023-24,2024-03-28,Officer B,Complaint investigation,1.0,,,Officer B,2024-03-28
+TIME-00280,2023-24,2024-03-31,Officer A,Trapping (set / retrieve),1.5,ST-019,,Officer A,2024-03-31
+TIME-00281,2023-24,2024-03-31,Officer B,Trapping (set / retrieve),1.5,ST-020,,Officer B,2024-03-31
+TIME-00282,2023-24,2024-03-31,Officer D,Data entry / reporting,1.25,,,Officer D,2024-03-31
+TIME-00283,2023-24,2024-03-31,Officer F,Trapping (set / retrieve),2.0,ST-014,,Officer F,2024-03-31
+TIME-00284,2023-24,2024-03-31,Officer F,Larvae dipping / inspection,0.25,ST-014,,Officer F,2024-03-31
+TIME-00285,2023-24,2024-04-01,Officer B,Complaint investigation,1.5,ST-020,,Officer B,2024-04-01
+TIME-00286,2023-24,2024-04-01,Officer B,Larvae dipping / inspection,0.25,ST-010,,Officer B,2024-04-01
+TIME-00287,2023-24,2024-04-01,Officer D,Larvae dipping / inspection,0.25,ST-020,,Officer D,2024-04-01
+TIME-00288,2023-24,2024-04-02,Officer D,Complaint investigation,1.5,,,Officer D,2024-04-02
+TIME-00289,2023-24,2024-04-02,Officer D,Larvae dipping / inspection,0.5,ST-012,,Officer D,2024-04-02
+TIME-00290,2023-24,2024-04-03,Officer E,Larvae dipping / inspection,0.5,ST-001,,Officer E,2024-04-03
+TIME-00291,2023-24,2024-04-05,Officer A,Complaint investigation,1.5,ST-002,,Officer A,2024-04-05
+TIME-00292,2023-24,2024-04-05,Officer C,Complaint investigation,1.25,ST-002,,Officer C,2024-04-05
+TIME-00293,2023-24,2024-04-07,Officer B,Trapping (set / retrieve),2.25,ST-014,,Officer B,2024-04-07
+TIME-00294,2023-24,2024-04-07,Officer B,Trapping (set / retrieve),2.0,ST-010,,Officer B,2024-04-07
+TIME-00295,2023-24,2024-04-07,Officer E,Trapping (set / retrieve),1.75,ST-002,,Officer E,2024-04-07
+TIME-00296,2023-24,2024-04-07,Officer E,Data entry / reporting,1.0,,,Officer E,2024-04-07
+TIME-00297,2023-24,2024-04-08,Officer B,Larvae dipping / inspection,0.5,ST-019,,Officer B,2024-04-08
+TIME-00298,2023-24,2024-04-09,Officer B,Larvae dipping / inspection,0.5,ST-011,,Officer B,2024-04-09
+TIME-00299,2023-24,2024-04-09,Officer D,Complaint investigation,1.25,ST-002,,Officer D,2024-04-09
+TIME-00300,2023-24,2024-04-09,Officer D,Larvae dipping / inspection,0.5,ST-002,,Officer D,2024-04-09
+TIME-00301,2023-24,2024-04-10,Officer A,Larvicide treatment,3.25,ST-009,,Officer A,2024-04-10
+TIME-00302,2023-24,2024-04-10,Officer C,Complaint investigation,1.5,ST-001,,Officer C,2024-04-10
+TIME-00303,2023-24,2024-04-10,Officer E,Complaint investigation,1.75,ST-002,,Officer E,2024-04-10
+TIME-00304,2023-24,2024-04-10,Officer E,Complaint investigation,1.5,ST-001,,Officer E,2024-04-10
+TIME-00305,2023-24,2024-04-12,Officer E,Larvicide treatment,2.5,ST-016,,Officer E,2024-04-12
+TIME-00306,2023-24,2024-04-14,Officer A,Trapping (set / retrieve),1.75,ST-002,,Officer A,2024-04-14
+TIME-00307,2023-24,2024-04-14,Officer C,Trapping (set / retrieve),2.25,ST-020,,Officer C,2024-04-14
+TIME-00308,2023-24,2024-04-14,Officer D,Trapping (set / retrieve),1.75,ST-011,,Officer D,2024-04-14
+TIME-00309,2023-24,2024-04-14,Officer D,Data entry / reporting,2.0,,,Officer D,2024-04-14
+TIME-00310,2023-24,2024-04-14,Officer E,Larvae dipping / inspection,0.5,ST-015,,Officer E,2024-04-14
+TIME-00311,2023-24,2024-04-14,Officer E,Larvae dipping / inspection,0.5,ST-020,,Officer E,2024-04-14
+TIME-00312,2023-24,2024-04-16,Officer D,Complaint investigation,1.25,ST-005,,Officer D,2024-04-16
+TIME-00313,2023-24,2024-04-17,Officer A,Larvae dipping / inspection,0.5,ST-002,,Officer A,2024-04-17
+TIME-00314,2023-24,2024-04-21,Officer A,Trapping (set / retrieve),2.0,ST-014,,Officer A,2024-04-21
+TIME-00315,2023-24,2024-04-21,Officer A,Trapping (set / retrieve),2.0,ST-020,,Officer A,2024-04-21
+TIME-00316,2023-24,2024-04-21,Officer A,Trapping (set / retrieve),1.25,ST-012,,Officer A,2024-04-21
+TIME-00317,2023-24,2024-04-21,Officer A,Data entry / reporting,2.25,,,Officer A,2024-04-21
+TIME-00318,2023-24,2024-04-21,Officer D,Larvae dipping / inspection,0.5,ST-020,,Officer D,2024-04-21
+TIME-00319,2023-24,2024-04-22,Officer A,Larvicide treatment,2.5,ST-007,,Officer A,2024-04-22
+TIME-00320,2023-24,2024-04-22,Officer B,Larvae dipping / inspection,0.5,ST-016,,Officer B,2024-04-22
+TIME-00321,2023-24,2024-04-22,Officer E,Complaint investigation,1.75,ST-008,,Officer E,2024-04-22
+TIME-00322,2023-24,2024-04-24,Officer C,Larvae dipping / inspection,0.5,ST-007,,Officer C,2024-04-24
+TIME-00323,2023-24,2024-04-24,Officer C,Larvae dipping / inspection,0.75,ST-022,,Officer C,2024-04-24
+TIME-00324,2023-24,2024-04-24,Officer E,Complaint investigation,1.25,ST-002,,Officer E,2024-04-24
+TIME-00325,2023-24,2024-04-24,Officer E,Larvae dipping / inspection,0.25,ST-002,,Officer E,2024-04-24
+TIME-00326,2023-24,2024-04-25,Officer A,Complaint investigation,1.0,ST-005,,Officer A,2024-04-25
+TIME-00327,2023-24,2024-04-26,Officer F,Larvicide treatment,2.25,ST-003,,Officer F,2024-04-26
+TIME-00328,2023-24,2024-04-28,Officer A,Trapping (set / retrieve),1.25,ST-014,,Officer A,2024-04-28
+TIME-00329,2023-24,2024-04-28,Officer F,Trapping (set / retrieve),2.5,ST-002,,Officer F,2024-04-28
+TIME-00330,2023-24,2024-04-28,Officer F,Trapping (set / retrieve),2.0,ST-013,,Officer F,2024-04-28
+TIME-00331,2023-24,2024-04-28,Officer F,Data entry / reporting,2.5,,,Officer F,2024-04-28
+TIME-00332,2023-24,2024-04-29,Officer C,Larvicide treatment,3.25,ST-003,,Officer C,2024-04-29
+TIME-00333,2023-24,2024-04-29,Officer F,Complaint investigation,0.75,,,Officer F,2024-04-29
+TIME-00334,2023-24,2024-04-30,Officer E,Complaint investigation,1.25,ST-006,,Officer E,2024-04-30
+TIME-00335,2023-24,2024-05-01,Officer A,Complaint investigation,0.75,ST-014,,Officer A,2024-05-01
+TIME-00336,2023-24,2024-05-01,Officer F,Larvae dipping / inspection,0.5,ST-014,,Officer F,2024-05-01
+TIME-00337,2023-24,2024-05-02,Officer A,Complaint investigation,1.25,ST-001,,Officer A,2024-05-02
+TIME-00338,2023-24,2024-05-03,Officer A,Complaint investigation,1.25,ST-006,,Officer A,2024-05-03
+TIME-00339,2023-24,2024-05-03,Officer B,Complaint investigation,1.0,ST-002,,Officer B,2024-05-03
+TIME-00340,2023-24,2024-05-05,Officer A,Trapping (set / retrieve),1.5,ST-020,,Officer A,2024-05-05
+TIME-00341,2023-24,2024-05-05,Officer A,Trapping (set / retrieve),1.5,ST-002,,Officer A,2024-05-05
+TIME-00342,2023-24,2024-05-05,Officer A,Data entry / reporting,2.5,,,Officer A,2024-05-05
+TIME-00343,2023-24,2024-05-05,Officer B,Larvae dipping / inspection,0.75,ST-002,,Officer B,2024-05-05
+TIME-00344,2023-24,2024-05-05,Officer D,Trapping (set / retrieve),2.5,ST-015,,Officer D,2024-05-05
+TIME-00345,2023-24,2024-05-07,Officer D,Larvae dipping / inspection,0.75,ST-014,,Officer D,2024-05-07
+TIME-00346,2023-24,2024-05-08,Officer A,Larvae dipping / inspection,0.5,ST-020,,Officer A,2024-05-08
+TIME-00347,2023-24,2024-05-09,Officer B,Complaint investigation,1.25,,,Officer B,2024-05-09
+TIME-00348,2023-24,2024-05-09,Officer E,Complaint investigation,1.5,ST-007,,Officer E,2024-05-09
+TIME-00349,2023-24,2024-05-10,Officer D,Complaint investigation,1.0,ST-003,,Officer D,2024-05-10
+TIME-00350,2023-24,2024-05-10,Officer F,Complaint investigation,0.5,ST-020,,Officer F,2024-05-10
+TIME-00351,2023-24,2024-05-10,Officer F,Complaint investigation,1.0,ST-005,,Officer F,2024-05-10
+TIME-00352,2023-24,2024-05-11,Officer B,Complaint investigation,1.0,ST-005,,Officer B,2024-05-11
+TIME-00353,2023-24,2024-05-11,Officer F,Complaint investigation,1.5,ST-001,,Officer F,2024-05-11
+TIME-00354,2023-24,2024-05-12,Officer B,Trapping (set / retrieve),1.5,ST-020,,Officer B,2024-05-12
+TIME-00355,2023-24,2024-05-12,Officer C,Trapping (set / retrieve),2.0,ST-014,,Officer C,2024-05-12
+TIME-00356,2023-24,2024-05-12,Officer D,Trapping (set / retrieve),2.0,ST-016,,Officer D,2024-05-12
+TIME-00357,2023-24,2024-05-12,Officer D,Data entry / reporting,2.75,,,Officer D,2024-05-12
+TIME-00358,2023-24,2024-05-13,Officer D,Complaint investigation,0.75,ST-019,,Officer D,2024-05-13
+TIME-00359,2023-24,2024-05-13,Officer D,Complaint investigation,1.75,,,Officer D,2024-05-13
+TIME-00360,2023-24,2024-05-14,Officer D,Complaint investigation,1.5,ST-003,,Officer D,2024-05-14
+TIME-00361,2023-24,2024-05-15,Officer A,Larvae dipping / inspection,0.5,ST-002,,Officer A,2024-05-15
+TIME-00362,2023-24,2024-05-15,Officer E,Larvae dipping / inspection,0.75,ST-001,,Officer E,2024-05-15
+TIME-00363,2023-24,2024-05-16,Officer B,Larvae dipping / inspection,0.5,ST-006,,Officer B,2024-05-16
+TIME-00364,2023-24,2024-05-16,Officer E,Complaint investigation,1.75,,,Officer E,2024-05-16
+TIME-00365,2023-24,2024-05-19,Officer A,Data entry / reporting,2.0,,,Officer A,2024-05-19
+TIME-00366,2023-24,2024-05-19,Officer C,Trapping (set / retrieve),2.25,ST-002,,Officer C,2024-05-19
+TIME-00367,2023-24,2024-05-19,Officer C,Trapping (set / retrieve),2.5,ST-017,,Officer C,2024-05-19
+TIME-00368,2023-24,2024-05-19,Officer C,Larvae dipping / inspection,0.25,ST-007,,Officer C,2024-05-19
+TIME-00369,2023-24,2024-05-19,Officer F,Trapping (set / retrieve),1.5,ST-014,,Officer F,2024-05-19
+TIME-00370,2023-24,2024-05-21,Officer F,Larvae dipping / inspection,0.5,ST-002,,Officer F,2024-05-21
+TIME-00371,2023-24,2024-05-23,Officer B,Complaint investigation,1.25,,,Officer B,2024-05-23
+TIME-00372,2023-24,2024-05-23,Officer D,Larvae dipping / inspection,0.75,ST-012,,Officer D,2024-05-23
+TIME-00373,2023-24,2024-05-25,Officer A,Complaint investigation,1.5,ST-002,,Officer A,2024-05-25
+TIME-00374,2023-24,2024-05-25,Officer C,Complaint investigation,0.75,ST-020,,Officer C,2024-05-25
+TIME-00375,2023-24,2024-05-26,Officer C,Data entry / reporting,1.75,,,Officer C,2024-05-26
+TIME-00376,2023-24,2024-05-31,Officer B,Larvicide treatment,2.25,ST-019,,Officer B,2024-05-31
+TIME-00377,2024-25,2024-10-01,Officer A,Trapping (set / retrieve),2.0,ST-018,,Officer A,2024-10-01
+TIME-00378,2024-25,2024-10-01,Officer A,Data entry / reporting,2.25,,,Officer A,2024-10-01
+TIME-00379,2024-25,2024-10-01,Officer B,Trapping (set / retrieve),1.5,ST-002,,Officer B,2024-10-01
+TIME-00380,2024-25,2024-10-01,Officer B,Larvae dipping / inspection,0.5,ST-002,,Officer B,2024-10-01
+TIME-00381,2024-25,2024-10-01,Officer F,Trapping (set / retrieve),2.5,ST-020,,Officer F,2024-10-01
+TIME-00382,2024-25,2024-10-01,Officer F,Larvae dipping / inspection,0.25,ST-012,,Officer F,2024-10-01
+TIME-00383,2024-25,2024-10-02,Officer B,Complaint investigation,1.0,ST-007,,Officer B,2024-10-02
+TIME-00384,2024-25,2024-10-03,Officer F,Larvae dipping / inspection,0.5,ST-019,,Officer F,2024-10-03
+TIME-00385,2024-25,2024-10-05,Officer E,Larvicide treatment,2.5,ST-009,,Officer E,2024-10-05
+TIME-00386,2024-25,2024-10-06,Officer B,Complaint investigation,1.25,ST-002,,Officer B,2024-10-06
+TIME-00387,2024-25,2024-10-06,Officer F,Larvicide treatment,2.5,ST-017,,Officer F,2024-10-06
+TIME-00388,2024-25,2024-10-08,Officer A,Trapping (set / retrieve),2.25,ST-021,,Officer A,2024-10-08
+TIME-00389,2024-25,2024-10-08,Officer A,Larvae dipping / inspection,0.5,ST-014,,Officer A,2024-10-08
+TIME-00390,2024-25,2024-10-08,Officer B,Larvicide treatment,1.75,ST-011,,Officer B,2024-10-08
+TIME-00391,2024-25,2024-10-08,Officer B,Data entry / reporting,2.25,,,Officer B,2024-10-08
+TIME-00392,2024-25,2024-10-08,Officer C,Trapping (set / retrieve),1.25,ST-020,,Officer C,2024-10-08
+TIME-00393,2024-25,2024-10-08,Officer C,Complaint investigation,1.5,,,Officer C,2024-10-08
+TIME-00394,2024-25,2024-10-08,Officer D,Trapping (set / retrieve),1.25,ST-014,,Officer D,2024-10-08
+TIME-00395,2024-25,2024-10-09,Officer B,Larvae dipping / inspection,0.75,ST-020,,Officer B,2024-10-09
+TIME-00396,2024-25,2024-10-09,Officer D,Complaint investigation,1.25,ST-002,,Officer D,2024-10-09
+TIME-00397,2024-25,2024-10-09,Officer E,Complaint investigation,1.25,ST-007,,Officer E,2024-10-09
+TIME-00398,2024-25,2024-10-11,Officer F,Larvae dipping / inspection,0.5,ST-018,,Officer F,2024-10-11
+TIME-00399,2024-25,2024-10-12,Officer C,Larvae dipping / inspection,0.25,ST-002,,Officer C,2024-10-12
+TIME-00400,2024-25,2024-10-12,Officer D,Complaint investigation,1.75,ST-002,,Officer D,2024-10-12
+TIME-00401,2024-25,2024-10-14,Officer C,Complaint investigation,0.75,ST-003,,Officer C,2024-10-14
+TIME-00402,2024-25,2024-10-14,Officer F,Complaint investigation,1.0,ST-008,,Officer F,2024-10-14
+TIME-00403,2024-25,2024-10-15,Officer D,Trapping (set / retrieve),2.5,ST-002,,Officer D,2024-10-15
+TIME-00404,2024-25,2024-10-15,Officer D,Trapping (set / retrieve),1.75,ST-014,,Officer D,2024-10-15
+TIME-00405,2024-25,2024-10-15,Officer D,Trapping (set / retrieve),1.5,ST-022,,Officer D,2024-10-15
+TIME-00406,2024-25,2024-10-15,Officer D,Data entry / reporting,1.0,,,Officer D,2024-10-15
+TIME-00407,2024-25,2024-10-16,Officer C,Complaint investigation,1.5,,,Officer C,2024-10-16
+TIME-00408,2024-25,2024-10-17,Officer B,Complaint investigation,1.25,,,Officer B,2024-10-17
+TIME-00409,2024-25,2024-10-18,Officer A,Complaint investigation,0.5,ST-006,,Officer A,2024-10-18
+TIME-00410,2024-25,2024-10-18,Officer C,Larvae dipping / inspection,0.75,ST-018,,Officer C,2024-10-18
+TIME-00411,2024-25,2024-10-19,Officer E,Larvae dipping / inspection,0.5,ST-014,,Officer E,2024-10-19
+TIME-00412,2024-25,2024-10-20,Officer A,Complaint investigation,1.5,,,Officer A,2024-10-20
+TIME-00413,2024-25,2024-10-20,Officer D,Complaint investigation,1.0,,,Officer D,2024-10-20
+TIME-00414,2024-25,2024-10-22,Officer A,Data entry / reporting,2.5,,,Officer A,2024-10-22
+TIME-00415,2024-25,2024-10-22,Officer D,Trapping (set / retrieve),1.5,ST-020,,Officer D,2024-10-22
+TIME-00416,2024-25,2024-10-22,Officer E,Trapping (set / retrieve),2.0,ST-001,,Officer E,2024-10-22
+TIME-00417,2024-25,2024-10-22,Officer F,Trapping (set / retrieve),1.75,ST-002,,Officer F,2024-10-22
+TIME-00418,2024-25,2024-10-22,Officer F,Larvae dipping / inspection,0.75,ST-018,,Officer F,2024-10-22
+TIME-00419,2024-25,2024-10-23,Officer B,Larvae dipping / inspection,0.75,ST-002,,Officer B,2024-10-23
+TIME-00420,2024-25,2024-10-24,Officer E,Complaint investigation,0.5,ST-020,,Officer E,2024-10-24
+TIME-00421,2024-25,2024-10-27,Officer A,Complaint investigation,0.75,ST-020,,Officer A,2024-10-27
+TIME-00422,2024-25,2024-10-29,Officer A,Trapping (set / retrieve),2.0,ST-020,,Officer A,2024-10-29
+TIME-00423,2024-25,2024-10-29,Officer B,Complaint investigation,1.5,ST-001,,Officer B,2024-10-29
+TIME-00424,2024-25,2024-10-29,Officer C,Trapping (set / retrieve),2.5,ST-014,,Officer C,2024-10-29
+TIME-00425,2024-25,2024-10-29,Officer D,Trapping (set / retrieve),2.25,ST-003,,Officer D,2024-10-29
+TIME-00426,2024-25,2024-10-29,Officer F,Data entry / reporting,2.5,,,Officer F,2024-10-29
+TIME-00427,2024-25,2024-10-31,Officer E,Complaint investigation,1.25,,,Officer E,2024-10-31
+TIME-00428,2024-25,2024-11-01,Officer B,Complaint investigation,0.75,,,Officer B,2024-11-01
+TIME-00429,2024-25,2024-11-01,Officer C,Larvae dipping / inspection,0.25,ST-016,,Officer C,2024-11-01
+TIME-00430,2024-25,2024-11-01,Officer D,Larvae dipping / inspection,0.75,ST-022,,Officer D,2024-11-01
+TIME-00431,2024-25,2024-11-01,Officer F,Larvae dipping / inspection,0.75,ST-014,,Officer F,2024-11-01
+TIME-00432,2024-25,2024-11-04,Officer C,Complaint investigation,0.5,ST-008,,Officer C,2024-11-04
+TIME-00433,2024-25,2024-11-05,Officer A,Trapping (set / retrieve),1.75,ST-014,,Officer A,2024-11-05
+TIME-00434,2024-25,2024-11-05,Officer C,Trapping (set / retrieve),2.5,ST-005,,Officer C,2024-11-05
+TIME-00435,2024-25,2024-11-05,Officer D,Data entry / reporting,1.75,,,Officer D,2024-11-05
+TIME-00436,2024-25,2024-11-05,Officer E,Trapping (set / retrieve),2.25,ST-002,,Officer E,2024-11-05
+TIME-00437,2024-25,2024-11-05,Officer F,Complaint investigation,1.75,,,Officer F,2024-11-05
+TIME-00438,2024-25,2024-11-08,Officer A,Larvae dipping / inspection,0.5,ST-014,,Officer A,2024-11-08
+TIME-00439,2024-25,2024-11-08,Officer F,Larvae dipping / inspection,0.5,ST-020,,Officer F,2024-11-08
+TIME-00440,2024-25,2024-11-09,Officer E,Larvae dipping / inspection,0.25,ST-008,,Officer E,2024-11-09
+TIME-00441,2024-25,2024-11-10,Officer E,Complaint investigation,0.75,ST-014,,Officer E,2024-11-10
+TIME-00442,2024-25,2024-11-11,Officer A,Complaint investigation,0.5,ST-002,,Officer A,2024-11-11
+TIME-00443,2024-25,2024-11-11,Officer D,Complaint investigation,0.5,,,Officer D,2024-11-11
+TIME-00444,2024-25,2024-11-11,Officer D,Complaint investigation,0.75,ST-002,,Officer D,2024-11-11
+TIME-00445,2024-25,2024-11-11,Officer E,Complaint investigation,0.75,ST-005,,Officer E,2024-11-11
+TIME-00446,2024-25,2024-11-12,Officer C,Trapping (set / retrieve),1.75,ST-002,,Officer C,2024-11-12
+TIME-00447,2024-25,2024-11-12,Officer C,Larvae dipping / inspection,0.75,ST-002,,Officer C,2024-11-12
+TIME-00448,2024-25,2024-11-12,Officer E,Trapping (set / retrieve),2.0,ST-020,,Officer E,2024-11-12
+TIME-00449,2024-25,2024-11-12,Officer F,Trapping (set / retrieve),2.0,ST-006,,Officer F,2024-11-12
+TIME-00450,2024-25,2024-11-12,Officer F,Data entry / reporting,2.0,,,Officer F,2024-11-12
+TIME-00451,2024-25,2024-11-14,Officer B,Larvae dipping / inspection,0.5,ST-020,,Officer B,2024-11-14
+TIME-00452,2024-25,2024-11-15,Officer C,Larvae dipping / inspection,0.5,ST-015,,Officer C,2024-11-15
+TIME-00453,2024-25,2024-11-17,Officer F,Larvicide treatment,1.75,ST-012,,Officer F,2024-11-17
+TIME-00454,2024-25,2024-11-19,Officer C,Trapping (set / retrieve),1.75,ST-020,,Officer C,2024-11-19
+TIME-00455,2024-25,2024-11-19,Officer C,Trapping (set / retrieve),1.75,ST-007,,Officer C,2024-11-19
+TIME-00456,2024-25,2024-11-19,Officer C,Larvicide treatment,2.5,ST-017,,Officer C,2024-11-19
+TIME-00457,2024-25,2024-11-19,Officer C,Data entry / reporting,1.25,,,Officer C,2024-11-19
+TIME-00458,2024-25,2024-11-19,Officer D,Trapping (set / retrieve),2.25,ST-014,,Officer D,2024-11-19
+TIME-00459,2024-25,2024-11-19,Officer F,Larvae dipping / inspection,0.5,ST-020,,Officer F,2024-11-19
+TIME-00460,2024-25,2024-11-20,Officer A,Complaint investigation,0.75,ST-014,,Officer A,2024-11-20
+TIME-00461,2024-25,2024-11-21,Officer A,Complaint investigation,0.5,ST-014,,Officer A,2024-11-21
+TIME-00462,2024-25,2024-11-21,Officer B,Larvae dipping / inspection,0.5,ST-014,,Officer B,2024-11-21
+TIME-00463,2024-25,2024-11-21,Officer D,Complaint investigation,1.75,ST-001,,Officer D,2024-11-21
+TIME-00464,2024-25,2024-11-23,Officer A,Complaint investigation,0.75,ST-014,,Officer A,2024-11-23
+TIME-00465,2024-25,2024-11-26,Officer A,Trapping (set / retrieve),1.75,ST-009,,Officer A,2024-11-26
+TIME-00466,2024-25,2024-11-26,Officer A,Data entry / reporting,2.25,,,Officer A,2024-11-26
+TIME-00467,2024-25,2024-11-26,Officer C,Trapping (set / retrieve),2.25,ST-002,,Officer C,2024-11-26
+TIME-00468,2024-25,2024-11-26,Officer F,Trapping (set / retrieve),1.75,ST-014,,Officer F,2024-11-26
+TIME-00469,2024-25,2024-11-26,Officer F,Larvae dipping / inspection,0.5,ST-014,,Officer F,2024-11-26
+TIME-00470,2024-25,2024-11-26,Officer F,Larvae dipping / inspection,0.5,ST-017,,Officer F,2024-11-26
+TIME-00471,2024-25,2024-11-27,Officer E,Larvae dipping / inspection,0.5,ST-002,,Officer E,2024-11-27
+TIME-00472,2024-25,2024-11-29,Officer A,Larvicide treatment,1.5,ST-002,,Officer A,2024-11-29
+TIME-00473,2024-25,2024-12-02,Officer A,Complaint investigation,1.0,,,Officer A,2024-12-02
+TIME-00474,2024-25,2024-12-03,Officer B,Trapping (set / retrieve),2.0,ST-008,,Officer B,2024-12-03
+TIME-00475,2024-25,2024-12-03,Officer C,Data entry / reporting,1.75,,,Officer C,2024-12-03
+TIME-00476,2024-25,2024-12-03,Officer F,Trapping (set / retrieve),2.5,ST-020,,Officer F,2024-12-03
+TIME-00477,2024-25,2024-12-03,Officer F,Trapping (set / retrieve),2.5,ST-002,,Officer F,2024-12-03
+TIME-00478,2024-25,2024-12-04,Officer F,Larvicide treatment,2.0,ST-001,,Officer F,2024-12-04
+TIME-00479,2024-25,2024-12-05,Officer B,Larvae dipping / inspection,0.5,ST-014,,Officer B,2024-12-05
+TIME-00480,2024-25,2024-12-08,Officer B,Complaint investigation,1.25,ST-014,,Officer B,2024-12-08
+TIME-00481,2024-25,2024-12-08,Officer B,Larvicide treatment,2.75,ST-007,,Officer B,2024-12-08
+TIME-00482,2024-25,2024-12-08,Officer F,Complaint investigation,0.75,ST-008,,Officer F,2024-12-08
+TIME-00483,2024-25,2024-12-10,Officer A,Trapping (set / retrieve),1.25,ST-019,,Officer A,2024-12-10
+TIME-00484,2024-25,2024-12-10,Officer A,Larvae dipping / inspection,0.5,ST-014,,Officer A,2024-12-10
+TIME-00485,2024-25,2024-12-10,Officer D,Trapping (set / retrieve),1.75,ST-014,,Officer D,2024-12-10
+TIME-00486,2024-25,2024-12-10,Officer D,Trapping (set / retrieve),1.25,ST-020,,Officer D,2024-12-10
+TIME-00487,2024-25,2024-12-10,Officer D,Data entry / reporting,1.75,,,Officer D,2024-12-10
+TIME-00488,2024-25,2024-12-13,Officer D,Complaint investigation,1.25,,,Officer D,2024-12-13
+TIME-00489,2024-25,2024-12-13,Officer D,Larvae dipping / inspection,0.5,ST-001,,Officer D,2024-12-13
+TIME-00490,2024-25,2024-12-14,Officer B,Complaint investigation,1.5,,,Officer B,2024-12-14
+TIME-00491,2024-25,2024-12-17,Officer A,Trapping (set / retrieve),1.5,ST-002,,Officer A,2024-12-17
+TIME-00492,2024-25,2024-12-17,Officer B,Complaint investigation,0.5,ST-005,,Officer B,2024-12-17
+TIME-00493,2024-25,2024-12-17,Officer E,Data entry / reporting,2.5,,,Officer E,2024-12-17
+TIME-00494,2024-25,2024-12-17,Officer F,Trapping (set / retrieve),1.0,ST-014,,Officer F,2024-12-17
+TIME-00495,2024-25,2024-12-17,Officer F,Trapping (set / retrieve),2.25,ST-010,,Officer F,2024-12-17
+TIME-00496,2024-25,2024-12-20,Officer E,Larvae dipping / inspection,0.5,ST-002,,Officer E,2024-12-20
+TIME-00497,2024-25,2024-12-20,Officer E,Larvae dipping / inspection,0.5,ST-014,,Officer E,2024-12-20
+TIME-00498,2024-25,2024-12-22,Officer A,Complaint investigation,1.0,ST-006,,Officer A,2024-12-22
+TIME-00499,2024-25,2024-12-22,Officer B,Complaint investigation,0.5,ST-001,,Officer B,2024-12-22
+TIME-00500,2024-25,2024-12-24,Officer A,Trapping (set / retrieve),1.25,ST-020,,Officer A,2024-12-24
+TIME-00501,2024-25,2024-12-24,Officer A,Trapping (set / retrieve),1.75,ST-011,,Officer A,2024-12-24
+TIME-00502,2024-25,2024-12-24,Officer E,Trapping (set / retrieve),1.25,ST-002,,Officer E,2024-12-24
+TIME-00503,2024-25,2024-12-24,Officer E,Larvae dipping / inspection,0.5,ST-002,,Officer E,2024-12-24
+TIME-00504,2024-25,2024-12-24,Officer E,Data entry / reporting,2.0,,,Officer E,2024-12-24
+TIME-00505,2024-25,2024-12-24,Officer F,Larvae dipping / inspection,0.75,ST-021,,Officer F,2024-12-24
+TIME-00506,2024-25,2024-12-26,Officer C,Complaint investigation,1.0,ST-005,,Officer C,2024-12-26
+TIME-00507,2024-25,2024-12-27,Officer B,Complaint investigation,1.0,,,Officer B,2024-12-27
+TIME-00508,2024-25,2024-12-28,Officer C,Complaint investigation,1.25,ST-019,,Officer C,2024-12-28
+TIME-00509,2024-25,2024-12-31,Officer A,Complaint investigation,0.75,,,Officer A,2024-12-31
+TIME-00510,2024-25,2024-12-31,Officer C,Trapping (set / retrieve),1.0,ST-020,,Officer C,2024-12-31
+TIME-00511,2024-25,2024-12-31,Officer C,Trapping (set / retrieve),1.25,ST-008,,Officer C,2024-12-31
+TIME-00512,2024-25,2024-12-31,Officer C,Data entry / reporting,2.75,,,Officer C,2024-12-31
+TIME-00513,2024-25,2024-12-31,Officer D,Trapping (set / retrieve),2.0,ST-014,,Officer D,2024-12-31
+TIME-00514,2024-25,2025-01-01,Officer B,Complaint investigation,1.0,ST-019,,Officer B,2025-01-01
+TIME-00515,2024-25,2025-01-01,Officer D,Complaint investigation,0.5,ST-001,,Officer D,2025-01-01
+TIME-00516,2024-25,2025-01-01,Officer D,Complaint investigation,1.0,,,Officer D,2025-01-01
+TIME-00517,2024-25,2025-01-01,Officer D,Larvae dipping / inspection,0.5,ST-012,,Officer D,2025-01-01
+TIME-00518,2024-25,2025-01-04,Officer B,Larvae dipping / inspection,0.5,ST-002,,Officer B,2025-01-04
+TIME-00519,2024-25,2025-01-04,Officer E,Complaint investigation,0.5,,,Officer E,2025-01-04
+TIME-00520,2024-25,2025-01-05,Officer A,Complaint investigation,0.75,ST-003,,Officer A,2025-01-05
+TIME-00521,2024-25,2025-01-05,Officer D,Complaint investigation,0.75,,,Officer D,2025-01-05
+TIME-00522,2024-25,2025-01-07,Officer C,Larvae dipping / inspection,0.5,ST-008,,Officer C,2025-01-07
+TIME-00523,2024-25,2025-01-07,Officer D,Trapping (set / retrieve),2.0,ST-014,,Officer D,2025-01-07
+TIME-00524,2024-25,2025-01-07,Officer D,Data entry / reporting,1.0,,,Officer D,2025-01-07
+TIME-00525,2024-25,2025-01-07,Officer E,Trapping (set / retrieve),2.5,ST-012,,Officer E,2025-01-07
+TIME-00526,2024-25,2025-01-07,Officer E,Larvicide treatment,1.5,ST-015,,Officer E,2025-01-07
+TIME-00527,2024-25,2025-01-07,Officer F,Trapping (set / retrieve),2.5,ST-002,,Officer F,2025-01-07
+TIME-00528,2024-25,2025-01-08,Officer D,Larvae dipping / inspection,0.75,ST-020,,Officer D,2025-01-08
+TIME-00529,2024-25,2025-01-10,Officer D,Complaint investigation,1.0,ST-005,,Officer D,2025-01-10
+TIME-00530,2024-25,2025-01-11,Officer A,Complaint investigation,1.0,,,Officer A,2025-01-11
+TIME-00531,2024-25,2025-01-11,Officer B,Larvae dipping / inspection,0.75,ST-015,,Officer B,2025-01-11
+TIME-00532,2024-25,2025-01-12,Officer F,Complaint investigation,1.5,ST-002,,Officer F,2025-01-12
+TIME-00533,2024-25,2025-01-13,Officer C,Larvicide treatment,1.5,ST-018,,Officer C,2025-01-13
+TIME-00534,2024-25,2025-01-14,Officer B,Trapping (set / retrieve),1.25,ST-020,,Officer B,2025-01-14
+TIME-00535,2024-25,2025-01-14,Officer B,Data entry / reporting,2.75,,,Officer B,2025-01-14
+TIME-00536,2024-25,2025-01-14,Officer D,Trapping (set / retrieve),1.25,ST-013,,Officer D,2025-01-14
+TIME-00537,2024-25,2025-01-14,Officer F,Trapping (set / retrieve),2.25,ST-002,,Officer F,2025-01-14
+TIME-00538,2024-25,2025-01-16,Officer D,Larvae dipping / inspection,0.25,ST-001,,Officer D,2025-01-16
+TIME-00539,2024-25,2025-01-17,Officer A,Larvae dipping / inspection,0.5,ST-015,,Officer A,2025-01-17
+TIME-00540,2024-25,2025-01-17,Officer C,Complaint investigation,0.75,ST-001,,Officer C,2025-01-17
+TIME-00541,2024-25,2025-01-18,Officer B,Larvae dipping / inspection,0.75,ST-002,,Officer B,2025-01-18
+TIME-00542,2024-25,2025-01-18,Officer D,Complaint investigation,0.75,,,Officer D,2025-01-18
+TIME-00543,2024-25,2025-01-21,Officer A,Trapping (set / retrieve),2.0,ST-014,,Officer A,2025-01-21
+TIME-00544,2024-25,2025-01-21,Officer A,Complaint investigation,1.25,ST-002,,Officer A,2025-01-21
+TIME-00545,2024-25,2025-01-21,Officer B,Trapping (set / retrieve),1.25,ST-019,,Officer B,2025-01-21
+TIME-00546,2024-25,2025-01-21,Officer E,Trapping (set / retrieve),2.25,ST-020,,Officer E,2025-01-21
+TIME-00547,2024-25,2025-01-21,Officer E,Data entry / reporting,2.75,,,Officer E,2025-01-21
+TIME-00548,2024-25,2025-01-22,Officer F,Larvae dipping / inspection,0.75,ST-007,,Officer F,2025-01-22
+TIME-00549,2024-25,2025-01-23,Officer A,Larvicide treatment,2.0,ST-018,,Officer A,2025-01-23
+TIME-00550,2024-25,2025-01-23,Officer E,Larvae dipping / inspection,0.25,ST-005,,Officer E,2025-01-23
+TIME-00551,2024-25,2025-01-24,Officer E,Larvae dipping / inspection,0.75,ST-020,,Officer E,2025-01-24
+TIME-00552,2024-25,2025-01-28,Officer A,Trapping (set / retrieve),2.0,ST-014,,Officer A,2025-01-28
+TIME-00553,2024-25,2025-01-28,Officer A,Larvae dipping / inspection,0.5,ST-003,,Officer A,2025-01-28
+TIME-00554,2024-25,2025-01-28,Officer C,Larvicide treatment,2.75,ST-020,,Officer C,2025-01-28
+TIME-00555,2024-25,2025-01-28,Officer E,Trapping (set / retrieve),1.25,ST-002,,Officer E,2025-01-28
+TIME-00556,2024-25,2025-01-28,Officer E,Data entry / reporting,1.75,,,Officer E,2025-01-28
+TIME-00557,2024-25,2025-01-28,Officer F,Trapping (set / retrieve),1.75,ST-015,,Officer F,2025-01-28
+TIME-00558,2024-25,2025-01-29,Officer B,Larvae dipping / inspection,0.5,ST-002,,Officer B,2025-01-29
+TIME-00559,2024-25,2025-01-29,Officer B,Larvae dipping / inspection,0.25,ST-005,,Officer B,2025-01-29
+TIME-00560,2024-25,2025-01-29,Officer F,Larvae dipping / inspection,0.5,ST-019,,Officer F,2025-01-29
+TIME-00561,2024-25,2025-01-30,Officer C,Complaint investigation,1.25,,,Officer C,2025-01-30
+TIME-00562,2024-25,2025-01-31,Officer C,Larvae dipping / inspection,0.25,ST-010,,Officer C,2025-01-31
+TIME-00563,2024-25,2025-01-31,Officer F,Larvae dipping / inspection,0.75,ST-021,,Officer F,2025-01-31
+TIME-00564,2024-25,2025-02-01,Officer A,Complaint investigation,1.0,,,Officer A,2025-02-01
+TIME-00565,2024-25,2025-02-01,Officer B,Complaint investigation,1.25,ST-003,,Officer B,2025-02-01
+TIME-00566,2024-25,2025-02-01,Officer D,Larvae dipping / inspection,0.5,ST-012,,Officer D,2025-02-01
+TIME-00567,2024-25,2025-02-02,Officer F,Complaint investigation,1.25,,,Officer F,2025-02-02
+TIME-00568,2024-25,2025-02-04,Officer A,Trapping (set / retrieve),2.0,ST-002,,Officer A,2025-02-04
+TIME-00569,2024-25,2025-02-04,Officer C,Larvicide treatment,1.25,ST-014,,Officer C,2025-02-04
+TIME-00570,2024-25,2025-02-04,Officer C,Data entry / reporting,2.25,,,Officer C,2025-02-04
+TIME-00571,2024-25,2025-02-04,Officer D,Trapping (set / retrieve),2.25,ST-016,,Officer D,2025-02-04
+TIME-00572,2024-25,2025-02-04,Officer D,Larvae dipping / inspection,0.5,ST-007,,Officer D,2025-02-04
+TIME-00573,2024-25,2025-02-04,Officer E,Trapping (set / retrieve),1.75,ST-020,,Officer E,2025-02-04
+TIME-00574,2024-25,2025-02-04,Officer F,Larvae dipping / inspection,0.5,ST-014,,Officer F,2025-02-04
+TIME-00575,2024-25,2025-02-06,Officer F,Larvae dipping / inspection,0.5,ST-015,,Officer F,2025-02-06
+TIME-00576,2024-25,2025-02-07,Officer C,Complaint investigation,1.5,,,Officer C,2025-02-07
+TIME-00577,2024-25,2025-02-07,Officer F,Complaint investigation,1.25,,,Officer F,2025-02-07
+TIME-00578,2024-25,2025-02-09,Officer C,Complaint investigation,1.5,,,Officer C,2025-02-09
+TIME-00579,2024-25,2025-02-09,Officer E,Complaint investigation,1.5,ST-003,,Officer E,2025-02-09
+TIME-00580,2024-25,2025-02-11,Officer B,Trapping (set / retrieve),2.0,ST-014,,Officer B,2025-02-11
+TIME-00581,2024-25,2025-02-11,Officer D,Trapping (set / retrieve),2.25,ST-020,,Officer D,2025-02-11
+TIME-00582,2024-25,2025-02-11,Officer E,Data entry / reporting,3.0,,,Officer E,2025-02-11
+TIME-00583,2024-25,2025-02-11,Officer F,Trapping (set / retrieve),2.5,ST-017,,Officer F,2025-02-11
+TIME-00584,2024-25,2025-02-12,Officer E,Larvae dipping / inspection,0.75,ST-008,,Officer E,2025-02-12
+TIME-00585,2024-25,2025-02-13,Officer B,Complaint investigation,0.5,ST-003,,Officer B,2025-02-13
+TIME-00586,2024-25,2025-02-14,Officer D,Complaint investigation,0.75,,,Officer D,2025-02-14
+TIME-00587,2024-25,2025-02-15,Officer C,Larvae dipping / inspection,0.25,ST-002,,Officer C,2025-02-15
+TIME-00588,2024-25,2025-02-15,Officer F,Complaint investigation,1.0,ST-019,,Officer F,2025-02-15
+TIME-00589,2024-25,2025-02-18,Officer A,Trapping (set / retrieve),2.5,ST-002,,Officer A,2025-02-18
+TIME-00590,2024-25,2025-02-18,Officer C,Larvicide treatment,2.25,ST-006,,Officer C,2025-02-18
+TIME-00591,2024-25,2025-02-18,Officer C,Larvae dipping / inspection,0.5,ST-018,,Officer C,2025-02-18
+TIME-00592,2024-25,2025-02-18,Officer C,Data entry / reporting,1.5,,,Officer C,2025-02-18
+TIME-00593,2024-25,2025-02-18,Officer D,Trapping (set / retrieve),1.5,ST-014,,Officer D,2025-02-18
+TIME-00594,2024-25,2025-02-18,Officer E,Trapping (set / retrieve),1.25,ST-018,,Officer E,2025-02-18
+TIME-00595,2024-25,2025-02-19,Officer C,Complaint investigation,0.75,,,Officer C,2025-02-19
+TIME-00596,2024-25,2025-02-22,Officer E,Larvae dipping / inspection,0.5,ST-014,,Officer E,2025-02-22
+TIME-00597,2024-25,2025-02-24,Officer C,Complaint investigation,1.5,,,Officer C,2025-02-24
+TIME-00598,2024-25,2025-02-25,Officer B,Trapping (set / retrieve),2.25,ST-020,,Officer B,2025-02-25
+TIME-00599,2024-25,2025-02-25,Officer C,Complaint investigation,1.5,ST-002,,Officer C,2025-02-25
+TIME-00600,2024-25,2025-02-25,Officer D,Trapping (set / retrieve),1.5,ST-002,,Officer D,2025-02-25
+TIME-00601,2024-25,2025-02-25,Officer D,Data entry / reporting,2.25,,,Officer D,2025-02-25
+TIME-00602,2024-25,2025-02-25,Officer F,Trapping (set / retrieve),2.25,ST-021,,Officer F,2025-02-25
+TIME-00603,2024-25,2025-02-26,Officer E,Complaint investigation,1.0,,,Officer E,2025-02-26
+TIME-00604,2024-25,2025-02-27,Officer B,Larvae dipping / inspection,0.5,ST-020,,Officer B,2025-02-27
+TIME-00605,2024-25,2025-02-27,Officer C,Complaint investigation,0.75,ST-001,,Officer C,2025-02-27
+TIME-00606,2024-25,2025-02-27,Officer D,Larvae dipping / inspection,0.25,ST-010,,Officer D,2025-02-27
+TIME-00607,2024-25,2025-03-01,Officer A,Larvae dipping / inspection,0.75,ST-014,,Officer A,2025-03-01
+TIME-00608,2024-25,2025-03-04,Officer A,Trapping (set / retrieve),1.25,ST-014,,Officer A,2025-03-04
+TIME-00609,2024-25,2025-03-04,Officer A,Trapping (set / retrieve),1.25,ST-020,,Officer A,2025-03-04
+TIME-00610,2024-25,2025-03-04,Officer A,Data entry / reporting,2.75,,,Officer A,2025-03-04
+TIME-00611,2024-25,2025-03-04,Officer E,Trapping (set / retrieve),1.75,ST-022,,Officer E,2025-03-04
+TIME-00612,2024-25,2025-03-05,Officer C,Larvae dipping / inspection,0.5,ST-014,,Officer C,2025-03-05
+TIME-00613,2024-25,2025-03-06,Officer B,Larvae dipping / inspection,0.25,ST-018,,Officer B,2025-03-06
+TIME-00614,2024-25,2025-03-06,Officer D,Larvae dipping / inspection,0.5,ST-002,,Officer D,2025-03-06
+TIME-00615,2024-25,2025-03-07,Officer C,Larvae dipping / inspection,0.5,ST-008,,Officer C,2025-03-07
+TIME-00616,2024-25,2025-03-08,Officer A,Larvae dipping / inspection,0.25,ST-020,,Officer A,2025-03-08
+TIME-00617,2024-25,2025-03-08,Officer C,Complaint investigation,1.25,ST-019,,Officer C,2025-03-08
+TIME-00618,2024-25,2025-03-11,Officer A,Trapping (set / retrieve),1.5,ST-002,,Officer A,2025-03-11
+TIME-00619,2024-25,2025-03-11,Officer D,Data entry / reporting,1.0,,,Officer D,2025-03-11
+TIME-00620,2024-25,2025-03-11,Officer E,Trapping (set / retrieve),1.0,ST-014,,Officer E,2025-03-11
+TIME-00621,2024-25,2025-03-11,Officer F,Trapping (set / retrieve),2.5,ST-001,,Officer F,2025-03-11
+TIME-00622,2024-25,2025-03-11,Officer F,Complaint investigation,1.5,ST-014,,Officer F,2025-03-11
+TIME-00623,2024-25,2025-03-11,Officer F,Larvae dipping / inspection,0.75,ST-014,,Officer F,2025-03-11
+TIME-00624,2024-25,2025-03-12,Officer A,Complaint investigation,1.0,ST-006,,Officer A,2025-03-12
+TIME-00625,2024-25,2025-03-13,Officer E,Complaint investigation,1.25,ST-001,,Officer E,2025-03-13
+TIME-00626,2024-25,2025-03-14,Officer B,Larvae dipping / inspection,0.75,ST-020,,Officer B,2025-03-14
+TIME-00627,2024-25,2025-03-14,Officer E,Complaint investigation,1.75,,,Officer E,2025-03-14
+TIME-00628,2024-25,2025-03-17,Officer D,Larvicide treatment,3.0,ST-011,,Officer D,2025-03-17
+TIME-00629,2024-25,2025-03-17,Officer E,Complaint investigation,0.75,ST-005,,Officer E,2025-03-17
+TIME-00630,2024-25,2025-03-17,Officer F,Complaint investigation,1.0,ST-007,,Officer F,2025-03-17
+TIME-00631,2024-25,2025-03-18,Officer A,Trapping (set / retrieve),1.25,ST-002,,Officer A,2025-03-18
+TIME-00632,2024-25,2025-03-18,Officer D,Trapping (set / retrieve),1.5,ST-020,,Officer D,2025-03-18
+TIME-00633,2024-25,2025-03-18,Officer F,Trapping (set / retrieve),1.25,ST-003,,Officer F,2025-03-18
+TIME-00634,2024-25,2025-03-18,Officer F,Complaint investigation,0.5,ST-002,,Officer F,2025-03-18
+TIME-00635,2024-25,2025-03-18,Officer F,Data entry / reporting,1.0,,,Officer F,2025-03-18
+TIME-00636,2024-25,2025-03-20,Officer C,Larvae dipping / inspection,0.25,ST-014,,Officer C,2025-03-20
+TIME-00637,2024-25,2025-03-20,Officer F,Larvae dipping / inspection,0.5,ST-002,,Officer F,2025-03-20
+TIME-00638,2024-25,2025-03-21,Officer B,Larvae dipping / inspection,0.5,ST-009,,Officer B,2025-03-21
+TIME-00639,2024-25,2025-03-21,Officer D,Complaint investigation,1.0,ST-001,,Officer D,2025-03-21
+TIME-00640,2024-25,2025-03-22,Officer B,Larvae dipping / inspection,0.25,ST-005,,Officer B,2025-03-22
+TIME-00641,2024-25,2025-03-24,Officer A,Complaint investigation,1.0,,,Officer A,2025-03-24
+TIME-00642,2024-25,2025-03-24,Officer F,Complaint investigation,1.25,ST-002,,Officer F,2025-03-24
+TIME-00643,2024-25,2025-03-25,Officer B,Trapping (set / retrieve),2.25,ST-005,,Officer B,2025-03-25
+TIME-00644,2024-25,2025-03-25,Officer C,Trapping (set / retrieve),1.75,ST-020,,Officer C,2025-03-25
+TIME-00645,2024-25,2025-03-25,Officer D,Data entry / reporting,2.0,,,Officer D,2025-03-25
+TIME-00646,2024-25,2025-03-25,Officer E,Trapping (set / retrieve),1.0,ST-014,,Officer E,2025-03-25
+TIME-00647,2024-25,2025-03-26,Officer C,Larvae dipping / inspection,0.5,ST-020,,Officer C,2025-03-26
+TIME-00648,2024-25,2025-03-26,Officer D,Complaint investigation,0.75,,,Officer D,2025-03-26
+TIME-00649,2024-25,2025-03-26,Officer D,Larvae dipping / inspection,0.25,ST-002,,Officer D,2025-03-26
+TIME-00650,2024-25,2025-03-27,Officer A,Complaint investigation,1.5,ST-006,,Officer A,2025-03-27
+TIME-00651,2024-25,2025-03-27,Officer A,Complaint investigation,0.75,ST-001,,Officer A,2025-03-27
+TIME-00652,2024-25,2025-03-28,Officer A,Complaint investigation,1.0,,,Officer A,2025-03-28
+TIME-00653,2024-25,2025-03-29,Officer C,Larvae dipping / inspection,0.75,ST-014,,Officer C,2025-03-29
+TIME-00654,2024-25,2025-03-29,Officer E,Complaint investigation,1.5,,,Officer E,2025-03-29
+TIME-00655,2024-25,2025-04-01,Officer A,Trapping (set / retrieve),2.25,ST-006,,Officer A,2025-04-01
+TIME-00656,2024-25,2025-04-01,Officer B,Trapping (set / retrieve),2.0,ST-002,,Officer B,2025-04-01
+TIME-00657,2024-25,2025-04-01,Officer C,Trapping (set / retrieve),1.5,ST-014,,Officer C,2025-04-01
+TIME-00658,2024-25,2025-04-01,Officer C,Data entry / reporting,1.75,,,Officer C,2025-04-01
+TIME-00659,2024-25,2025-04-02,Officer B,Complaint investigation,1.75,,,Officer B,2025-04-02
+TIME-00660,2024-25,2025-04-02,Officer F,Larvae dipping / inspection,0.75,ST-008,,Officer F,2025-04-02
+TIME-00661,2024-25,2025-04-03,Officer A,Complaint investigation,1.5,ST-006,,Officer A,2025-04-03
+TIME-00662,2024-25,2025-04-03,Officer D,Complaint investigation,0.75,ST-019,,Officer D,2025-04-03
+TIME-00663,2024-25,2025-04-04,Officer E,Complaint investigation,1.5,ST-005,,Officer E,2025-04-04
+TIME-00664,2024-25,2025-04-05,Officer A,Complaint investigation,1.0,,,Officer A,2025-04-05
+TIME-00665,2024-25,2025-04-05,Officer B,Larvae dipping / inspection,0.5,ST-021,,Officer B,2025-04-05
+TIME-00666,2024-25,2025-04-05,Officer C,Larvae dipping / inspection,0.5,ST-017,,Officer C,2025-04-05
+TIME-00667,2024-25,2025-04-05,Officer D,Larvae dipping / inspection,0.5,ST-002,,Officer D,2025-04-05
+TIME-00668,2024-25,2025-04-05,Officer E,Larvae dipping / inspection,0.5,ST-020,,Officer E,2025-04-05
+TIME-00669,2024-25,2025-04-07,Officer A,Complaint investigation,1.75,,,Officer A,2025-04-07
+TIME-00670,2024-25,2025-04-08,Officer A,Trapping (set / retrieve),1.5,ST-007,,Officer A,2025-04-08
+TIME-00671,2024-25,2025-04-08,Officer B,Complaint investigation,0.5,ST-020,,Officer B,2025-04-08
+TIME-00672,2024-25,2025-04-08,Officer C,Trapping (set / retrieve),1.75,ST-020,,Officer C,2025-04-08
+TIME-00673,2024-25,2025-04-08,Officer C,Trapping (set / retrieve),1.0,ST-002,,Officer C,2025-04-08
+TIME-00674,2024-25,2025-04-08,Officer C,Larvae dipping / inspection,0.75,ST-020,,Officer C,2025-04-08
+TIME-00675,2024-25,2025-04-08,Officer C,Data entry / reporting,2.25,,,Officer C,2025-04-08
+TIME-00676,2024-25,2025-04-10,Officer A,Complaint investigation,0.75,ST-006,,Officer A,2025-04-10
+TIME-00677,2024-25,2025-04-10,Officer C,Complaint investigation,1.25,ST-001,,Officer C,2025-04-10
+TIME-00678,2024-25,2025-04-10,Officer D,Larvae dipping / inspection,0.25,ST-014,,Officer D,2025-04-10
+TIME-00679,2024-25,2025-04-11,Officer E,Larvae dipping / inspection,0.5,ST-018,,Officer E,2025-04-11
+TIME-00680,2024-25,2025-04-11,Officer F,Complaint investigation,1.0,ST-005,,Officer F,2025-04-11
+TIME-00681,2024-25,2025-04-11,Officer F,Complaint investigation,1.25,ST-020,,Officer F,2025-04-11
+TIME-00682,2024-25,2025-04-12,Officer D,Complaint investigation,1.75,,,Officer D,2025-04-12
+TIME-00683,2024-25,2025-04-13,Officer B,Complaint investigation,1.25,ST-014,,Officer B,2025-04-13
+TIME-00684,2024-25,2025-04-15,Officer A,Data entry / reporting,1.75,,,Officer A,2025-04-15
+TIME-00685,2024-25,2025-04-15,Officer B,Trapping (set / retrieve),1.25,ST-009,,Officer B,2025-04-15
+TIME-00686,2024-25,2025-04-15,Officer C,Complaint investigation,1.0,,,Officer C,2025-04-15
+TIME-00687,2024-25,2025-04-15,Officer C,Complaint investigation,1.5,ST-005,,Officer C,2025-04-15
+TIME-00688,2024-25,2025-04-15,Officer F,Trapping (set / retrieve),1.25,ST-014,,Officer F,2025-04-15
+TIME-00689,2024-25,2025-04-15,Officer F,Trapping (set / retrieve),1.25,ST-020,,Officer F,2025-04-15
+TIME-00690,2024-25,2025-04-17,Officer A,Larvae dipping / inspection,0.5,ST-016,,Officer A,2025-04-17
+TIME-00691,2024-25,2025-04-19,Officer B,Larvae dipping / inspection,0.75,ST-014,,Officer B,2025-04-19
+TIME-00692,2024-25,2025-04-21,Officer C,Complaint investigation,1.75,,,Officer C,2025-04-21
+TIME-00693,2024-25,2025-04-22,Officer A,Trapping (set / retrieve),1.5,ST-002,,Officer A,2025-04-22
+TIME-00694,2024-25,2025-04-22,Officer B,Trapping (set / retrieve),1.5,ST-014,,Officer B,2025-04-22
+TIME-00695,2024-25,2025-04-22,Officer B,Trapping (set / retrieve),1.75,ST-010,,Officer B,2025-04-22
+TIME-00696,2024-25,2025-04-22,Officer B,Complaint investigation,0.75,,,Officer B,2025-04-22
+TIME-00697,2024-25,2025-04-22,Officer B,Data entry / reporting,1.0,,,Officer B,2025-04-22
+TIME-00698,2024-25,2025-04-22,Officer C,Complaint investigation,0.75,,,Officer C,2025-04-22
+TIME-00699,2024-25,2025-04-23,Officer D,Larvae dipping / inspection,0.75,ST-012,,Officer D,2025-04-23
+TIME-00700,2024-25,2025-04-23,Officer E,Complaint investigation,1.5,ST-014,,Officer E,2025-04-23
+TIME-00701,2024-25,2025-04-25,Officer B,Larvae dipping / inspection,0.75,ST-010,,Officer B,2025-04-25
+TIME-00702,2024-25,2025-04-25,Officer F,Larvae dipping / inspection,0.75,ST-002,,Officer F,2025-04-25
+TIME-00703,2024-25,2025-04-26,Officer E,Larvae dipping / inspection,0.75,ST-020,,Officer E,2025-04-26
+TIME-00704,2024-25,2025-04-29,Officer B,Complaint investigation,0.5,ST-007,,Officer B,2025-04-29
+TIME-00705,2024-25,2025-04-29,Officer C,Larvae dipping / inspection,0.5,ST-014,,Officer C,2025-04-29
+TIME-00706,2024-25,2025-04-29,Officer E,Trapping (set / retrieve),2.5,ST-020,,Officer E,2025-04-29
+TIME-00707,2024-25,2025-04-29,Officer E,Trapping (set / retrieve),2.0,ST-002,,Officer E,2025-04-29
+TIME-00708,2024-25,2025-04-29,Officer E,Trapping (set / retrieve),2.25,ST-011,,Officer E,2025-04-29
+TIME-00709,2024-25,2025-04-29,Officer E,Complaint investigation,1.0,,,Officer E,2025-04-29
+TIME-00710,2024-25,2025-04-29,Officer E,Data entry / reporting,2.25,,,Officer E,2025-04-29
+TIME-00711,2024-25,2025-05-01,Officer A,Larvae dipping / inspection,0.5,ST-002,,Officer A,2025-05-01
+TIME-00712,2024-25,2025-05-01,Officer C,Complaint investigation,0.5,ST-008,,Officer C,2025-05-01
+TIME-00713,2024-25,2025-05-01,Officer D,Complaint investigation,1.0,,,Officer D,2025-05-01
+TIME-00714,2024-25,2025-05-01,Officer D,Complaint investigation,0.75,ST-006,,Officer D,2025-05-01
+TIME-00715,2024-25,2025-05-01,Officer E,Complaint investigation,0.5,,,Officer E,2025-05-01
+TIME-00716,2024-25,2025-05-02,Officer A,Larvae dipping / inspection,0.5,ST-019,,Officer A,2025-05-02
+TIME-00717,2024-25,2025-05-02,Officer B,Complaint investigation,1.5,ST-002,,Officer B,2025-05-02
+TIME-00718,2024-25,2025-05-02,Officer B,Larvae dipping / inspection,0.5,ST-005,,Officer B,2025-05-02
+TIME-00719,2024-25,2025-05-03,Officer D,Larvae dipping / inspection,0.75,ST-020,,Officer D,2025-05-03
+TIME-00720,2024-25,2025-05-03,Officer F,Complaint investigation,1.5,ST-002,,Officer F,2025-05-03
+TIME-00721,2024-25,2025-05-04,Officer B,Complaint investigation,1.5,ST-008,,Officer B,2025-05-04
+TIME-00722,2024-25,2025-05-04,Officer C,Complaint investigation,1.5,ST-014,,Officer C,2025-05-04
+TIME-00723,2024-25,2025-05-06,Officer A,Trapping (set / retrieve),2.5,ST-014,,Officer A,2025-05-06
+TIME-00724,2024-25,2025-05-06,Officer B,Trapping (set / retrieve),1.75,ST-020,,Officer B,2025-05-06
+TIME-00725,2024-25,2025-05-06,Officer B,Trapping (set / retrieve),1.25,ST-008,,Officer B,2025-05-06
+TIME-00726,2024-25,2025-05-06,Officer D,Larvae dipping / inspection,0.25,ST-007,,Officer D,2025-05-06
+TIME-00727,2024-25,2025-05-06,Officer D,Data entry / reporting,2.75,,,Officer D,2025-05-06
+TIME-00728,2024-25,2025-05-10,Officer C,Larvae dipping / inspection,0.5,ST-014,,Officer C,2025-05-10
+TIME-00729,2024-25,2025-05-13,Officer A,Trapping (set / retrieve),1.0,ST-002,,Officer A,2025-05-13
+TIME-00730,2024-25,2025-05-13,Officer C,Complaint investigation,1.5,,,Officer C,2025-05-13
+TIME-00731,2024-25,2025-05-13,Officer C,Complaint investigation,0.75,ST-008,,Officer C,2025-05-13
+TIME-00732,2024-25,2025-05-13,Officer E,Trapping (set / retrieve),2.0,ST-012,,Officer E,2025-05-13
+TIME-00733,2024-25,2025-05-13,Officer E,Data entry / reporting,2.75,,,Officer E,2025-05-13
+TIME-00734,2024-25,2025-05-13,Officer F,Trapping (set / retrieve),2.25,ST-014,,Officer F,2025-05-13
+TIME-00735,2024-25,2025-05-14,Officer A,Complaint investigation,1.25,ST-002,,Officer A,2025-05-14
+TIME-00736,2024-25,2025-05-14,Officer A,Complaint investigation,1.0,ST-006,,Officer A,2025-05-14
+TIME-00737,2024-25,2025-05-14,Officer A,Larvae dipping / inspection,0.25,ST-009,,Officer A,2025-05-14
+TIME-00738,2024-25,2025-05-14,Officer C,Larvae dipping / inspection,0.25,ST-014,,Officer C,2025-05-14
+TIME-00739,2024-25,2025-05-15,Officer C,Complaint investigation,1.0,ST-014,,Officer C,2025-05-15
+TIME-00740,2024-25,2025-05-15,Officer E,Larvae dipping / inspection,0.75,ST-002,,Officer E,2025-05-15
+TIME-00741,2024-25,2025-05-15,Officer F,Complaint investigation,1.0,ST-005,,Officer F,2025-05-15
+TIME-00742,2024-25,2025-05-16,Officer A,Larvae dipping / inspection,0.5,ST-016,,Officer A,2025-05-16
+TIME-00743,2024-25,2025-05-18,Officer E,Larvicide treatment,1.25,ST-001,,Officer E,2025-05-18
+TIME-00744,2024-25,2025-05-19,Officer B,Complaint investigation,1.5,ST-003,,Officer B,2025-05-19
+TIME-00745,2024-25,2025-05-20,Officer C,Trapping (set / retrieve),1.75,ST-020,,Officer C,2025-05-20
+TIME-00746,2024-25,2025-05-20,Officer C,Trapping (set / retrieve),2.0,ST-002,,Officer C,2025-05-20
+TIME-00747,2024-25,2025-05-20,Officer D,Complaint investigation,0.5,,,Officer D,2025-05-20
+TIME-00748,2024-25,2025-05-20,Officer E,Trapping (set / retrieve),1.0,ST-013,,Officer E,2025-05-20
+TIME-00749,2024-25,2025-05-20,Officer F,Data entry / reporting,1.75,,,Officer F,2025-05-20
+TIME-00750,2024-25,2025-05-21,Officer B,Complaint investigation,1.75,,,Officer B,2025-05-21
+TIME-00751,2024-25,2025-05-21,Officer B,Complaint investigation,1.5,ST-006,,Officer B,2025-05-21
+TIME-00752,2024-25,2025-05-22,Officer E,Complaint investigation,1.0,,,Officer E,2025-05-22
+TIME-00753,2024-25,2025-05-23,Officer B,Complaint investigation,0.75,ST-002,,Officer B,2025-05-23
+TIME-00754,2024-25,2025-05-23,Officer D,Larvae dipping / inspection,0.5,ST-005,,Officer D,2025-05-23
+TIME-00755,2024-25,2025-05-24,Officer E,Larvae dipping / inspection,0.25,ST-018,,Officer E,2025-05-24
+TIME-00756,2024-25,2025-05-26,Officer B,Larvicide treatment,2.75,ST-005,,Officer B,2025-05-26
+TIME-00757,2024-25,2025-05-26,Officer F,Complaint investigation,1.25,ST-007,,Officer F,2025-05-26
+TIME-00758,2024-25,2025-05-27,Officer A,Complaint investigation,1.5,ST-002,,Officer A,2025-05-27
+TIME-00759,2024-25,2025-05-27,Officer B,Data entry / reporting,2.75,,,Officer B,2025-05-27
+TIME-00760,2025-26,2025-10-01,Officer C,Trapping (set / retrieve),2.0,ST-020,,Officer C,2025-10-01
+TIME-00761,2025-26,2025-10-01,Officer C,Trapping (set / retrieve),1.75,ST-019,,Officer C,2025-10-01
+TIME-00762,2025-26,2025-10-01,Officer D,Larvae dipping / inspection,0.5,ST-002,,Officer D,2025-10-01
+TIME-00763,2025-26,2025-10-01,Officer E,Trapping (set / retrieve),2.25,ST-014,,Officer E,2025-10-01
+TIME-00764,2025-26,2025-10-01,Officer E,Larvae dipping / inspection,0.75,ST-020,,Officer E,2025-10-01
+TIME-00765,2025-26,2025-10-01,Officer F,Data entry / reporting,1.25,,,Officer F,2025-10-01
+TIME-00766,2025-26,2025-10-02,Officer A,Larvae dipping / inspection,0.5,ST-014,,Officer A,2025-10-02
+TIME-00767,2025-26,2025-10-02,Officer B,Larvae dipping / inspection,0.75,ST-019,,Officer B,2025-10-02
+TIME-00768,2025-26,2025-10-02,Officer D,Larvae dipping / inspection,0.25,ST-010,,Officer D,2025-10-02
+TIME-00769,2025-26,2025-10-03,Officer F,Larvae dipping / inspection,0.5,ST-001,,Officer F,2025-10-03
+TIME-00770,2025-26,2025-10-07,Officer C,Complaint investigation,0.5,ST-006,,Officer C,2025-10-07
+TIME-00771,2025-26,2025-10-08,Officer C,Trapping (set / retrieve),2.0,ST-002,,Officer C,2025-10-08
+TIME-00772,2025-26,2025-10-08,Officer D,Trapping (set / retrieve),1.75,ST-015,,Officer D,2025-10-08
+TIME-00773,2025-26,2025-10-08,Officer D,Data entry / reporting,1.75,,,Officer D,2025-10-08
+TIME-00774,2025-26,2025-10-08,Officer E,Trapping (set / retrieve),2.0,ST-014,,Officer E,2025-10-08
+TIME-00775,2025-26,2025-10-08,Officer F,Larvicide treatment,1.25,ST-020,,Officer F,2025-10-08
+TIME-00776,2025-26,2025-10-10,Officer F,Larvae dipping / inspection,0.5,ST-020,,Officer F,2025-10-10
+TIME-00777,2025-26,2025-10-11,Officer A,Complaint investigation,1.25,,,Officer A,2025-10-11
+TIME-00778,2025-26,2025-10-12,Officer B,Complaint investigation,0.75,ST-005,,Officer B,2025-10-12
+TIME-00779,2025-26,2025-10-12,Officer C,Larvae dipping / inspection,0.25,ST-014,,Officer C,2025-10-12
+TIME-00780,2025-26,2025-10-12,Officer D,Larvae dipping / inspection,0.5,ST-010,,Officer D,2025-10-12
+TIME-00781,2025-26,2025-10-12,Officer E,Larvae dipping / inspection,0.5,ST-022,,Officer E,2025-10-12
+TIME-00782,2025-26,2025-10-13,Officer C,Larvicide treatment,1.0,ST-012,,Officer C,2025-10-13
+TIME-00783,2025-26,2025-10-15,Officer C,Trapping (set / retrieve),1.0,ST-002,,Officer C,2025-10-15
+TIME-00784,2025-26,2025-10-15,Officer C,Trapping (set / retrieve),2.0,ST-016,,Officer C,2025-10-15
+TIME-00785,2025-26,2025-10-15,Officer C,Larvicide treatment,2.25,ST-014,,Officer C,2025-10-15
+TIME-00786,2025-26,2025-10-15,Officer D,Data entry / reporting,2.0,,,Officer D,2025-10-15
+TIME-00787,2025-26,2025-10-15,Officer E,Trapping (set / retrieve),1.75,ST-020,,Officer E,2025-10-15
+TIME-00788,2025-26,2025-10-16,Officer B,Larvae dipping / inspection,0.5,ST-002,,Officer B,2025-10-16
+TIME-00789,2025-26,2025-10-18,Officer D,Larvae dipping / inspection,0.5,ST-020,,Officer D,2025-10-18
+TIME-00790,2025-26,2025-10-18,Officer E,Complaint investigation,1.0,ST-003,,Officer E,2025-10-18
+TIME-00791,2025-26,2025-10-19,Officer E,Larvae dipping / inspection,0.25,ST-016,,Officer E,2025-10-19
+TIME-00792,2025-26,2025-10-19,Officer F,Complaint investigation,0.75,ST-008,,Officer F,2025-10-19
+TIME-00793,2025-26,2025-10-22,Officer A,Trapping (set / retrieve),2.5,ST-014,,Officer A,2025-10-22
+TIME-00794,2025-26,2025-10-22,Officer A,Trapping (set / retrieve),1.25,ST-017,,Officer A,2025-10-22
+TIME-00795,2025-26,2025-10-22,Officer E,Data entry / reporting,2.75,,,Officer E,2025-10-22
+TIME-00796,2025-26,2025-10-22,Officer F,Trapping (set / retrieve),1.75,ST-020,,Officer F,2025-10-22
+TIME-00797,2025-26,2025-10-23,Officer D,Complaint investigation,1.25,,,Officer D,2025-10-23
+TIME-00798,2025-26,2025-10-23,Officer E,Complaint investigation,0.75,,,Officer E,2025-10-23
+TIME-00799,2025-26,2025-10-24,Officer B,Larvae dipping / inspection,0.75,ST-020,,Officer B,2025-10-24
+TIME-00800,2025-26,2025-10-24,Officer C,Complaint investigation,0.75,ST-002,,Officer C,2025-10-24
+TIME-00801,2025-26,2025-10-25,Officer A,Larvicide treatment,3.0,ST-001,,Officer A,2025-10-25
+TIME-00802,2025-26,2025-10-25,Officer C,Larvae dipping / inspection,0.25,ST-002,,Officer C,2025-10-25
+TIME-00803,2025-26,2025-10-25,Officer E,Larvae dipping / inspection,0.25,ST-008,,Officer E,2025-10-25
+TIME-00804,2025-26,2025-10-26,Officer A,Larvae dipping / inspection,0.75,ST-014,,Officer A,2025-10-26
+TIME-00805,2025-26,2025-10-26,Officer D,Larvae dipping / inspection,0.25,ST-021,,Officer D,2025-10-26
+TIME-00806,2025-26,2025-10-26,Officer F,Larvicide treatment,2.0,ST-019,,Officer F,2025-10-26
+TIME-00807,2025-26,2025-10-28,Officer C,Complaint investigation,1.0,,,Officer C,2025-10-28
+TIME-00808,2025-26,2025-10-29,Officer A,Trapping (set / retrieve),1.25,ST-018,,Officer A,2025-10-29
+TIME-00809,2025-26,2025-10-29,Officer D,Trapping (set / retrieve),2.0,ST-002,,Officer D,2025-10-29
+TIME-00810,2025-26,2025-10-29,Officer D,Trapping (set / retrieve),1.75,ST-014,,Officer D,2025-10-29
+TIME-00811,2025-26,2025-10-29,Officer D,Complaint investigation,1.25,ST-014,,Officer D,2025-10-29
+TIME-00812,2025-26,2025-10-29,Officer E,Larvae dipping / inspection,0.5,ST-002,,Officer E,2025-10-29
+TIME-00813,2025-26,2025-10-29,Officer E,Data entry / reporting,2.5,,,Officer E,2025-10-29
+TIME-00814,2025-26,2025-10-30,Officer F,Larvicide treatment,3.0,ST-012,,Officer F,2025-10-30
+TIME-00815,2025-26,2025-11-02,Officer B,Larvae dipping / inspection,0.5,ST-014,,Officer B,2025-11-02
+TIME-00816,2025-26,2025-11-02,Officer E,Complaint investigation,1.75,,,Officer E,2025-11-02
+TIME-00817,2025-26,2025-11-02,Officer E,Larvicide treatment,2.0,ST-008,,Officer E,2025-11-02
+TIME-00818,2025-26,2025-11-03,Officer E,Complaint investigation,1.25,,,Officer E,2025-11-03
+TIME-00819,2025-26,2025-11-04,Officer C,Complaint investigation,1.0,,,Officer C,2025-11-04
+TIME-00820,2025-26,2025-11-05,Officer B,Trapping (set / retrieve),2.25,ST-021,,Officer B,2025-11-05
+TIME-00821,2025-26,2025-11-05,Officer C,Trapping (set / retrieve),1.75,ST-020,,Officer C,2025-11-05
+TIME-00822,2025-26,2025-11-05,Officer C,Trapping (set / retrieve),1.25,ST-002,,Officer C,2025-11-05
+TIME-00823,2025-26,2025-11-05,Officer C,Data entry / reporting,2.5,,,Officer C,2025-11-05
+TIME-00824,2025-26,2025-11-05,Officer D,Larvae dipping / inspection,0.5,ST-014,,Officer D,2025-11-05
+TIME-00825,2025-26,2025-11-07,Officer C,Complaint investigation,1.5,ST-008,,Officer C,2025-11-07
+TIME-00826,2025-26,2025-11-07,Officer E,Complaint investigation,1.25,ST-014,,Officer E,2025-11-07
+TIME-00827,2025-26,2025-11-08,Officer C,Larvicide treatment,1.75,ST-006,,Officer C,2025-11-08
+TIME-00828,2025-26,2025-11-08,Officer E,Larvae dipping / inspection,0.5,ST-002,,Officer E,2025-11-08
+TIME-00829,2025-26,2025-11-09,Officer B,Complaint investigation,1.75,ST-002,,Officer B,2025-11-09
+TIME-00830,2025-26,2025-11-12,Officer A,Trapping (set / retrieve),1.75,ST-014,,Officer A,2025-11-12
+TIME-00831,2025-26,2025-11-12,Officer B,Trapping (set / retrieve),1.25,ST-022,,Officer B,2025-11-12
+TIME-00832,2025-26,2025-11-12,Officer C,Trapping (set / retrieve),2.25,ST-020,,Officer C,2025-11-12
+TIME-00833,2025-26,2025-11-12,Officer C,Larvae dipping / inspection,0.75,ST-014,,Officer C,2025-11-12
+TIME-00834,2025-26,2025-11-12,Officer D,Data entry / reporting,1.5,,,Officer D,2025-11-12
+TIME-00835,2025-26,2025-11-13,Officer D,Complaint investigation,1.5,,,Officer D,2025-11-13
+TIME-00836,2025-26,2025-11-15,Officer C,Larvae dipping / inspection,0.75,ST-020,,Officer C,2025-11-15
+TIME-00837,2025-26,2025-11-17,Officer D,Complaint investigation,1.0,ST-014,,Officer D,2025-11-17
+TIME-00838,2025-26,2025-11-17,Officer D,Complaint investigation,1.75,ST-008,,Officer D,2025-11-17
+TIME-00839,2025-26,2025-11-18,Officer B,Complaint investigation,0.75,ST-002,,Officer B,2025-11-18
+TIME-00840,2025-26,2025-11-18,Officer B,Complaint investigation,1.75,ST-005,,Officer B,2025-11-18
+TIME-00841,2025-26,2025-11-19,Officer A,Trapping (set / retrieve),1.25,ST-002,,Officer A,2025-11-19
+TIME-00842,2025-26,2025-11-19,Officer C,Data entry / reporting,1.75,,,Officer C,2025-11-19
+TIME-00843,2025-26,2025-11-19,Officer D,Trapping (set / retrieve),2.25,ST-014,,Officer D,2025-11-19
+TIME-00844,2025-26,2025-11-19,Officer E,Trapping (set / retrieve),1.75,ST-001,,Officer E,2025-11-19
+TIME-00845,2025-26,2025-11-21,Officer E,Complaint investigation,0.75,ST-020,,Officer E,2025-11-21
+TIME-00846,2025-26,2025-11-22,Officer C,Larvae dipping / inspection,0.5,ST-020,,Officer C,2025-11-22
+TIME-00847,2025-26,2025-11-22,Officer D,Complaint investigation,1.5,,,Officer D,2025-11-22
+TIME-00848,2025-26,2025-11-22,Officer D,Larvicide treatment,3.5,ST-002,,Officer D,2025-11-22
+TIME-00849,2025-26,2025-11-23,Officer A,Larvicide treatment,1.75,ST-001,,Officer A,2025-11-23
+TIME-00850,2025-26,2025-11-23,Officer A,Larvae dipping / inspection,0.5,ST-002,,Officer A,2025-11-23
+TIME-00851,2025-26,2025-11-24,Officer F,Complaint investigation,1.25,ST-001,,Officer F,2025-11-24
+TIME-00852,2025-26,2025-11-26,Officer B,Trapping (set / retrieve),2.25,ST-020,,Officer B,2025-11-26
+TIME-00853,2025-26,2025-11-26,Officer B,Data entry / reporting,3.0,,,Officer B,2025-11-26
+TIME-00854,2025-26,2025-11-26,Officer C,Trapping (set / retrieve),1.25,ST-002,,Officer C,2025-11-26
+TIME-00855,2025-26,2025-11-26,Officer C,Trapping (set / retrieve),1.25,ST-008,,Officer C,2025-11-26
+TIME-00856,2025-26,2025-11-27,Officer B,Complaint investigation,1.0,ST-008,,Officer B,2025-11-27
+TIME-00857,2025-26,2025-11-27,Officer C,Larvae dipping / inspection,0.5,ST-014,,Officer C,2025-11-27
+TIME-00858,2025-26,2025-11-27,Officer D,Complaint investigation,1.25,ST-002,,Officer D,2025-11-27
+TIME-00859,2025-26,2025-11-27,Officer F,Larvicide treatment,2.25,ST-006,,Officer F,2025-11-27
+TIME-00860,2025-26,2025-11-27,Officer F,Larvae dipping / inspection,0.25,ST-020,,Officer F,2025-11-27
+TIME-00861,2025-26,2025-11-28,Officer A,Larvicide treatment,3.5,ST-007,,Officer A,2025-11-28
+TIME-00862,2025-26,2025-11-28,Officer A,Larvae dipping / inspection,0.25,ST-001,,Officer A,2025-11-28
+TIME-00863,2025-26,2025-11-29,Officer B,Complaint investigation,1.5,,,Officer B,2025-11-29
+TIME-00864,2025-26,2025-11-29,Officer D,Complaint investigation,1.75,,,Officer D,2025-11-29
+TIME-00865,2025-26,2025-11-29,Officer E,Complaint investigation,0.5,ST-002,,Officer E,2025-11-29
+TIME-00866,2025-26,2025-11-29,Officer E,Larvicide treatment,1.75,ST-002,,Officer E,2025-11-29
+TIME-00867,2025-26,2025-11-30,Officer B,Larvae dipping / inspection,0.5,ST-008,,Officer B,2025-11-30
+TIME-00868,2025-26,2025-11-30,Officer D,Larvae dipping / inspection,0.5,ST-002,,Officer D,2025-11-30
+TIME-00869,2025-26,2025-12-02,Officer B,Complaint investigation,0.75,ST-019,,Officer B,2025-12-02
+TIME-00870,2025-26,2025-12-03,Officer A,Trapping (set / retrieve),2.25,ST-014,,Officer A,2025-12-03
+TIME-00871,2025-26,2025-12-03,Officer A,Larvae dipping / inspection,0.5,ST-020,,Officer A,2025-12-03
+TIME-00872,2025-26,2025-12-03,Officer B,Trapping (set / retrieve),1.75,ST-003,,Officer B,2025-12-03
+TIME-00873,2025-26,2025-12-03,Officer C,Data entry / reporting,2.5,,,Officer C,2025-12-03
+TIME-00874,2025-26,2025-12-03,Officer F,Trapping (set / retrieve),1.25,ST-020,,Officer F,2025-12-03
+TIME-00875,2025-26,2025-12-08,Officer E,Complaint investigation,1.25,ST-005,,Officer E,2025-12-08
+TIME-00876,2025-26,2025-12-10,Officer B,Larvicide treatment,2.0,ST-019,,Officer B,2025-12-10
+TIME-00877,2025-26,2025-12-10,Officer D,Trapping (set / retrieve),1.5,ST-002,,Officer D,2025-12-10
+TIME-00878,2025-26,2025-12-10,Officer D,Trapping (set / retrieve),1.5,ST-014,,Officer D,2025-12-10
+TIME-00879,2025-26,2025-12-10,Officer D,Trapping (set / retrieve),1.0,ST-019,,Officer D,2025-12-10
+TIME-00880,2025-26,2025-12-10,Officer E,Complaint investigation,0.75,,,Officer E,2025-12-10
+TIME-00881,2025-26,2025-12-10,Officer F,Data entry / reporting,1.25,,,Officer F,2025-12-10
+TIME-00882,2025-26,2025-12-11,Officer E,Larvae dipping / inspection,0.5,ST-019,,Officer E,2025-12-11
+TIME-00883,2025-26,2025-12-12,Officer A,Complaint investigation,1.25,,,Officer A,2025-12-12
+TIME-00884,2025-26,2025-12-13,Officer F,Complaint investigation,1.0,ST-002,,Officer F,2025-12-13
+TIME-00885,2025-26,2025-12-13,Officer F,Larvae dipping / inspection,0.25,ST-017,,Officer F,2025-12-13
+TIME-00886,2025-26,2025-12-14,Officer C,Larvae dipping / inspection,0.5,ST-020,,Officer C,2025-12-14
+TIME-00887,2025-26,2025-12-15,Officer B,Complaint investigation,1.0,ST-002,,Officer B,2025-12-15
+TIME-00888,2025-26,2025-12-15,Officer C,Complaint investigation,1.25,,,Officer C,2025-12-15
+TIME-00889,2025-26,2025-12-16,Officer D,Complaint investigation,0.75,,,Officer D,2025-12-16
+TIME-00890,2025-26,2025-12-17,Officer B,Trapping (set / retrieve),2.0,ST-020,,Officer B,2025-12-17
+TIME-00891,2025-26,2025-12-17,Officer B,Trapping (set / retrieve),1.5,ST-005,,Officer B,2025-12-17
+TIME-00892,2025-26,2025-12-17,Officer D,Trapping (set / retrieve),1.0,ST-002,,Officer D,2025-12-17
+TIME-00893,2025-26,2025-12-17,Officer D,Larvae dipping / inspection,0.25,ST-002,,Officer D,2025-12-17
+TIME-00894,2025-26,2025-12-17,Officer F,Data entry / reporting,3.0,,,Officer F,2025-12-17
+TIME-00895,2025-26,2025-12-19,Officer D,Complaint investigation,1.0,ST-007,,Officer D,2025-12-19
+TIME-00896,2025-26,2025-12-19,Officer D,Complaint investigation,1.5,,,Officer D,2025-12-19
+TIME-00897,2025-26,2025-12-20,Officer E,Complaint investigation,1.0,,,Officer E,2025-12-20
+TIME-00898,2025-26,2025-12-21,Officer B,Larvae dipping / inspection,0.5,ST-014,,Officer B,2025-12-21
+TIME-00899,2025-26,2025-12-24,Officer A,Data entry / reporting,1.25,,,Officer A,2025-12-24
+TIME-00900,2025-26,2025-12-24,Officer B,Trapping (set / retrieve),2.5,ST-020,,Officer B,2025-12-24
+TIME-00901,2025-26,2025-12-24,Officer F,Trapping (set / retrieve),1.75,ST-014,,Officer F,2025-12-24
+TIME-00902,2025-26,2025-12-24,Officer F,Trapping (set / retrieve),2.25,ST-006,,Officer F,2025-12-24
+TIME-00903,2025-26,2025-12-26,Officer B,Complaint investigation,1.5,,,Officer B,2025-12-26
+TIME-00904,2025-26,2025-12-27,Officer A,Complaint investigation,1.75,,,Officer A,2025-12-27
+TIME-00905,2025-26,2025-12-27,Officer B,Larvae dipping / inspection,0.5,ST-002,,Officer B,2025-12-27
+TIME-00906,2025-26,2025-12-28,Officer C,Larvicide treatment,1.5,ST-005,,Officer C,2025-12-28
+TIME-00907,2025-26,2025-12-28,Officer D,Larvae dipping / inspection,0.25,ST-020,,Officer D,2025-12-28
+TIME-00908,2025-26,2025-12-29,Officer C,Complaint investigation,1.25,ST-001,,Officer C,2025-12-29
+TIME-00909,2025-26,2025-12-30,Officer E,Complaint investigation,1.5,,,Officer E,2025-12-30
+TIME-00910,2025-26,2025-12-31,Officer A,Data entry / reporting,2.0,,,Officer A,2025-12-31
+TIME-00911,2025-26,2025-12-31,Officer D,Trapping (set / retrieve),1.5,ST-007,,Officer D,2025-12-31
+TIME-00912,2025-26,2025-12-31,Officer D,Larvicide treatment,2.75,ST-018,,Officer D,2025-12-31
+TIME-00913,2025-26,2025-12-31,Officer E,Trapping (set / retrieve),1.75,ST-002,,Officer E,2025-12-31
+TIME-00914,2025-26,2025-12-31,Officer E,Trapping (set / retrieve),2.25,ST-014,,Officer E,2025-12-31
+TIME-00915,2025-26,2026-01-01,Officer E,Larvae dipping / inspection,0.25,ST-002,,Officer E,2026-01-01
+TIME-00916,2025-26,2026-01-04,Officer A,Larvae dipping / inspection,0.5,ST-014,,Officer A,2026-01-04
+TIME-00917,2025-26,2026-01-07,Officer A,Trapping (set / retrieve),1.0,ST-009,,Officer A,2026-01-07
+TIME-00918,2025-26,2026-01-07,Officer B,Trapping (set / retrieve),1.25,ST-002,,Officer B,2026-01-07
+TIME-00919,2025-26,2026-01-07,Officer B,Data entry / reporting,1.25,,,Officer B,2026-01-07
+TIME-00920,2025-26,2026-01-07,Officer D,Trapping (set / retrieve),1.0,ST-020,,Officer D,2026-01-07
+TIME-00921,2025-26,2026-01-08,Officer C,Complaint investigation,1.0,ST-002,,Officer C,2026-01-08
+TIME-00922,2025-26,2026-01-09,Officer C,Complaint investigation,1.5,ST-002,,Officer C,2026-01-09
+TIME-00923,2025-26,2026-01-10,Officer A,Larvae dipping / inspection,0.5,ST-014,,Officer A,2026-01-10
+TIME-00924,2025-26,2026-01-10,Officer D,Complaint investigation,1.75,ST-007,,Officer D,2026-01-10
+TIME-00925,2025-26,2026-01-13,Officer E,Complaint investigation,1.5,ST-008,,Officer E,2026-01-13
+TIME-00926,2025-26,2026-01-14,Officer B,Trapping (set / retrieve),1.75,ST-020,,Officer B,2026-01-14
+TIME-00927,2025-26,2026-01-14,Officer B,Trapping (set / retrieve),1.5,ST-010,,Officer B,2026-01-14
+TIME-00928,2025-26,2026-01-14,Officer D,Trapping (set / retrieve),1.5,ST-014,,Officer D,2026-01-14
+TIME-00929,2025-26,2026-01-14,Officer D,Data entry / reporting,2.5,,,Officer D,2026-01-14
+TIME-00930,2025-26,2026-01-14,Officer F,Larvae dipping / inspection,0.5,ST-014,,Officer F,2026-01-14
+TIME-00931,2025-26,2026-01-15,Officer E,Larvae dipping / inspection,0.25,ST-002,,Officer E,2026-01-15
+TIME-00932,2025-26,2026-01-16,Officer D,Larvae dipping / inspection,0.5,ST-020,,Officer D,2026-01-16
+TIME-00933,2025-26,2026-01-18,Officer A,Larvicide treatment,3.0,ST-015,,Officer A,2026-01-18
+TIME-00934,2025-26,2026-01-19,Officer C,Complaint investigation,0.75,ST-008,,Officer C,2026-01-19
+TIME-00935,2025-26,2026-01-19,Officer E,Complaint investigation,0.5,ST-007,,Officer E,2026-01-19
+TIME-00936,2025-26,2026-01-20,Officer B,Complaint investigation,1.5,ST-020,,Officer B,2026-01-20
+TIME-00937,2025-26,2026-01-20,Officer D,Complaint investigation,0.75,,,Officer D,2026-01-20
+TIME-00938,2025-26,2026-01-20,Officer E,Larvicide treatment,2.75,ST-017,,Officer E,2026-01-20
+TIME-00939,2025-26,2026-01-21,Officer A,Complaint investigation,1.25,ST-014,,Officer A,2026-01-21
+TIME-00940,2025-26,2026-01-21,Officer B,Trapping (set / retrieve),1.75,ST-014,,Officer B,2026-01-21
+TIME-00941,2025-26,2026-01-21,Officer D,Trapping (set / retrieve),1.75,ST-002,,Officer D,2026-01-21
+TIME-00942,2025-26,2026-01-21,Officer D,Trapping (set / retrieve),1.5,ST-011,,Officer D,2026-01-21
+TIME-00943,2025-26,2026-01-21,Officer E,Complaint investigation,1.5,ST-019,,Officer E,2026-01-21
+TIME-00944,2025-26,2026-01-21,Officer E,Data entry / reporting,1.75,,,Officer E,2026-01-21
+TIME-00945,2025-26,2026-01-21,Officer F,Larvae dipping / inspection,0.75,ST-020,,Officer F,2026-01-21
+TIME-00946,2025-26,2026-01-24,Officer A,Larvae dipping / inspection,0.75,ST-010,,Officer A,2026-01-24
+TIME-00947,2025-26,2026-01-25,Officer B,Larvae dipping / inspection,0.5,ST-014,,Officer B,2026-01-25
+TIME-00948,2025-26,2026-01-25,Officer E,Complaint investigation,0.5,ST-008,,Officer E,2026-01-25
+TIME-00949,2025-26,2026-01-27,Officer A,Complaint investigation,1.5,ST-005,,Officer A,2026-01-27
+TIME-00950,2025-26,2026-01-28,Officer A,Trapping (set / retrieve),1.5,ST-002,,Officer A,2026-01-28
+TIME-00951,2025-26,2026-01-28,Officer C,Trapping (set / retrieve),1.25,ST-012,,Officer C,2026-01-28
+TIME-00952,2025-26,2026-01-28,Officer C,Complaint investigation,0.5,,,Officer C,2026-01-28
+TIME-00953,2025-26,2026-01-28,Officer D,Data entry / reporting,2.75,,,Officer D,2026-01-28
+TIME-00954,2025-26,2026-01-28,Officer F,Trapping (set / retrieve),2.25,ST-020,,Officer F,2026-01-28
+TIME-00955,2025-26,2026-01-30,Officer B,Larvae dipping / inspection,0.5,ST-014,,Officer B,2026-01-30
+TIME-00956,2025-26,2026-01-30,Officer E,Complaint investigation,0.75,ST-008,,Officer E,2026-01-30
+TIME-00957,2025-26,2026-02-01,Officer A,Larvae dipping / inspection,0.25,ST-002,,Officer A,2026-02-01
+TIME-00958,2025-26,2026-02-04,Officer A,Data entry / reporting,2.75,,,Officer A,2026-02-04
+TIME-00959,2025-26,2026-02-04,Officer D,Complaint investigation,0.75,,,Officer D,2026-02-04
+TIME-00960,2025-26,2026-02-05,Officer D,Larvicide treatment,3.0,ST-021,,Officer D,2026-02-05
+TIME-00961,2025-26,2026-02-05,Officer E,Complaint investigation,0.75,,,Officer E,2026-02-05
+TIME-00962,2025-26,2026-02-08,Officer B,Complaint investigation,1.0,ST-002,,Officer B,2026-02-08
+TIME-00963,2026-27,2026-10-07,Officer A,Trapping (set / retrieve),1.0,,,Officer A,2026-10-07
+TIME-00964,2026-27,2026-10-07,Officer A,Trapping (set / retrieve),1.0,,,Officer A,2026-10-07

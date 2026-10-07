@@ -8,6 +8,11 @@
 --
 --   psql "$DATABASE_URL" -f db/schema.sql
 --
+-- This file is idempotent (every statement is IF NOT EXISTS), so to pick up
+-- tables added in a later version - e.g. the budget tables - on a database
+-- you already created, just run it again; existing tables and data are left
+-- untouched.
+--
 -- Design notes:
 --   - ID columns keep the app's existing PREFIX-00001 text format (e.g.
 --     'ST-014', 'CMP-00285') rather than switching to numeric surrogate
@@ -212,6 +217,49 @@ CREATE TABLE IF NOT EXISTS environmental_data (
     notes          TEXT
 );
 
+-- --- Budget: officer time, purchases, settings -----------------------------
+
+CREATE TABLE IF NOT EXISTS time_entries (
+    entry_id     TEXT PRIMARY KEY,
+    season        TEXT,
+    entry_date   DATE,
+    officer       TEXT,
+    activity      TEXT,
+    hours         DOUBLE PRECISION,
+    site_id       TEXT REFERENCES sites (site_id) ON DELETE SET NULL,
+    notes         TEXT,
+    created_by   TEXT,
+    created_date DATE
+);
+
+CREATE TABLE IF NOT EXISTS cost_entries (
+    cost_id        TEXT PRIMARY KEY,
+    season          TEXT,
+    entry_date     DATE,
+    category        TEXT,
+    description     TEXT,
+    product_id     TEXT REFERENCES products (product_id) ON DELETE SET NULL,
+    quantity        DOUBLE PRECISION,
+    quantity_unit  TEXT,
+    total_cost     NUMERIC(12, 2),
+    supplier        TEXT,
+    invoice_ref    TEXT,
+    created_by     TEXT,
+    created_date   DATE
+);
+
+-- Append-only: the latest row per (season, setting_key) wins, so every change
+-- keeps an audit trail and no UPDATE path is needed.
+CREATE TABLE IF NOT EXISTS budget_settings (
+    setting_id     TEXT PRIMARY KEY,
+    season          TEXT,
+    setting_key    TEXT,
+    setting_value  DOUBLE PRECISION,
+    notes           TEXT,
+    created_by     TEXT,
+    created_date   DATE
+);
+
 -- --- ID-generation sequences ------------------------------------------------
 -- One per prefix used by a PostgresDataRepository add_* method. Seeded to 1
 -- here; db/migrate_from_csv.sh advances each past the highest ID already
@@ -224,6 +272,9 @@ CREATE SEQUENCE IF NOT EXISTS result_id_seq     START 1;
 CREATE SEQUENCE IF NOT EXISTS observation_id_seq START 1;
 CREATE SEQUENCE IF NOT EXISTS dip_id_seq        START 1;
 CREATE SEQUENCE IF NOT EXISTS treatment_id_seq  START 1;
+CREATE SEQUENCE IF NOT EXISTS time_entry_id_seq START 1;
+CREATE SEQUENCE IF NOT EXISTS cost_entry_id_seq START 1;
+CREATE SEQUENCE IF NOT EXISTS budget_setting_id_seq START 1;
 
 -- Helpful indexes for the app's common lookups (filter-by-site, filter-by-
 -- date-range, the hotspot/effectiveness window queries in core/calculations.py).
@@ -235,5 +286,8 @@ CREATE INDEX IF NOT EXISTS idx_complaints_site_date ON complaints (site_id, date
 CREATE INDEX IF NOT EXISTS idx_larvae_dips_site_date ON larvae_dips (site_id, date_time);
 CREATE INDEX IF NOT EXISTS idx_site_observations_site_date ON site_observations (site_id, date_time);
 CREATE INDEX IF NOT EXISTS idx_environmental_data_date ON environmental_data (date);
+CREATE INDEX IF NOT EXISTS idx_time_entries_season_date ON time_entries (season, entry_date);
+CREATE INDEX IF NOT EXISTS idx_cost_entries_season_cat ON cost_entries (season, category);
+CREATE INDEX IF NOT EXISTS idx_budget_settings_season_key ON budget_settings (season, setting_key);
 
 COMMIT;

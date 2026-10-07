@@ -20,9 +20,10 @@ import streamlit as st
 
 from core.data_source import get_repository
 from core import calculations as calc
+from core import auth
 from core import weather_api
 from core.config import (
-    APP_TITLE, SAMPLE_DATA_BANNER, STATUS_COLOURS, STATUS_UNKNOWN,
+    APP_TITLE, SAMPLE_DATA_BANNER, LIVE_MODE_BANNER, STATUS_COLOURS, STATUS_UNKNOWN,
     VINCENT_AREAS, VINCENT_CENTER_LAT, VINCENT_CENTER_LON,
 )
 
@@ -34,19 +35,44 @@ from core.config import (
 # one module allowed to import both. Wrapped defensively: st.secrets raises
 # if the app has no secrets.toml / configured secrets at all, which is the
 # normal case for the CSV-only prototype and for local dev.
-if "DATABASE_URL" not in os.environ:
-    try:
-        if "DATABASE_URL" in st.secrets:
-            os.environ["DATABASE_URL"] = st.secrets["DATABASE_URL"]
-    except Exception:
-        pass
+for _key in ("DATABASE_URL", "APP_PASSWORD", "APP_MODE", "FIRST_SEASON_START_YEAR"):
+    if _key not in os.environ:
+        try:
+            if _key in st.secrets:
+                os.environ[_key] = str(st.secrets[_key])
+        except Exception:
+            pass
 
-SEASON_BOUNDS = {
-    "2023-24": (pd.Timestamp("2023-10-01"), pd.Timestamp("2024-05-31")),
-    "2024-25": (pd.Timestamp("2024-10-01"), pd.Timestamp("2025-05-31")),
-    "2025-26": (pd.Timestamp("2025-10-01"), pd.Timestamp("2026-05-31")),
-}
-DEFAULT_SEASON = "2025-26"
+def _build_season_bounds(first_start_year: int = 2023) -> dict:
+    """Every Oct-May season from `first_start_year` up to the one that has
+    started (or is current) today, e.g. "2026-27" -> (2026-10-01, 2027-05-31).
+    Generated rather than hard-coded so a new season simply appears when it
+    starts - no code edit each October."""
+    today = pd.Timestamp.now().normalize()
+    bounds = {}
+    year = first_start_year
+    while pd.Timestamp(year=year, month=10, day=1) <= today or year == first_start_year:
+        bounds[f"{year}-{str(year + 1)[2:]}"] = (
+            pd.Timestamp(year=year, month=10, day=1), pd.Timestamp(year=year + 1, month=5, day=31),
+        )
+        year += 1
+    return bounds
+
+
+def _first_season_start_year() -> int:
+    """Oldest season offered in the Season filter. Defaults to 2023 so the
+    placeholder seasons (2023-24 to 2025-26) show while sample data is loaded.
+    Once you switch to real data, set FIRST_SEASON_START_YEAR=2026 (Streamlit
+    secret or env var) and only 2026-27 onward will be offered - no code edit."""
+    try:
+        return int(os.environ.get("FIRST_SEASON_START_YEAR", "2023"))
+    except ValueError:
+        return 2023
+
+
+SEASON_BOUNDS = _build_season_bounds(_first_season_start_year())
+# The most recent season that has started - 2026-27 from 1 Oct 2026.
+DEFAULT_SEASON = list(SEASON_BOUNDS.keys())[-1]
 
 
 # ===========================================================================
@@ -76,6 +102,9 @@ def load_raw_tables() -> dict:
         "users": repo.get_users(),
         "thresholds": repo.get_action_thresholds(),
         "targets": repo.get_program_targets(),
+        "time_entries": repo.get_time_entries(),
+        "cost_entries": repo.get_cost_entries(),
+        "budget_settings": repo.get_budget_settings(),
     }
 
 
@@ -150,6 +179,24 @@ def add_larvae_dip(row: dict) -> str:
     return new_id
 
 
+def add_time_entry(row: dict) -> str:
+    new_id = get_repository().add_time_entry(row)
+    invalidate_data_cache()
+    return new_id
+
+
+def add_cost_entry(row: dict) -> str:
+    new_id = get_repository().add_cost_entry(row)
+    invalidate_data_cache()
+    return new_id
+
+
+def add_budget_setting(row: dict) -> str:
+    new_id = get_repository().add_budget_setting(row)
+    invalidate_data_cache()
+    return new_id
+
+
 def infer_season(d) -> str:
     """Which SEASON_BOUNDS key a date falls in - used to fill the Season
     column on a new record without asking the officer to pick it separately.
@@ -168,6 +215,7 @@ def infer_season(d) -> str:
 
 def apply_page_style():
     st.set_page_config(page_title=APP_TITLE, layout="wide", page_icon="\U0001F9DF")
+    auth.require_login()  # halts the script (st.stop) unless signed in - before ANY data loads
     st.markdown(
         """
         <style>
@@ -193,7 +241,8 @@ def apply_page_style():
 
 
 def sample_data_banner():
-    st.markdown(f'<div class="sample-banner">{SAMPLE_DATA_BANNER}</div>', unsafe_allow_html=True)
+    text = LIVE_MODE_BANNER if auth.is_live_mode() else SAMPLE_DATA_BANNER
+    st.markdown(f'<div class="sample-banner">{text}</div>', unsafe_allow_html=True)
 
 
 def status_badge_html(status: str, colours: Optional[dict] = None) -> str:
@@ -251,6 +300,12 @@ def _season_default_end(season: str, surv_events: Optional[pd.DataFrame]) -> "pd
     to the full nominal season end if the user wants to.
     """
     nominal_start, nominal_end = SEASON_BOUNDS[season]
+    today = pd.Timestamp.now().normalize()
+    if nominal_start <= today <= nominal_end:
+        # In-progress season: anchor "as of" at today so complaints, dips and
+        # treatments logged after the last trap visit still count in
+        # lookback-window features (hotspots, map status).
+        return today
     if surv_events is None or surv_events.empty:
         return nominal_end
     season_events = surv_events[surv_events["Season"] == season]

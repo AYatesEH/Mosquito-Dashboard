@@ -11,11 +11,14 @@ screen or database table without code changes.
 """
 
 import json
+import os
 from pathlib import Path
 
 # --- Paths -------------------------------------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_DIR = PROJECT_ROOT / "data" / "raw"
+# MOSQUITO_DATA_DIR lets the CSV backend point at a different folder (e.g. the
+# clean go-live seed from data/make_live_seed.py) without touching code.
+DATA_DIR = Path(os.environ.get("MOSQUITO_DATA_DIR") or (PROJECT_ROOT / "data" / "raw"))
 GIS_DIR = PROJECT_ROOT / "data" / "gis"
 # Real City of Vincent LGA boundary (WA Landgate LGATE-233 dataset).
 VINCENT_BOUNDARY_PATH = GIS_DIR / "city_of_vincent_boundary.geojson"
@@ -314,3 +317,46 @@ SAMPLE_DATA_BANNER = (
     "PROTOTYPE - all data, thresholds, products, application rates and targets shown are "
     "SAMPLE/FICTIONAL and must not be used for operational decisions."
 )
+# When APP_MODE=live (env var or Streamlit secret) the sample-data banner is
+# hidden and the app requires a login - see core/auth.py. Anything else
+# (including unset) is demo mode.
+LIVE_MODE_BANNER = (
+    "Thresholds and program targets are PLACEHOLDER values until reviewed and approved - "
+    "confirm product rates against the current APVMA-approved label before any application."
+)
+
+# --- Budget ---------------------------------------------------------------
+# Officer time is logged as hours against one of these activities; costs
+# (purchases/invoices) are logged against one of COST_CATEGORIES.
+TIME_ACTIVITIES = [
+    "Trapping (set / retrieve)",
+    "Larvae dipping / inspection",
+    "Larvicide treatment",
+    "Complaint investigation",
+    "Data entry / reporting",
+    "Other",
+]
+TIME_ACTIVITY_TRAPPING = TIME_ACTIVITIES[0]
+TIME_ACTIVITY_DIPPING = TIME_ACTIVITIES[1]
+TIME_ACTIVITY_TREATMENT = TIME_ACTIVITIES[2]
+TIME_ACTIVITY_COMPLAINT = TIME_ACTIVITIES[3]
+
+COST_CATEGORY_DRY_ICE = "Dry ice"
+COST_CATEGORY_LARVICIDE = "Larvicide"
+COST_CATEGORY_OTHER = "Other consumables / equipment"
+COST_CATEGORIES = [COST_CATEGORY_DRY_ICE, COST_CATEGORY_LARVICIDE, COST_CATEGORY_OTHER]
+BUDGET_CATEGORY_OFFICER_TIME = "Officer time"
+BUDGET_CATEGORIES = [BUDGET_CATEGORY_OFFICER_TIME] + COST_CATEGORIES
+
+# Budget settings are stored append-only as (Season, Key, Value) rows - the
+# latest row per season+key wins - so every change keeps an audit trail and
+# needs no "edit" write path. Keys:
+BUDGET_KEY_OFFICER_RATE = "officer_hourly_rate"          # $/hour (use your fully-loaded rate)
+BUDGET_KEY_DRY_ICE_PRICE = "dry_ice_price_per_kg"        # $/kg, used only to ESTIMATE need
+BUDGET_KEY_DRY_ICE_KG_PER_NIGHT = "dry_ice_kg_per_trap_night"
+BUDGET_KEY_BUDGET_PREFIX = "budget::"                    # budget::<category> -> season budget $
+BUDGET_SETTING_LABELS = {
+    BUDGET_KEY_OFFICER_RATE: "Officer hourly rate ($/h, fully loaded)",
+    BUDGET_KEY_DRY_ICE_PRICE: "Dry ice price ($/kg) - for estimating need",
+    BUDGET_KEY_DRY_ICE_KG_PER_NIGHT: "Dry ice used per trap-night (kg)",
+}

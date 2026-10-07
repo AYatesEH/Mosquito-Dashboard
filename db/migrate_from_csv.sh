@@ -4,7 +4,9 @@
 # past whatever's loaded (see schema.sql's comment on why sequences exist).
 #
 # Usage:
-#   ./db/migrate_from_csv.sh "$DATABASE_URL"
+#   ./db/migrate_from_csv.sh "$DATABASE_URL" [csv_dir]
+# csv_dir defaults to data/raw; use data/live_seed for the clean first-season
+# dataset made by data/make_live_seed.py.
 #
 # Safe to run against an EMPTY set of CSVs too (e.g. if you've cleared
 # data/raw down to just headers before going live with real data) - COPY of
@@ -24,7 +26,7 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
-RAW_DIR="$REPO_ROOT/data/raw"
+RAW_DIR="${2:-$REPO_ROOT/data/raw}"
 
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 <<SQL
 \copy species_reference (species_code, scientific_name, common_name, typical_breeding_habitat, biting_behaviour, seasonal_characteristics, vector_significance, notes) FROM '$RAW_DIR/species_reference.csv' WITH (FORMAT csv, HEADER, NULL '')
@@ -43,6 +45,17 @@ psql "$DATABASE_URL" -v ON_ERROR_STOP=1 <<SQL
 \copy environmental_data (env_id, date, site_id, rainfall_mm, temp_min_c, temp_max_c, tidal_level_m, notes) FROM '$RAW_DIR/environmental_data.csv' WITH (FORMAT csv, HEADER, NULL '')
 SQL
 
+# Budget tables (newer - skipped if the CSV folder predates them).
+for f in time_entries cost_entries budget_settings; do
+    [ -f "$RAW_DIR/$f.csv" ] || { echo "(skipping $f - no $RAW_DIR/$f.csv)"; continue; }
+    case "$f" in
+      time_entries)    COLS="entry_id, season, entry_date, officer, activity, hours, site_id, notes, created_by, created_date";;
+      cost_entries)    COLS="cost_id, season, entry_date, category, description, product_id, quantity, quantity_unit, total_cost, supplier, invoice_ref, created_by, created_date";;
+      budget_settings) COLS="setting_id, season, setting_key, setting_value, notes, created_by, created_date";;
+    esac
+    psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "\\copy $f ($COLS) FROM '$RAW_DIR/$f.csv' WITH (FORMAT csv, HEADER, NULL '')"
+done
+
 # Seed sequences to continue past the highest ID just loaded (setval's
 # is_called=false means the NEXT nextval() call returns this value exactly -
 # see schema.sql's comment on why these sequences exist).
@@ -54,6 +67,9 @@ SELECT setval('result_id_seq',     COALESCE((SELECT MAX(substring(result_id    f
 SELECT setval('observation_id_seq',COALESCE((SELECT MAX(substring(observation_id from 5)::int) FROM site_observations), 0) + 1, false);
 SELECT setval('dip_id_seq',        COALESCE((SELECT MAX(substring(dip_id       from 5)::int) FROM larvae_dips), 0) + 1, false);
 SELECT setval('treatment_id_seq',  COALESCE((SELECT MAX(substring(treatment_id from 5)::int) FROM treatments), 0) + 1, false);
+SELECT setval('time_entry_id_seq', COALESCE((SELECT MAX(substring(entry_id     from 6)::int) FROM time_entries), 0) + 1, false);
+SELECT setval('cost_entry_id_seq', COALESCE((SELECT MAX(substring(cost_id      from 5)::int) FROM cost_entries), 0) + 1, false);
+SELECT setval('budget_setting_id_seq', COALESCE((SELECT MAX(substring(setting_id from 5)::int) FROM budget_settings), 0) + 1, false);
 SQL
 
 echo "Migration complete."

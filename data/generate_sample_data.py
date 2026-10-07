@@ -1230,6 +1230,147 @@ for season in ALL_SEASONS:
 targets_df = pd.DataFrame(targets)
 targets_df.to_csv(OUT_DIR / "program_targets.csv", index=False)
 
+# ---------------------------------------------------------------------------
+# 13. BUDGET: OFFICER TIME, PURCHASES, SETTINGS (SAMPLE ONLY)
+# ---------------------------------------------------------------------------
+# Generated LAST and from its own RNG stream, so adding/changing anything in
+# this section can never shift a random draw in sections 1-12 (every other CSV
+# stays byte-identical). Every rate, price and budget below is an obviously
+# PLACEHOLDER figure for demonstrating the Budget page - not a real wage,
+# supplier price or council budget.
+brng = np.random.default_rng(RNG_SEED + 1)
+SAMPLE_RATE = 85.0            # $/hour, placeholder
+SAMPLE_DRY_ICE_PRICE = 3.2    # $/kg, placeholder
+SAMPLE_KG_PER_NIGHT = 2.0     # kg per trap-night, placeholder
+
+def _d(x):
+    return pd.Timestamp(x).strftime("%Y-%m-%d")
+
+time_rows = []
+def _time(season, date, officer, activity, hours, site=""):
+    time_rows.append({"Season": season, "Date": _d(date), "Officer": officer, "Activity": activity,
+                      "Hours": round(float(hours) * 4) / 4, "Site_ID": site, "Notes": "",
+                      "Created_By": officer, "Created_Date": _d(date)})
+
+for _, e in surv_events_df.iterrows():
+    _time(e["Season"], e["Deployment_DateTime"], e["Officer"], "Trapping (set / retrieve)",
+          brng.uniform(1.0, 2.5), e["Site_ID"])
+for _, c in complaints_df.iterrows():
+    _time(c["Season"], c["Date_Received"], c["Officer"], "Complaint investigation",
+          brng.uniform(0.5, 1.75), c["Site_ID"] if isinstance(c["Site_ID"], str) else "")
+for _, t in treatments_df[treatments_df["Treatment_Status"] == "Completed"].iterrows():
+    _time(t["Season"], t["Treatment_Date"], t["Operator"], "Larvicide treatment",
+          brng.uniform(1.0, 3.5), t["Site_ID"])
+for _, d in dips_df.iterrows():
+    _time(d["Season"], d["DateTime"], d["Officer"], "Larvae dipping / inspection",
+          brng.uniform(0.25, 0.75), d["Site_ID"])
+officer_names = users_df["Name"].tolist()
+for season in ALL_SEASONS:
+    wk = SEASONS[season]["start"]
+    end = season_effective_end(season)
+    while wk <= end:
+        _time(season, wk, officer_names[int(brng.integers(0, len(officer_names)))],
+              "Data entry / reporting", brng.uniform(1.0, 3.0))
+        wk += timedelta(days=7)
+time_df = pd.DataFrame(time_rows).sort_values(["Date", "Officer"]).reset_index(drop=True)
+time_df.insert(0, "Entry_ID", [f"TIME-{i + 1:05d}" for i in range(len(time_df))])
+time_df.to_csv(OUT_DIR / "time_entries.csv", index=False)
+
+cost_rows = []
+def _cost(season, date, category, desc, qty, unit, total, supplier, product=""):
+    cost_rows.append({"Season": season, "Date": _d(date), "Category": category, "Description": desc,
+                      "Product_ID": product, "Quantity": qty, "Quantity_Unit": unit,
+                      "Total_Cost": round(float(total), 2), "Supplier": supplier,
+                      "Invoice_Ref": f"SAMPLE-{len(cost_rows) + 1:04d}", "Created_By": officer_names[0],
+                      "Created_Date": _d(date)})
+
+for season in ALL_SEASONS:
+    start, end = SEASONS[season]["start"], season_effective_end(season)
+    n_nights = int((surv_events_df["Season"] == season).sum())
+    # dry ice: roughly fortnightly purchases sized to the trapping done, with +/-15% slack
+    wk = start
+    while wk <= end:
+        kg = round(float(brng.uniform(18, 30)), 1)
+        _cost(season, wk, "Dry ice", "Dry ice for CO2 traps (SAMPLE)", kg, "kg",
+              kg * SAMPLE_DRY_ICE_PRICE * brng.uniform(0.95, 1.1), "Sample Supplier Pty Ltd")
+        wk += timedelta(days=14)
+    # larvicide: one pellet and one briquet purchase early in the season
+    pellet_bags = int(brng.integers(2, 5))
+    _cost(season, start + timedelta(days=5), "Larvicide", "ProLink Pellets 10 kg bags (SAMPLE)",
+          pellet_bags * 10000, "g", pellet_bags * 410.0, "Sample Supplier Pty Ltd", "PRD-01")
+    cartons = int(brng.integers(2, 4))
+    _cost(season, start + timedelta(days=5), "Larvicide", "ProLink XR Briquets, 100/carton (SAMPLE)",
+          cartons * 100, "briquet(s)", cartons * 520.0, "Sample Supplier Pty Ltd", "PRD-02")
+    _cost(season, start + timedelta(days=12), "Other consumables / equipment",
+          "Sample jars, labels, PPE (SAMPLE)", 1, "lot", float(brng.uniform(150, 400)), "Sample Supplier Pty Ltd")
+cost_df = pd.DataFrame(cost_rows)
+cost_df.insert(0, "Cost_ID", [f"CST-{i + 1:05d}" for i in range(len(cost_df))])
+cost_df.to_csv(OUT_DIR / "cost_entries.csv", index=False)
+
+setting_rows = []
+for season in ALL_SEASONS:
+    d0 = _d(SEASONS[season]["start"])
+    for key, val, note in [
+        ("officer_hourly_rate", SAMPLE_RATE, "SAMPLE rate"),
+        ("dry_ice_price_per_kg", SAMPLE_DRY_ICE_PRICE, "SAMPLE price"),
+        ("dry_ice_kg_per_trap_night", SAMPLE_KG_PER_NIGHT, "SAMPLE usage assumption"),
+        ("budget::Officer time", 24000, "SAMPLE budget"),
+        ("budget::Dry ice", 1500, "SAMPLE budget"),
+        ("budget::Larvicide", 4500, "SAMPLE budget"),
+        ("budget::Other consumables / equipment", 800, "SAMPLE budget"),
+    ]:
+        setting_rows.append({"Season": season, "Key": key, "Value": val, "Notes": note,
+                             "Created_By": officer_names[0], "Created_Date": d0})
+settings_df = pd.DataFrame(setting_rows)
+settings_df.insert(0, "Setting_ID", [f"BST-{i + 1:05d}" for i in range(len(settings_df))])
+settings_df.to_csv(OUT_DIR / "budget_settings.csv", index=False)
+
+
+# ---------------------------------------------------------------------------
+# 14. ADDITIONAL REAL SITES (added by the program after the first deployment)
+# ---------------------------------------------------------------------------
+# East Perth / Warndoolier locations the program asked to have available as
+# sites. Appended here, LAST and with NO random draws, so nothing generated
+# above (and no other CSV) changes. Coordinates were estimated from a marked-up
+# Google Maps screenshot (calibrated against the Warndoolier Public Toilet and
+# Summers St) - good to roughly 20-30 m, NOT surveyed: confirm on the ground /
+# against the asset register and correct in sites.csv (or the database) if
+# needed. Names are working names; Site_Type is inferred from the imagery.
+# All three fall inside the City of Vincent LGA boundary (checked against
+# data/gis/city_of_vincent_boundary.geojson).
+EXTRA_REAL_SITES = [
+    {"Site_Name": "Warndoolier Foreshore North (Swan River)", "Site_Type": RIVER_SITE_TYPE,
+     "Latitude": -31.94094, "Longitude": 115.88257,
+     "Description": "East Perth. Vegetated strip between the foreshore path and the Swan River, just north of "
+                    "the Warndoolier public toilet - tidal/brackish fringe habitat.",
+     "Notes": "Location marked by the program on a Google Maps screenshot (7 Oct 2026); coordinates estimated "
+              "from that image, not surveyed. Working name and Site_Type inferred - confirm on the ground."},
+    {"Site_Name": "Warndoolier West Bushland (Joel Terrace)", "Site_Type": "Urban Stormwater",
+     "Latitude": -31.94321, "Longitude": 115.88052,
+     "Description": "East Perth. Small treed/vegetated patch on the western edge of Warndoolier, near Joel "
+                    "Terrace and north of Summers St - potential low-lying/drainage breeding habitat.",
+     "Notes": "Location marked by the program on a Google Maps screenshot (7 Oct 2026); coordinates estimated "
+              "from that image, not surveyed. Working name and Site_Type are placeholders - confirm the actual "
+              "habitat (drain, depression, pond) on the ground."},
+    {"Site_Name": "Summers St / Graham Farmer Freeway Verge", "Site_Type": "Urban Stormwater",
+     "Latitude": -31.94745, "Longitude": 115.88007,
+     "Description": "East Perth. Vegetated strip along the Graham Farmer Freeway, south of the former East "
+                    "Perth Power Station site - likely roadside drainage/swale habitat.",
+     "Notes": "Location marked by the program on a Google Maps screenshot (7 Oct 2026); coordinates estimated "
+              "from that image, not surveyed. Working name and Site_Type are placeholders - confirm the actual "
+              "habitat on the ground."},
+]
+_next_site_n = N_SITES + 2   # N_SITES inland sites, then the Claisebrook Cove river site above
+for _extra in EXTRA_REAL_SITES:
+    sites_df = pd.concat([sites_df, pd.DataFrame([{
+        "Site_ID": f"ST-{_next_site_n:03d}", "Status": "Active",
+        "Created_By": "Alex Yates", "Created_Date": "2026-10-07",
+        "Modified_By": "Alex Yates", "Modified_Date": "2026-10-07",
+        **_extra,
+    }])[sites_df.columns]], ignore_index=True)
+    _next_site_n += 1
+sites_df.to_csv(OUT_DIR / "sites.csv", index=False)
+
 
 print("Sample data generation complete.")
 print(f"  sites: {len(sites_df)}")
@@ -1246,5 +1387,8 @@ print(f"  larvae_dips: {len(dips_df)}")
 print(f"  users: {len(users_df)}")
 print(f"  action_thresholds: {len(thresholds_df)}")
 print(f"  program_targets: {len(targets_df)}")
+print(f"  time_entries: {len(time_df)}")
+print(f"  cost_entries: {len(cost_df)}")
+print(f"  budget_settings: {len(settings_df)}")
 print(f"Hotspot persistent sites (for demo): {sorted(hotspot_persistent_sites)}")
 print(f"Hotspot spike sites (for demo): {sorted(hotspot_spike_sites)}")

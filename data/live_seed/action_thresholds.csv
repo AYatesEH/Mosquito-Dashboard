@@ -1,0 +1,4 @@
+Threshold_ID,Scope,Site_ID,Species_Code,Trap_Type,Metric,Normal_Max,Elevated_Max,Notes
+THR-01,Default,,,,Mosquitoes_Per_Trap_Night,10,30,SAMPLE THRESHOLD - not scientifically or regulatorily validated.
+THR-02,Species,,AEDVIG,,Mosquitoes_Per_Trap_Night,8,25,SAMPLE THRESHOLD - Aedes vigilax (nuisance/vector interest species).
+THR-03,Species,,CULANN,,Mosquitoes_Per_Trap_Night,12,35,SAMPLE THRESHOLD - Culex annulirostris.

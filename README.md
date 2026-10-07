@@ -452,3 +452,59 @@ restructuring anything.
   layout/branding is confirmed with management.
 - No authentication - anyone who can open the app sees everything, which is fine for a single-team prototype
   but is the first thing to add before wider rollout.
+
+---
+
+## 8. Login and access (shared password)
+
+The app has one shared password (`core/auth.py`). It is **not** per-person
+authentication: everyone uses the same password, so the audit trail records
+the officer chosen in each form, not a verified identity. Per-person login
+(SSO / Entra ID) is the next step if that matters.
+
+| Mode | When | Behaviour |
+|---|---|---|
+| off | no `APP_PASSWORD`, no `DATABASE_URL`, `APP_MODE` not `live` | demo mode, no login |
+| password | `APP_PASSWORD` set | login screen; 12 h session; failed attempts are slowed down |
+| locked | live data (`DATABASE_URL` or `APP_MODE=live`) but no `APP_PASSWORD` | shows an error and stops - it never silently opens up |
+
+Set these under Streamlit Cloud -> Manage app -> Settings -> Secrets (never in
+the repo):
+
+```toml
+APP_PASSWORD = "a long passphrase"
+APP_MODE = "live"
+DATABASE_URL = "postgresql://..."
+FIRST_SEASON_START_YEAR = "2026"   # hides the 2023-26 placeholder seasons
+```
+
+As an outer layer, also make the Streamlit Cloud app private (Share -> invite
+by email). Streamlit Cloud's disk is ephemeral, so real data needs
+`DATABASE_URL`; CSV writes are lost on restart.
+
+## 9. Budget page
+
+`pages/16_Budget.py` tracks officer time (hours x hourly rate - an internal
+allocation, not cash), dry ice for CO2 traps, larvicide and other consumables
+against a per-season budget. Costs are ex-GST. Nothing is pre-filled for a
+live season: enter the hourly rate, dry ice price, kg per trap-night and
+category budgets on the **Settings** tab. Settings are append-only (latest
+wins). Projections apply to officer time and dry ice only, after 15% of the
+season has elapsed. Larvicide purchases must be in the product's use unit
+(g for PRD-01, briquet(s) for PRD-02) so they can be compared with usage.
+New tables: `time_entries`, `cost_entries`, `budget_settings`.
+
+## 10. First-season runbook
+
+1. `psql "$DATABASE_URL" -f db/schema.sql` (safe to re-run; adds new tables).
+2. `python data/make_live_seed.py --officers "Name:Role" ...` (writes `data/live_seed/`; sample data is untouched).
+3. Review `sites.csv`, `trap_sites.csv`, `action_thresholds.csv` (thresholds are placeholders).
+4. `./db/migrate_from_csv.sh "$DATABASE_URL" data/live_seed`
+5. Set the secrets above, then reboot the app.
+6. Enter budget settings on the Budget page and set real 2026-27 targets.
+
+Sites ST-023 to ST-025 (Warndoolier / Summers St, East Perth) have
+coordinates estimated from a map screenshot (about +/-20-30 m) and working
+names; check them on the Map. There is no edit-site screen yet. To add them to
+an already-provisioned database, run `db/migrate_from_csv.sh` only on a fresh
+DB, otherwise use Map -> "Add a new site".

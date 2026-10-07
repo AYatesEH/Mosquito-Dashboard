@@ -84,6 +84,15 @@ class DataRepository(abc.ABC):
     @abc.abstractmethod
     def get_program_targets(self) -> pd.DataFrame: ...
 
+    @abc.abstractmethod
+    def get_time_entries(self) -> pd.DataFrame: ...
+
+    @abc.abstractmethod
+    def get_cost_entries(self) -> pd.DataFrame: ...
+
+    @abc.abstractmethod
+    def get_budget_settings(self) -> pd.DataFrame: ...
+
     # --- Writes ------------------------------------------------------------
     # Each returns the new row's generated ID. A future backend (SQL Server,
     # SharePoint Lists, Dataverse, ...) implements these the same way it
@@ -115,6 +124,15 @@ class DataRepository(abc.ABC):
     @abc.abstractmethod
     def add_larvae_dip(self, row: dict) -> str: ...
 
+    @abc.abstractmethod
+    def add_time_entry(self, row: dict) -> str: ...
+
+    @abc.abstractmethod
+    def add_cost_entry(self, row: dict) -> str: ...
+
+    @abc.abstractmethod
+    def add_budget_setting(self, row: dict) -> str: ...
+
 
 class CSVDataRepository(DataRepository):
     """
@@ -140,6 +158,39 @@ class CSVDataRepository(DataRepository):
             for col in date_cols:
                 if col in df.columns:
                     df[col] = pd.to_datetime(df[col], errors="coerce")
+        return df
+
+    # Budget tables are newer than the rest: a data folder created before they
+    # existed simply doesn't have the files yet, so reading them returns an
+    # empty table (and the first write creates the file) instead of failing.
+    _BUDGET_COLUMNS = {
+        "time_entries.csv": ["Entry_ID", "Season", "Date", "Officer", "Activity", "Hours", "Site_ID",
+                              "Notes", "Created_By", "Created_Date"],
+        "cost_entries.csv": ["Cost_ID", "Season", "Date", "Category", "Description", "Product_ID",
+                              "Quantity", "Quantity_Unit", "Total_Cost", "Supplier", "Invoice_Ref",
+                              "Created_By", "Created_Date"],
+        "budget_settings.csv": ["Setting_ID", "Season", "Key", "Value", "Notes", "Created_By", "Created_Date"],
+    }
+
+    def _read_budget_csv(self, filename: str, date_cols=None) -> pd.DataFrame:
+        if not (self.data_dir / filename).exists():
+            return pd.DataFrame({c: pd.Series(dtype="object") for c in self._BUDGET_COLUMNS[filename]})
+        return self._read_csv(filename, date_cols=date_cols)
+
+    def get_time_entries(self) -> pd.DataFrame:
+        df = self._read_budget_csv("time_entries.csv", date_cols=["Date", "Created_Date"])
+        df["Hours"] = pd.to_numeric(df["Hours"], errors="coerce")
+        return df
+
+    def get_cost_entries(self) -> pd.DataFrame:
+        df = self._read_budget_csv("cost_entries.csv", date_cols=["Date", "Created_Date"])
+        for col in ("Quantity", "Total_Cost"):
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+        return df
+
+    def get_budget_settings(self) -> pd.DataFrame:
+        df = self._read_budget_csv("budget_settings.csv", date_cols=["Created_Date"])
+        df["Value"] = pd.to_numeric(df["Value"], errors="coerce")
         return df
 
     def get_sites(self) -> pd.DataFrame:
@@ -249,6 +300,9 @@ class CSVDataRepository(DataRepository):
         never needs rewriting and a normal read (`_read_csv`) picks the new
         row straight up next time the cache is cleared."""
         path = self.data_dir / filename
+        if not path.exists() and filename in self._BUDGET_COLUMNS:
+            self.data_dir.mkdir(parents=True, exist_ok=True)
+            pd.DataFrame(columns=self._BUDGET_COLUMNS[filename]).to_csv(path, index=False)
         existing_columns = pd.read_csv(path, dtype=str, nrows=0).columns.tolist()
         row_df = pd.DataFrame([{c: row.get(c, "") for c in existing_columns}])
         row_df.to_csv(path, mode="a", header=False, index=False)
@@ -286,6 +340,21 @@ class CSVDataRepository(DataRepository):
     def add_larvae_dip(self, row: dict) -> str:
         new_id = self._next_id(self.get_larvae_dips(), "Dip_ID", "DIP", 5)
         self._append_row("larvae_dips.csv", {**row, "Dip_ID": new_id})
+        return new_id
+
+    def add_time_entry(self, row: dict) -> str:
+        new_id = self._next_id(self.get_time_entries(), "Entry_ID", "TIME", 5)
+        self._append_row("time_entries.csv", {**row, "Entry_ID": new_id})
+        return new_id
+
+    def add_cost_entry(self, row: dict) -> str:
+        new_id = self._next_id(self.get_cost_entries(), "Cost_ID", "CST", 5)
+        self._append_row("cost_entries.csv", {**row, "Cost_ID": new_id})
+        return new_id
+
+    def add_budget_setting(self, row: dict) -> str:
+        new_id = self._next_id(self.get_budget_settings(), "Setting_ID", "BST", 5)
+        self._append_row("budget_settings.csv", {**row, "Setting_ID": new_id})
         return new_id
 
 
@@ -393,6 +462,22 @@ class PostgresDataRepository(DataRepository):
     _LARVAE_DIPS_COLUMNS = {
         "Site_ID": "site_id", "Season": "season", "DateTime": "date_time",
         "Larvae_Count": "larvae_count", "Officer": "officer", "Notes": "notes",
+        "Created_By": "created_by", "Created_Date": "created_date",
+    }
+
+    _TIME_ENTRIES_COLUMNS = {
+        "Season": "season", "Date": "entry_date", "Officer": "officer", "Activity": "activity",
+        "Hours": "hours", "Site_ID": "site_id", "Notes": "notes", "Created_By": "created_by",
+        "Created_Date": "created_date",
+    }
+    _COST_ENTRIES_COLUMNS = {
+        "Season": "season", "Date": "entry_date", "Category": "category", "Description": "description",
+        "Product_ID": "product_id", "Quantity": "quantity", "Quantity_Unit": "quantity_unit",
+        "Total_Cost": "total_cost", "Supplier": "supplier", "Invoice_Ref": "invoice_ref",
+        "Created_By": "created_by", "Created_Date": "created_date",
+    }
+    _BUDGET_SETTINGS_COLUMNS = {
+        "Season": "season", "Key": "setting_key", "Value": "setting_value", "Notes": "notes",
         "Created_By": "created_by", "Created_Date": "created_date",
     }
 
@@ -544,6 +629,33 @@ class PostgresDataRepository(DataRepository):
             'FROM program_targets ORDER BY season'
         )
 
+    def get_time_entries(self) -> pd.DataFrame:
+        return self._read_sql(
+            'SELECT entry_id AS "Entry_ID", season AS "Season", entry_date AS "Date", '
+            'officer AS "Officer", activity AS "Activity", hours AS "Hours", site_id AS "Site_ID", '
+            'notes AS "Notes", created_by AS "Created_By", created_date AS "Created_Date" '
+            'FROM time_entries ORDER BY entry_id',
+            date_cols=["Date", "Created_Date"],
+        )
+
+    def get_cost_entries(self) -> pd.DataFrame:
+        return self._read_sql(
+            'SELECT cost_id AS "Cost_ID", season AS "Season", entry_date AS "Date", '
+            'category AS "Category", description AS "Description", product_id AS "Product_ID", '
+            'quantity AS "Quantity", quantity_unit AS "Quantity_Unit", total_cost AS "Total_Cost", '
+            'supplier AS "Supplier", invoice_ref AS "Invoice_Ref", created_by AS "Created_By", '
+            'created_date AS "Created_Date" FROM cost_entries ORDER BY cost_id',
+            date_cols=["Date", "Created_Date"],
+        )
+
+    def get_budget_settings(self) -> pd.DataFrame:
+        return self._read_sql(
+            'SELECT setting_id AS "Setting_ID", season AS "Season", setting_key AS "Key", '
+            'setting_value AS "Value", notes AS "Notes", created_by AS "Created_By", '
+            'created_date AS "Created_Date" FROM budget_settings ORDER BY setting_id',
+            date_cols=["Created_Date"],
+        )
+
     # --- Writes ----------------------------------------------------------
 
     @staticmethod
@@ -628,6 +740,24 @@ class PostgresDataRepository(DataRepository):
         with self._engine.begin() as conn:
             new_id = self._next_id(conn, "dip_id_seq", "DIP", 5)
             self._insert_row(conn, "larvae_dips", self._LARVAE_DIPS_COLUMNS, row, {"dip_id": new_id})
+        return new_id
+
+    def add_time_entry(self, row: dict) -> str:
+        with self._engine.begin() as conn:
+            new_id = self._next_id(conn, "time_entry_id_seq", "TIME", 5)
+            self._insert_row(conn, "time_entries", self._TIME_ENTRIES_COLUMNS, row, {"entry_id": new_id})
+        return new_id
+
+    def add_cost_entry(self, row: dict) -> str:
+        with self._engine.begin() as conn:
+            new_id = self._next_id(conn, "cost_entry_id_seq", "CST", 5)
+            self._insert_row(conn, "cost_entries", self._COST_ENTRIES_COLUMNS, row, {"cost_id": new_id})
+        return new_id
+
+    def add_budget_setting(self, row: dict) -> str:
+        with self._engine.begin() as conn:
+            new_id = self._next_id(conn, "budget_setting_id_seq", "BST", 5)
+            self._insert_row(conn, "budget_settings", self._BUDGET_SETTINGS_COLUMNS, row, {"setting_id": new_id})
         return new_id
 
 
