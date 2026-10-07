@@ -81,6 +81,10 @@ DEFAULT_SEASON = list(SEASON_BOUNDS.keys())[-1]
 TEST_SEASON = "TEST"
 if os.environ.get("ENABLE_TEST_SEASON", "1").strip().lower() not in ("0", "false", "no", "off"):
     SEASON_BOUNDS[TEST_SEASON] = (pd.Timestamp("2025-01-01"), pd.Timestamp("2030-12-31"))
+    # While trialling, the app opens on TEST so nobody enters data into the real
+    # season by accident. ENABLE_TEST_SEASON=0 removes TEST and the default
+    # reverts to the latest real season - one switch at launch.
+    DEFAULT_SEASON = TEST_SEASON
 
 
 # ===========================================================================

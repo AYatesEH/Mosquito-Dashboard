@@ -527,7 +527,7 @@ entered (surveillance, dips, treatments, complaints, time, spend, budget
 settings) is saved with Season = TEST regardless of its date, so it never mixes
 with 2026-27, and a warning shows in the sidebar. Tell testers: "pick Season =
 TEST, then enter whatever you like." Switch it off at launch with
-`ENABLE_TEST_SEASON = "0"` in Secrets.
+`ENABLE_TEST_SEASON = "0"` in Secrets. While TEST is enabled the app **opens on TEST**; disabling it also makes the app open on the latest real season again (2026-27).
 
 Clear the test data before launch (Postgres; results cascade from events):
 
