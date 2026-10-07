@@ -29,10 +29,17 @@ from core.config import (
 def render():
     ui.apply_page_style()
     data = ui.get_data()
-    ui.render_global_filters(data)  # sidebar stays consistent across pages; this page uses full data, not the filter
+    filters = ui.render_global_filters(data)
+    # The list is built only from the SELECTED SEASON's records (the season
+    # filter, not its date range - a week is picked below). Without this, TEST
+    # or a new season would show tasks generated from other seasons' data.
+    season = filters["season"]
+    for key in ("surv_events", "catch_totals", "complaints", "treatments", "observations", "larvae_dips"):
+        data[key] = data[key][data[key]["Season"] == season]
 
     st.title("Weekly To Do List")
     ui.sample_data_banner()
+    st.caption(f"Built from **{season}** records only (change the Season in the sidebar).")
     st.info(
         f"This list is generated automatically from complaints, recent trapping, larvae dip counts, hotspots and "
         f"treatment data - it is recomputed fresh every time this page loads, so **there is no 'mark done' "
@@ -79,8 +86,14 @@ def render():
         data["surv_events"]["Deployment_DateTime"], data["treatments"]["Treatment_Date"],
         data["complaints"]["Date_Received"],
     ]).dropna()
-    default_ref_date = min(candidate_dates.max().date(), pd.Timestamp.now().date()) if not candidate_dates.empty \
-        else pd.Timestamp.now().date()
+    season_start, season_end = ui.SEASON_BOUNDS[season]
+    today = pd.Timestamp.now().normalize()
+    if season_start <= today <= season_end:
+        default_ref_date = today.date()  # in-progress season: this week
+    elif not candidate_dates.empty:
+        default_ref_date = min(candidate_dates.max(), season_end).date()  # finished season: its last active week
+    else:
+        default_ref_date = season_start.date()
 
     ref_date = st.date_input(
         "Show priorities for the week containing", value=default_ref_date, key="todo_ref_date",
