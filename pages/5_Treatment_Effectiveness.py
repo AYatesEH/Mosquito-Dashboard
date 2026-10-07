@@ -89,15 +89,15 @@ def render():
         ]
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=window_events["Deployment_DateTime"], y=window_events["Mosquitoes_Per_Trap_Night"],
-                                  mode="lines+markers", name="Mosquitoes/trap-night"))
+                                  mode="lines+markers", name="Mosquitoes caught per night"))
         fig.add_vline(x=treatment_date, line_color="#C62828", line_dash="dash")
-        fig.update_layout(height=380, yaxis_title="Mosquitoes / trap-night",
+        fig.update_layout(height=380, yaxis_title="Mosquitoes caught per night",
                            title=f"{chosen['Site_Name']} - {chosen_id}")
         st.plotly_chart(fig, use_container_width=True)
 
         if chosen["Sufficient_Data"]:
             st.markdown(
-                f"Pre-treatment mean: **{chosen['Pre_Abundance']}** mosquitoes/trap-night "
+                f"Pre-treatment mean: **{chosen['Pre_Abundance']}** mosquitoes caught per night "
                 f"({int(chosen['Pre_Events'])} usable event(s)) | "
                 f"Post-treatment mean: **{chosen['Post_Abundance']}** ({int(chosen['Post_Events'])} usable event(s)) | "
                 f"Observed change: **{chosen['Pct_Change']:+.0f}%**"

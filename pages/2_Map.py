@@ -83,7 +83,8 @@ def render():
         c1, c2, c3, c4 = st.columns(4)
         c1.markdown(f"**{site_row['Site_Name']}** ({site_id})")
         c1.markdown(ui.status_badge_html(status_info["Status"]), unsafe_allow_html=True)
-        c2.metric("Latest mosquitoes/trap-night", status_info["Latest_MPTN"] if status_info["Latest_MPTN"] is not None else "N/A")
+        c2.metric("Mosquitoes caught per night (latest trap)", status_info["Latest_MPTN"] if status_info["Latest_MPTN"] is not None else "N/A",
+                  help="Mosquitoes in the trap divided by the number of nights it was out, so traps left out for different lengths of time can be compared fairly. Example: 60 mosquitoes over 2 nights = 30 per night.")
         c3.metric("Dominant species", dominant_species or "N/A")
         c4.metric("Last treatment", site_treatments["Treatment_Date"].max().strftime("%Y-%m-%d")
                   if not site_treatments.empty and pd.notna(site_treatments["Treatment_Date"].max()) else "None recorded")

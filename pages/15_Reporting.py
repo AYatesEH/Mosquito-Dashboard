@@ -49,8 +49,8 @@ def render():
     sections = {
         "Surveillance": {
             "Total mosquitoes trapped": f"{kpis['total_mosquitoes']:,}",
-            "Mosquitoes per trap-night": f"{kpis['mosquitoes_per_trap_night']:.2f}" if kpis["mosquitoes_per_trap_night"] is not None else "N/A",
-            "Successful trap-nights": f"{kpis['successful_trap_nights']:,.0f}",
+            "Mosquitoes caught per night (average)": f"{kpis['mosquitoes_per_trap_night']:.2f}" if kpis["mosquitoes_per_trap_night"] is not None else "N/A",
+            "Successful trap-nights (nights a working trap was out)": f"{kpis['successful_trap_nights']:,.0f}",
             "Surveillance completion (SAMPLE target)": f"{calc.surveillance_program_completion(events_f, planned_events):.0f}%" if planned_events else "N/A",
         },
         "Species": {

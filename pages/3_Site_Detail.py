@@ -108,8 +108,8 @@ def render():
         )
 
         ui.kpi_row([
-            ("Latest MPTN", f"{latest['Mosquitoes_Per_Trap_Night']:.1f}", None),
-            ("Previous MPTN", f"{previous['Mosquitoes_Per_Trap_Night']:.1f}" if previous is not None else "N/A", None),
+            ("Latest catch per night", f"{latest['Mosquitoes_Per_Trap_Night']:.1f}", "Mosquitoes in the trap divided by the number of nights it was out, so traps left out for different lengths of time can be compared fairly. Example: 60 mosquitoes over 2 nights = 30 per night."),
+            ("Previous catch per night", f"{previous['Mosquitoes_Per_Trap_Night']:.1f}" if previous is not None else "N/A", None),
             ("Change", f"{pct_change:+.0f}%" if pct_change is not None else "N/A", None),
             ("Dominant species", dominant_species or "N/A", None),
             ("Last treatment", last_treatment_date.strftime("%Y-%m-%d") if pd.notna(last_treatment_date) else "None recorded", None),
@@ -132,15 +132,15 @@ def render():
     st.subheader("Mosquito abundance over time (with treatments overlaid)")
     if not ct_site_period.empty:
         daily = ct_site_period.groupby(ct_site_period["Deployment_DateTime"].dt.date, as_index=False)["Mosquitoes_Per_Trap_Night"].mean()
-        daily.columns = ["Date", "MPTN"]
+        daily.columns = ["Date", "Catch per night"]
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=daily["Date"], y=daily["MPTN"], mode="lines+markers", name="Mosquitoes/trap-night"))
+        fig.add_trace(go.Scatter(x=daily["Date"], y=daily["Catch per night"], mode="lines+markers", name="Mosquitoes caught per night"))
         completed = treatments_site[(treatments_site["Treatment_Status"] == "Completed") & treatments_site["Treatment_Date"].notna()]
         for _, t in completed.iterrows():
             t_date = t["Treatment_Date"]
             if pd.notna(t_date) and filters["date_range"][0] <= t_date.date() <= filters["date_range"][1]:
                 fig.add_vline(x=t_date, line_dash="dash", line_color="#C62828")
-        fig.update_layout(height=380, yaxis_title="Mosquitoes / trap-night")
+        fig.update_layout(height=380, yaxis_title="Mosquitoes caught per night")
         st.plotly_chart(fig, use_container_width=True)
         st.caption("Dashed red lines mark completed treatments in the selected period.")
     else:

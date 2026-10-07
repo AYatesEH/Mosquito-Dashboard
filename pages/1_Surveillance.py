@@ -47,7 +47,7 @@ def render():
         # --- Abundance over time, with species/site filters already applied via ct ---
         st.subheader("Abundance over time")
         if not ct.empty:
-            atab1, atab2 = st.tabs(["Total catch", "Mosquitoes per trap-night"])
+            atab1, atab2 = st.tabs(["Total catch", "Catch per night"])
             with atab1:
                 daily = ct.groupby(ct["Deployment_DateTime"].dt.date, as_index=False)["Total_Catch"].sum()
                 daily.columns = ["Date", "Total_Catch"]
@@ -55,9 +55,10 @@ def render():
                 fig.update_layout(height=350)
                 st.plotly_chart(fig, use_container_width=True)
             with atab2:
+                st.caption("Mosquitoes in the trap divided by the number of nights it was out, so traps left out for different lengths of time can be compared fairly. Example: 60 mosquitoes over 2 nights = 30 per night.")
                 daily2 = ct.groupby(ct["Deployment_DateTime"].dt.date, as_index=False)["Mosquitoes_Per_Trap_Night"].mean()
-                daily2.columns = ["Date", "MPTN"]
-                fig2 = px.line(daily2, x="Date", y="MPTN", markers=True)
+                daily2.columns = ["Date", "Catch per night"]
+                fig2 = px.line(daily2, x="Date", y="Catch per night", markers=True)
                 fig2.update_layout(height=350)
                 st.plotly_chart(fig2, use_container_width=True)
         else:
@@ -70,16 +71,16 @@ def render():
         if not ct.empty:
             by_site = ct.groupby("Site_ID", as_index=False).agg(
                 Total_Catch=("Total_Catch", "sum"),
-                Mean_MPTN=("Mosquitoes_Per_Trap_Night", "mean"),
+                Catch_Per_Night=("Mosquitoes_Per_Trap_Night", "mean"),
                 Events=("Event_ID", "count"),
             )
             by_site = by_site.merge(data["sites"][["Site_ID", "Site_Name"]], on="Site_ID", how="left")
-            by_site = by_site.sort_values("Mean_MPTN", ascending=False)
-            fig3 = px.bar(by_site, x="Site_Name", y="Mean_MPTN", hover_data=["Total_Catch", "Events"])
-            fig3.update_layout(height=380, xaxis_title="", yaxis_title="Mean mosquitoes / trap-night")
+            by_site = by_site.sort_values("Catch_Per_Night", ascending=False)
+            fig3 = px.bar(by_site, x="Site_Name", y="Catch_Per_Night", hover_data=["Total_Catch", "Events"])
+            fig3.update_layout(height=380, xaxis_title="", yaxis_title="Average mosquitoes caught per night")
             st.plotly_chart(fig3, use_container_width=True)
             with st.expander("View underlying site comparison table"):
-                st.dataframe(by_site[["Site_ID", "Site_Name", "Events", "Total_Catch", "Mean_MPTN"]],
+                st.dataframe(by_site[["Site_ID", "Site_Name", "Events", "Total_Catch", "Catch_Per_Night"]],
                              use_container_width=True, hide_index=True)
         else:
             st.info("No usable surveillance data to compare sites.")
@@ -108,7 +109,7 @@ def render():
         # --- Unusually high trap counts / persistent increases -----------------
         st.subheader("Unusually high trap counts")
         st.caption(
-            "A trap-night result is flagged here if it is more than 2x the site's own median mosquitoes-per-trap-night "
+            "A trap-night result is flagged here if it is more than 2x the site's own median mosquitoes caught per night "
             "over the selected period - a simple, transparent statistical flag, not a predictive model."
         )
         if not ct.empty:
@@ -121,7 +122,7 @@ def render():
                 st.dataframe(
                     flagged[["Event_ID", "Site_ID", "Site_Name", "Deployment_DateTime", "Total_Catch",
                              "Mosquitoes_Per_Trap_Night", "Site_Median"]].rename(
-                        columns={"Deployment_DateTime": "Deployment Date", "Site_Median": "Site's typical (median) MPTN"}),
+                        columns={"Deployment_DateTime": "Deployment Date", "Site_Median": "Site's typical catch per night"}),
                     use_container_width=True, hide_index=True,
                 )
             else:
