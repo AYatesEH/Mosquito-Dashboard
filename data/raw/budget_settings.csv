@@ -1,22 +1,19 @@
 Setting_ID,Season,Key,Value,Notes,Created_By,Created_Date
-BST-00001,2023-24,officer_hourly_rate,85.0,SAMPLE rate,Officer A,2023-10-01
+BST-00001,2023-24,budget_hours,500.0,SAMPLE hours budget,Officer A,2023-10-01
 BST-00002,2023-24,dry_ice_price_per_kg,3.2,SAMPLE price,Officer A,2023-10-01
 BST-00003,2023-24,dry_ice_kg_per_trap_night,2.0,SAMPLE usage assumption,Officer A,2023-10-01
-BST-00004,2023-24,budget::Officer time,24000.0,SAMPLE budget,Officer A,2023-10-01
-BST-00005,2023-24,budget::Dry ice,1500.0,SAMPLE budget,Officer A,2023-10-01
-BST-00006,2023-24,budget::Larvicide,4500.0,SAMPLE budget,Officer A,2023-10-01
-BST-00007,2023-24,budget::Other consumables / equipment,800.0,SAMPLE budget,Officer A,2023-10-01
-BST-00008,2024-25,officer_hourly_rate,85.0,SAMPLE rate,Officer A,2024-10-01
-BST-00009,2024-25,dry_ice_price_per_kg,3.2,SAMPLE price,Officer A,2024-10-01
-BST-00010,2024-25,dry_ice_kg_per_trap_night,2.0,SAMPLE usage assumption,Officer A,2024-10-01
-BST-00011,2024-25,budget::Officer time,24000.0,SAMPLE budget,Officer A,2024-10-01
-BST-00012,2024-25,budget::Dry ice,1500.0,SAMPLE budget,Officer A,2024-10-01
-BST-00013,2024-25,budget::Larvicide,4500.0,SAMPLE budget,Officer A,2024-10-01
-BST-00014,2024-25,budget::Other consumables / equipment,800.0,SAMPLE budget,Officer A,2024-10-01
-BST-00015,2025-26,officer_hourly_rate,85.0,SAMPLE rate,Officer A,2025-10-01
-BST-00016,2025-26,dry_ice_price_per_kg,3.2,SAMPLE price,Officer A,2025-10-01
-BST-00017,2025-26,dry_ice_kg_per_trap_night,2.0,SAMPLE usage assumption,Officer A,2025-10-01
-BST-00018,2025-26,budget::Officer time,24000.0,SAMPLE budget,Officer A,2025-10-01
-BST-00019,2025-26,budget::Dry ice,1500.0,SAMPLE budget,Officer A,2025-10-01
-BST-00020,2025-26,budget::Larvicide,4500.0,SAMPLE budget,Officer A,2025-10-01
-BST-00021,2025-26,budget::Other consumables / equipment,800.0,SAMPLE budget,Officer A,2025-10-01
+BST-00004,2023-24,budget::Dry ice,1500.0,SAMPLE budget,Officer A,2023-10-01
+BST-00005,2023-24,budget::Larvicide,4500.0,SAMPLE budget,Officer A,2023-10-01
+BST-00006,2023-24,budget::Other consumables / equipment,800.0,SAMPLE budget,Officer A,2023-10-01
+BST-00007,2024-25,budget_hours,500.0,SAMPLE hours budget,Officer A,2024-10-01
+BST-00008,2024-25,dry_ice_price_per_kg,3.2,SAMPLE price,Officer A,2024-10-01
+BST-00009,2024-25,dry_ice_kg_per_trap_night,2.0,SAMPLE usage assumption,Officer A,2024-10-01
+BST-00010,2024-25,budget::Dry ice,1500.0,SAMPLE budget,Officer A,2024-10-01
+BST-00011,2024-25,budget::Larvicide,4500.0,SAMPLE budget,Officer A,2024-10-01
+BST-00012,2024-25,budget::Other consumables / equipment,800.0,SAMPLE budget,Officer A,2024-10-01
+BST-00013,2025-26,budget_hours,500.0,SAMPLE hours budget,Officer A,2025-10-01
+BST-00014,2025-26,dry_ice_price_per_kg,3.2,SAMPLE price,Officer A,2025-10-01
+BST-00015,2025-26,dry_ice_kg_per_trap_night,2.0,SAMPLE usage assumption,Officer A,2025-10-01
+BST-00016,2025-26,budget::Dry ice,1500.0,SAMPLE budget,Officer A,2025-10-01
+BST-00017,2025-26,budget::Larvicide,4500.0,SAMPLE budget,Officer A,2025-10-01
+BST-00018,2025-26,budget::Other consumables / equipment,800.0,SAMPLE budget,Officer A,2025-10-01

@@ -57,8 +57,7 @@ from core.config import (
     COST_CATEGORY_DRY_ICE,
     COST_CATEGORY_LARVICIDE,
     BUDGET_CATEGORIES,
-    BUDGET_CATEGORY_OFFICER_TIME,
-    BUDGET_KEY_OFFICER_RATE,
+    BUDGET_KEY_BUDGET_HOURS,
     BUDGET_KEY_DRY_ICE_PRICE,
     BUDGET_KEY_DRY_ICE_KG_PER_NIGHT,
     BUDGET_KEY_BUDGET_PREFIX,
@@ -1048,8 +1047,8 @@ def kpi_summary(catch_totals: pd.DataFrame, treatments: pd.DataFrame, complaints
 # budget_settings) plus the operational tables they're correlated with
 # (surveillance events, treatments, complaints, dips). Everything is scoped to
 # ONE season, because budgets are per season. Costs are whatever basis finance
-# uses (the app labels them ex-GST); officer time is an internal allocation
-# (hours x hourly rate), not cash out of the door - the Budget page says so.
+# uses (the app labels them ex-GST); officer time
+# is tracked in HOURS only - no wage or rate is stored or calculated.
 
 def latest_budget_settings(settings: pd.DataFrame, season: str) -> dict:
     """{Key: float} for one season. Settings are append-only, so for each key
@@ -1071,38 +1070,47 @@ def season_elapsed_fraction(season_start: pd.Timestamp, season_end: pd.Timestamp
     return float(min(max((as_of - season_start).total_seconds() / total, 0.0), 1.0))
 
 
-def officer_time_summary(time_entries: pd.DataFrame, season: str, hourly_rate: float) -> dict:
-    """Hours and (hours x rate) cost for one season, broken down by activity,
-    officer and week (week = the Monday starting it)."""
-    empty = {"total_hours": 0.0, "total_cost": 0.0,
-             "by_activity": pd.DataFrame(columns=["Activity", "Hours", "Cost"]),
-             "by_officer": pd.DataFrame(columns=["Officer", "Hours", "Cost"]),
-             "by_week": pd.DataFrame(columns=["Week", "Hours", "Cost"])}
+def officer_time_summary(time_entries: pd.DataFrame, season: str) -> dict:
+    """Hours logged for one season, broken down by activity, officer and week
+    (week = the Monday starting it). Hours only - no dollar values."""
+    empty = {"total_hours": 0.0,
+             "by_activity": pd.DataFrame(columns=["Activity", "Hours"]),
+             "by_officer": pd.DataFrame(columns=["Officer", "Hours"]),
+             "by_week": pd.DataFrame(columns=["Week", "Hours"])}
     if time_entries is None or time_entries.empty:
         return empty
     df = time_entries[time_entries["Season"] == season].dropna(subset=["Hours"]).copy()
     if df.empty:
         return empty
-    rate = float(hourly_rate or 0.0)
 
     def _agg(col):
         out = df.groupby(col, as_index=False)["Hours"].sum()
-        out["Cost"] = out["Hours"] * rate
         return out.sort_values("Hours", ascending=False).reset_index(drop=True)
 
     df["Week"] = df["Date"].dt.to_period("W-SUN").dt.start_time
     by_week = df.groupby("Week", as_index=False)["Hours"].sum()
-    by_week["Cost"] = by_week["Hours"] * rate
-    return {"total_hours": float(df["Hours"].sum()), "total_cost": float(df["Hours"].sum()) * rate,
+    return {"total_hours": float(df["Hours"].sum()),
             "by_activity": _agg("Activity"), "by_officer": _agg("Officer"), "by_week": by_week}
 
 
-def season_spend(season: str, settings: dict, time_entries: pd.DataFrame, cost_entries: pd.DataFrame) -> dict:
-    """{budget category: spend to date}. Officer time = hours x the season's
-    hourly rate; the rest = the sum of logged purchases/invoices."""
+def hours_budget_summary(season: str, settings: dict, time_entries: pd.DataFrame,
+                         season_start: pd.Timestamp, season_end: pd.Timestamp, as_of: pd.Timestamp) -> dict:
+    """Officer hours vs the (optional) hours budget, with a straight-line
+    projection once enough of the season has elapsed."""
+    used = officer_time_summary(time_entries, season)["total_hours"]
+    budget = settings.get(BUDGET_KEY_BUDGET_HOURS)
+    elapsed = season_elapsed_fraction(season_start, season_end, as_of)
+    projected = (used / elapsed) if elapsed >= MIN_ELAPSED_FOR_PROJECTION else None
+    return {"Budget": budget, "Used": used,
+            "Remaining": (budget - used) if budget is not None else None,
+            "Pct_Used": (100.0 * used / budget) if budget else None,
+            "Projected": projected,
+            "Projected_Over_Budget": (projected > budget) if (projected is not None and budget) else None}
+
+
+def season_spend(season: str, cost_entries: pd.DataFrame) -> dict:
+    """{budget category: spend to date} = the sum of logged purchases/invoices."""
     spend = {c: 0.0 for c in BUDGET_CATEGORIES}
-    spend[BUDGET_CATEGORY_OFFICER_TIME] = officer_time_summary(
-        time_entries, season, settings.get(BUDGET_KEY_OFFICER_RATE, 0.0))["total_cost"]
     if cost_entries is not None and not cost_entries.empty:
         ce = cost_entries[cost_entries["Season"] == season]
         for cat, total in ce.groupby("Category")["Total_Cost"].sum().items():
@@ -1114,16 +1122,16 @@ def season_spend(season: str, settings: dict, time_entries: pd.DataFrame, cost_e
 # Categories whose spend is steady enough that a straight-line run-rate is a
 # fair rough projection. Larvicide is bought in lumps early and used according
 # to rainfall/breeding, so a run-rate would mislead - no projection shown.
-_PROJECTABLE = {BUDGET_CATEGORY_OFFICER_TIME, COST_CATEGORY_DRY_ICE}
+_PROJECTABLE = {COST_CATEGORY_DRY_ICE}
 MIN_ELAPSED_FOR_PROJECTION = 0.15
 
 
-def budget_summary(season: str, settings: dict, time_entries: pd.DataFrame, cost_entries: pd.DataFrame,
+def budget_summary(season: str, settings: dict, cost_entries: pd.DataFrame,
                    season_start: pd.Timestamp, season_end: pd.Timestamp, as_of: pd.Timestamp) -> pd.DataFrame:
     """One row per budget category: Budget, Spent, Remaining, Pct_Used and
-    (officer time + dry ice only, once >=15% of the season has elapsed) a
+    (dry ice only, once >=15% of the season has elapsed) a
     rough straight-line Projected season-end figure."""
-    spend = season_spend(season, settings, time_entries, cost_entries)
+    spend = season_spend(season, cost_entries)
     elapsed = season_elapsed_fraction(season_start, season_end, as_of)
     rows = []
     for cat in BUDGET_CATEGORIES:
@@ -1209,13 +1217,13 @@ def larvicide_analysis(season: str, cost_entries: pd.DataFrame, treatments: pd.D
     return pd.DataFrame(rows, columns=cols)
 
 
-def cost_per_activity(season: str, hourly_rate: float, time_entries: pd.DataFrame, surv_events: pd.DataFrame,
+def cost_per_activity(season: str, time_entries: pd.DataFrame, surv_events: pd.DataFrame,
                       complaints: pd.DataFrame, treatments: pd.DataFrame, larvae_dips: pd.DataFrame,
                       dry_ice: dict, larvicide: pd.DataFrame) -> pd.DataFrame:
-    """Ties officer hours and materials back to the work they paid for -
-    cost per trap deployment, per complaint investigated, per completed
-    treatment, per dip - so a budget conversation can be about unit costs,
-    not just totals. Rows with nothing to divide by are omitted."""
+    """Ties officer hours (not dollars) and materials cost back to the work
+    done - per trap deployment, per complaint investigated, per completed
+    treatment, per dip - so a budget conversation can be about unit effort and
+    unit materials cost, not just totals. Rows with nothing to divide by are omitted."""
     def hours(activity):
         if time_entries is None or time_entries.empty:
             return 0.0
@@ -1230,33 +1238,32 @@ def cost_per_activity(season: str, hourly_rate: float, time_entries: pd.DataFram
             d = d[d[status_col] == status]
         return int(len(d))
 
-    rate = float(hourly_rate or 0.0)
     rows = []
     n = count(surv_events)
     if n:
         h = hours(TIME_ACTIVITY_TRAPPING)
         rows.append({"Activity": "Per trap deployment", "Count": n, "Officer_Hours": h,
-                     "Hours_Each": h / n, "Officer_Cost_Each": h * rate / n,
+                     "Hours_Each": h / n,
                      "Materials_Cost_Each": dry_ice["spend"] / n,
                      "Materials": "dry ice"})
     n = count(complaints)
     if n:
         h = hours(TIME_ACTIVITY_COMPLAINT)
         rows.append({"Activity": "Per complaint investigated", "Count": n, "Officer_Hours": h,
-                     "Hours_Each": h / n, "Officer_Cost_Each": h * rate / n,
+                     "Hours_Each": h / n,
                      "Materials_Cost_Each": 0.0, "Materials": "-"})
     n = count(treatments, "Treatment_Status", "Completed")
     if n:
         h = hours(TIME_ACTIVITY_TREATMENT)
         used_value = float(larvicide["Used_Value"].fillna(0).sum()) if len(larvicide) else 0.0
         rows.append({"Activity": "Per completed larvicide treatment", "Count": n, "Officer_Hours": h,
-                     "Hours_Each": h / n, "Officer_Cost_Each": h * rate / n,
+                     "Hours_Each": h / n,
                      "Materials_Cost_Each": used_value / n, "Materials": "larvicide used (at purchase price)"})
     n = count(larvae_dips)
     if n:
         h = hours(TIME_ACTIVITY_DIPPING)
         rows.append({"Activity": "Per larvae dip", "Count": n, "Officer_Hours": h,
-                     "Hours_Each": h / n, "Officer_Cost_Each": h * rate / n,
+                     "Hours_Each": h / n,
                      "Materials_Cost_Each": 0.0, "Materials": "-"})
     return pd.DataFrame(rows, columns=["Activity", "Count", "Officer_Hours", "Hours_Each",
-                                        "Officer_Cost_Each", "Materials_Cost_Each", "Materials"])
+                                        "Materials_Cost_Each", "Materials"])

@@ -1236,10 +1236,10 @@ targets_df.to_csv(OUT_DIR / "program_targets.csv", index=False)
 # Generated LAST and from its own RNG stream, so adding/changing anything in
 # this section can never shift a random draw in sections 1-12 (every other CSV
 # stays byte-identical). Every rate, price and budget below is an obviously
-# PLACEHOLDER figure for demonstrating the Budget page - not a real wage,
+# PLACEHOLDER figure for demonstrating the Budget page - not a real
 # supplier price or council budget.
 brng = np.random.default_rng(RNG_SEED + 1)
-SAMPLE_RATE = 85.0            # $/hour, placeholder
+SAMPLE_BUDGET_HOURS = 500.0   # officer hours per season, placeholder
 SAMPLE_DRY_ICE_PRICE = 3.2    # $/kg, placeholder
 SAMPLE_KG_PER_NIGHT = 2.0     # kg per trap-night, placeholder
 
@@ -1311,10 +1311,9 @@ setting_rows = []
 for season in ALL_SEASONS:
     d0 = _d(SEASONS[season]["start"])
     for key, val, note in [
-        ("officer_hourly_rate", SAMPLE_RATE, "SAMPLE rate"),
+        ("budget_hours", SAMPLE_BUDGET_HOURS, "SAMPLE hours budget"),
         ("dry_ice_price_per_kg", SAMPLE_DRY_ICE_PRICE, "SAMPLE price"),
         ("dry_ice_kg_per_trap_night", SAMPLE_KG_PER_NIGHT, "SAMPLE usage assumption"),
-        ("budget::Officer time", 24000, "SAMPLE budget"),
         ("budget::Dry ice", 1500, "SAMPLE budget"),
         ("budget::Larvicide", 4500, "SAMPLE budget"),
         ("budget::Other consumables / equipment", 800, "SAMPLE budget"),

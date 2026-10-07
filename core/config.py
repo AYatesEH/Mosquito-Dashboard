@@ -345,18 +345,19 @@ COST_CATEGORY_DRY_ICE = "Dry ice"
 COST_CATEGORY_LARVICIDE = "Larvicide"
 COST_CATEGORY_OTHER = "Other consumables / equipment"
 COST_CATEGORIES = [COST_CATEGORY_DRY_ICE, COST_CATEGORY_LARVICIDE, COST_CATEGORY_OTHER]
-BUDGET_CATEGORY_OFFICER_TIME = "Officer time"
-BUDGET_CATEGORIES = [BUDGET_CATEGORY_OFFICER_TIME] + COST_CATEGORIES
+# Dollar budgets cover purchases only. Officer time is tracked in HOURS, never
+# dollars: no wage or pay-rate figure is stored anywhere in the app.
+BUDGET_CATEGORIES = list(COST_CATEGORIES)
 
 # Budget settings are stored append-only as (Season, Key, Value) rows - the
 # latest row per season+key wins - so every change keeps an audit trail and
 # needs no "edit" write path. Keys:
-BUDGET_KEY_OFFICER_RATE = "officer_hourly_rate"          # $/hour (use your fully-loaded rate)
+BUDGET_KEY_BUDGET_HOURS = "budget_hours"                 # optional season budget of officer HOURS
 BUDGET_KEY_DRY_ICE_PRICE = "dry_ice_price_per_kg"        # $/kg, used only to ESTIMATE need
 BUDGET_KEY_DRY_ICE_KG_PER_NIGHT = "dry_ice_kg_per_trap_night"
 BUDGET_KEY_BUDGET_PREFIX = "budget::"                    # budget::<category> -> season budget $
 BUDGET_SETTING_LABELS = {
-    BUDGET_KEY_OFFICER_RATE: "Officer hourly rate ($/h, fully loaded)",
+    BUDGET_KEY_BUDGET_HOURS: "Officer hours budget for the season (hours)",
     BUDGET_KEY_DRY_ICE_PRICE: "Dry ice price ($/kg) - for estimating need",
     BUDGET_KEY_DRY_ICE_KG_PER_NIGHT: "Dry ice used per trap-night (kg)",
 }

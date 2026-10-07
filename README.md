@@ -484,15 +484,26 @@ by email). Streamlit Cloud's disk is ephemeral, so real data needs
 
 ## 9. Budget page
 
-`pages/16_Budget.py` tracks officer time (hours x hourly rate - an internal
-allocation, not cash), dry ice for CO2 traps, larvicide and other consumables
-against a per-season budget. Costs are ex-GST. Nothing is pre-filled for a
-live season: enter the hourly rate, dry ice price, kg per trap-night and
-category budgets on the **Settings** tab. Settings are append-only (latest
-wins). Projections apply to officer time and dry ice only, after 15% of the
-season has elapsed. Larvicide purchases must be in the product's use unit
-(g for PRD-01, briquet(s) for PRD-02) so they can be compared with usage.
-New tables: `time_entries`, `cost_entries`, `budget_settings`.
+`pages/16_Budget.py` tracks officer time, dry ice for CO2 traps, larvicide and
+other consumables for each season. Costs are ex-GST.
+
+- **Officer time is tracked in hours only.** The app never stores or shows
+  wages or pay rates, so no personal pay information can end up in the
+  dashboard or database. Hours are broken down by activity, officer and week,
+  can be compared with an optional season hours budget, and are tied to work
+  done (hours per trap deployment, complaint, treatment, dip).
+- **Dollar budgets cover purchases only** (dry ice, larvicide, other
+  consumables). Nothing is pre-filled for a live season: enter the dry ice
+  price, kg per trap-night and the budgets on the **Settings** tab. Settings
+  are append-only (latest wins).
+- Projections: dry ice (dollars) and officer hours, after 15% of the season
+  has elapsed. Larvicide is bought in lumps so it isn't projected. Larvicide
+  purchases must be in the product's use unit (g for PRD-01, briquet(s) for
+  PRD-02) so they can be compared with usage.
+- New tables: `time_entries`, `cost_entries`, `budget_settings`. If a database
+  was set up from an earlier version that stored an `officer_hourly_rate` or
+  `budget::Officer time` setting, the app ignores those rows; delete them:
+  `DELETE FROM budget_settings WHERE setting_key IN ('officer_hourly_rate','budget::Officer time');`
 
 ## 10. First-season runbook
 
@@ -501,7 +512,7 @@ New tables: `time_entries`, `cost_entries`, `budget_settings`.
 3. Review `sites.csv`, `trap_sites.csv`, `action_thresholds.csv` (thresholds are placeholders).
 4. `./db/migrate_from_csv.sh "$DATABASE_URL" data/live_seed`
 5. Set the secrets above, then reboot the app.
-6. Enter budget settings on the Budget page and set real 2026-27 targets.
+6. Enter budget settings (prices, purchase budgets, optional hours budget) on the Budget page and set real 2026-27 targets.
 
 Sites ST-023 to ST-025 (Warndoolier / Summers St, East Perth) have
 coordinates estimated from a map screenshot (about +/-20-30 m) and working

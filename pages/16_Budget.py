@@ -1,7 +1,7 @@
 """Budget - officer time, dry ice (CO2 traps) and larvicide spend against a season budget.
 
-Costs are ex-GST. Officer time is an internal allocation (hours x hourly rate),
-not cash out of the door. Rates and prices are entered on the Settings tab -
+Costs are ex-GST. Officer time is tracked in HOURS only - the app never stores
+or shows wages or pay rates. Prices and budgets are entered on the Settings tab -
 nothing here is pre-filled for a live season.
 """
 
@@ -14,7 +14,7 @@ import streamlit as st
 from core import ui, calculations as calc
 from core.config import (
     TIME_ACTIVITIES, COST_CATEGORIES, COST_CATEGORY_DRY_ICE, COST_CATEGORY_LARVICIDE,
-    BUDGET_CATEGORIES, BUDGET_KEY_OFFICER_RATE, BUDGET_KEY_DRY_ICE_PRICE,
+    BUDGET_CATEGORIES, BUDGET_KEY_BUDGET_HOURS, BUDGET_KEY_DRY_ICE_PRICE,
     BUDGET_KEY_DRY_ICE_KG_PER_NIGHT, BUDGET_KEY_BUDGET_PREFIX, QUANTITY_USED_UNITS,
 )
 
@@ -26,21 +26,19 @@ def _money(v):
 def _overview(data, season, settings, as_of):
     start, end = ui.SEASON_BOUNDS[season]
     te, ce = data["time_entries"], data["cost_entries"]
-    rate = settings.get(BUDGET_KEY_OFFICER_RATE)
 
     if not settings:
-        st.info("No budget settings for this season yet. Set the officer hourly rate, dry ice price and "
-                "category budgets on the **Settings** tab to see budget vs spend.")
-    elif rate is None:
-        st.warning("Officer hourly rate isn't set for this season, so officer time shows as $0.")
+        st.info("No budget settings for this season yet. Set the dry ice price and category budgets "
+                "(and an optional officer hours budget) on the **Settings** tab.")
 
-    summary = calc.budget_summary(season, settings, te, ce, start, end, as_of)
+    summary = calc.budget_summary(season, settings, ce, start, end, as_of)
     total_budget = summary["Budget"].dropna().sum()
     total_spent = summary["Spent"].sum()
+    has_budget = summary["Budget"].notna().any()
     c1, c2, c3 = st.columns(3)
-    c1.metric("Total budget", _money(total_budget) if summary["Budget"].notna().any() else "Not set")
+    c1.metric("Total budget (purchases)", _money(total_budget) if has_budget else "Not set")
     c2.metric("Spent to date", _money(total_spent))
-    c3.metric("Remaining", _money(total_budget - total_spent) if summary["Budget"].notna().any() else "-")
+    c3.metric("Remaining", _money(total_budget - total_spent) if has_budget else "-")
 
     shown = summary.copy()
     for col in ("Budget", "Spent", "Remaining", "Projected"):
@@ -51,20 +49,23 @@ def _overview(data, season, settings, as_of):
     st.dataframe(shown.rename(columns={"Pct_Used": "% used", "Projected": "Projected season-end",
                                        "Projected_Over_Budget": "Projection vs budget"}),
                  hide_index=True, use_container_width=True)
-    st.caption(f"Costs ex-GST. Officer time = hours x hourly rate (internal allocation, not cash). Projection is a "
-               f"straight-line run-rate for officer time and dry ice only, shown once "
+    st.caption(f"Costs ex-GST, purchases only. Projection is a straight-line run-rate for dry ice only, shown once "
                f"{calc.MIN_ELAPSED_FOR_PROJECTION:.0%} of the season has elapsed; larvicide is bought in lumps so "
                f"it isn't projected.")
 
-    # --- Officer time ---
-    st.subheader("Officer time")
-    ot = calc.officer_time_summary(te, season, rate or 0.0)
+    # --- Officer time (hours only) ---
+    st.subheader("Officer time (hours)")
+    ot = calc.officer_time_summary(te, season)
+    hb = calc.hours_budget_summary(season, settings, te, start, end, as_of)
     if ot["total_hours"] == 0:
         st.caption("No time logged for this season yet.")
     else:
-        m1, m2 = st.columns(2)
+        m1, m2, m3 = st.columns(3)
         m1.metric("Hours logged", f"{ot['total_hours']:,.1f}")
-        m2.metric("Allocated cost", _money(ot["total_cost"]))
+        m2.metric("Hours budget", "Not set" if hb["Budget"] is None else f"{hb['Budget']:,.0f}")
+        m3.metric("Projected season-end", "-" if hb["Projected"] is None else f"{hb['Projected']:,.0f} h")
+        if hb["Projected_Over_Budget"]:
+            st.warning("At the current run-rate, officer hours will exceed the season hours budget.")
         a, b = st.columns(2)
         a.plotly_chart(px.bar(ot["by_activity"], x="Hours", y="Activity", orientation="h",
                               title="Hours by activity"), use_container_width=True)
@@ -105,7 +106,7 @@ def _overview(data, season, settings, as_of):
 
     # --- Unit costs ---
     st.subheader("Cost per activity")
-    cpa = calc.cost_per_activity(season, rate or 0.0, te, data["surv_events"], data["complaints"],
+    cpa = calc.cost_per_activity(season, te, data["surv_events"], data["complaints"],
                                  data["treatments"], data["larvae_dips"], di, lv)
     if cpa.empty:
         st.caption("Nothing to show yet.")
@@ -177,7 +178,7 @@ def _log_spend(data):
 def _settings(data, season, settings):
     st.caption(f"Settings for **{season}**. Each save is kept as a new row (latest wins), so there's an audit trail.")
     officers = data["users"]["Name"].tolist()
-    fields = [(BUDGET_KEY_OFFICER_RATE, "Officer hourly rate ($/h, loaded)"),
+    fields = [(BUDGET_KEY_BUDGET_HOURS, "Officer hours budget for the season (hours, optional)"),
               (BUDGET_KEY_DRY_ICE_PRICE, "Dry ice price ($/kg, ex-GST)"),
               (BUDGET_KEY_DRY_ICE_KG_PER_NIGHT, "Dry ice used per trap-night (kg)")]
     fields += [(BUDGET_KEY_BUDGET_PREFIX + c, f"Budget: {c} ($)") for c in BUDGET_CATEGORIES]
