@@ -24,7 +24,7 @@ def render():
 
     complaints_f = ui.filter_by_season_date(data["complaints"], filters, date_col="Date_Received")
 
-    as_of = pd.Timestamp(filters["date_range"][1])
+    as_of = ui.as_of_date(filters)
     hotspots = calc.identify_hotspots(ct, data["complaints"], data["treatments"], data["thresholds"], as_of=as_of,
                                        larvae_dips=data["larvae_dips"])
     hotspot_ids = set(hotspots["Site_ID"]) if not hotspots.empty else set()

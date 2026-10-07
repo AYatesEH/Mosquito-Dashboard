@@ -29,7 +29,7 @@ def render():
     )
 
     ct_all = calc.event_catch_totals(data["surv_events"], data["surv_results"])
-    as_of = pd.Timestamp(filters["date_range"][1])
+    as_of = ui.as_of_date(filters)
 
     with st.expander("Advanced: hotspot rules", expanded=False):
         st.caption("These set how many weeks, complaints, treatments and high dip counts it takes to flag a site. "

@@ -27,7 +27,7 @@ def render():
     planned_events = int(targets_row["Planned_Surveillance_Events"].iloc[0]) if not targets_row.empty else 0
     planned_treatments = int(targets_row["Planned_Treatments"].iloc[0]) if not targets_row.empty else 0
 
-    as_of = pd.Timestamp(filters["date_range"][1])
+    as_of = ui.as_of_date(filters)
     hotspots = calc.identify_hotspots(ct, data["complaints"], data["treatments"], thresholds, as_of=as_of,
                                        larvae_dips=data["larvae_dips"])
     dq = calc.data_quality_report(data["sites"], data["trap_sites"], data["surv_events"],

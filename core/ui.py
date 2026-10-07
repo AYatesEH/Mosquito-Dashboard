@@ -335,13 +335,31 @@ def _season_default_end(season: str, surv_events: Optional[pd.DataFrame]) -> "pd
     return min(latest, nominal_end)
 
 
+# The date range the TEST season opens on (1 Oct 2026 - 1 May 2027).
+TEST_DEFAULT_RANGE = (pd.Timestamp("2026-10-01"), pd.Timestamp("2027-05-01"))
+
+
+def _default_date_range(season: str, surv_events: Optional[pd.DataFrame]):
+    if season == TEST_SEASON:
+        return TEST_DEFAULT_RANGE[0].date(), TEST_DEFAULT_RANGE[1].date()
+    start, _ = SEASON_BOUNDS[season]
+    return start.date(), _season_default_end(season, surv_events).date()
+
+
+def as_of_date(filters: dict) -> pd.Timestamp:
+    """The "as of" date for lookback features (hotspots, map status, site
+    status): the end of the selected date range, but never later than today -
+    otherwise a range that runs to the end of the season (e.g. to 1 May) would
+    look back from a date with no data yet and show nothing."""
+    start, end = filters["date_range"]
+    return max(min(pd.Timestamp(end), pd.Timestamp.now().normalize()), pd.Timestamp(start))
+
+
 def _init_filter_state(surv_events: Optional[pd.DataFrame]):
     if "filters" not in st.session_state:
-        start, _ = SEASON_BOUNDS[DEFAULT_SEASON]
-        default_end = _season_default_end(DEFAULT_SEASON, surv_events)
         st.session_state["filters"] = {
             "season": DEFAULT_SEASON,
-            "date_range": (start.date(), default_end.date()),
+            "date_range": _default_date_range(DEFAULT_SEASON, surv_events),
             "site_ids": [],       # empty = all sites
             "species_codes": [],  # empty = all species
         }
@@ -372,9 +390,7 @@ def render_global_filters(data: dict) -> dict:
         "Season", season_options, index=season_options.index(f["season"]), key="filter_season"
     )
     if season != f["season"]:
-        start, _ = SEASON_BOUNDS[season]
-        default_end = _season_default_end(season, surv_events)
-        f["date_range"] = (start.date(), default_end.date())
+        f["date_range"] = _default_date_range(season, surv_events)
         f["season"] = season
 
     if season == TEST_SEASON:
