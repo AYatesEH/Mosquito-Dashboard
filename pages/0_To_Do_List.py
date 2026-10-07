@@ -85,6 +85,15 @@ def render():
         data["treatments"], data["products"], data["thresholds"], data["observations"], data["larvae_dips"],
     )
 
+    last_trap = data["surv_events"]["Deployment_DateTime"].max() if not data["surv_events"].empty else pd.NaT
+    if pd.isna(last_trap) or week_start > last_trap:
+        st.info(
+            "Trap suggestions are based on the trap checks logged so far, so weeks after your last logged check "
+            "show the same sites until that trapping is entered on the **Enter Data** page - the list can't "
+            "know where traps will have gone in the meantime. Log each week's trap checks and the next week's "
+            "suggestions move on to the sites trapped longest ago."
+        )
+
     n_high = int((todo["Priority"] == TODO_PRIORITY_HIGH).sum()) if not todo.empty else 0
     n_trap = int((todo["Task_Type"] == TODO_TASK_TRAPPING).sum()) if not todo.empty else 0
     n_treat = int((todo["Task_Type"] == TODO_TASK_TREATMENT).sum()) if not todo.empty else 0
