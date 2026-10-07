@@ -35,7 +35,7 @@ from core.config import (
 # one module allowed to import both. Wrapped defensively: st.secrets raises
 # if the app has no secrets.toml / configured secrets at all, which is the
 # normal case for the CSV-only prototype and for local dev.
-for _key in ("DATABASE_URL", "APP_PASSWORD", "APP_MODE", "FIRST_SEASON_START_YEAR"):
+for _key in ("DATABASE_URL", "APP_PASSWORD", "APP_MODE", "FIRST_SEASON_START_YEAR", "ENABLE_TEST_SEASON"):
     if _key not in os.environ:
         try:
             if _key in st.secrets:
@@ -71,8 +71,16 @@ def _first_season_start_year() -> int:
 
 
 SEASON_BOUNDS = _build_season_bounds(_first_season_start_year())
-# The most recent season that has started - 2026-27 from 1 Oct 2026.
+# The most recent REAL season that has started - 2026-27 from 1 Oct 2026.
 DEFAULT_SEASON = list(SEASON_BOUNDS.keys())[-1]
+
+# A "TEST" season for colleague trials: anything entered while it is selected
+# is tagged Season="TEST" whatever its date, so it never mixes with 2026-27 and
+# can be deleted in one go (see README). Switch it off before launch with
+# ENABLE_TEST_SEASON=0 (Streamlit secret / env var).
+TEST_SEASON = "TEST"
+if os.environ.get("ENABLE_TEST_SEASON", "1").strip().lower() not in ("0", "false", "no", "off"):
+    SEASON_BOUNDS[TEST_SEASON] = (pd.Timestamp("2025-01-01"), pd.Timestamp("2030-12-31"))
 
 
 # ===========================================================================
@@ -202,11 +210,17 @@ def infer_season(d) -> str:
     column on a new record without asking the officer to pick it separately.
     Falls back to the season whose start date is closest, if the date is
     outside every modelled season's range (e.g. mid-winter, between seasons)."""
+    try:
+        if TEST_SEASON in SEASON_BOUNDS and st.session_state.get("filters", {}).get("season") == TEST_SEASON:
+            return TEST_SEASON  # trial mode: everything entered is tagged TEST
+    except Exception:
+        pass
     ts = pd.Timestamp(d)
-    for season, (start, end) in SEASON_BOUNDS.items():
+    real = {k: v for k, v in SEASON_BOUNDS.items() if k != TEST_SEASON}
+    for season, (start, end) in real.items():
         if start <= ts <= end:
             return season
-    return min(SEASON_BOUNDS.items(), key=lambda kv: abs((ts - kv[1][0]).days))[0]
+    return min(real.items(), key=lambda kv: abs((ts - kv[1][0]).days))[0]
 
 
 # ===========================================================================
@@ -359,6 +373,8 @@ def render_global_filters(data: dict) -> dict:
         f["date_range"] = (start.date(), default_end.date())
         f["season"] = season
 
+    if season == TEST_SEASON:
+        st.sidebar.warning("TEST mode: anything you enter is saved as a test record, separate from 2026-27.")
     start, end = SEASON_BOUNDS[season]
     date_range = st.sidebar.date_input(
         "Date range", value=f["date_range"], min_value=start.date(), max_value=end.date(), key="filter_dates"

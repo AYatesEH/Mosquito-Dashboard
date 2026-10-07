@@ -508,3 +508,30 @@ coordinates estimated from a map screenshot (about +/-20-30 m) and working
 names; check them on the Map. There is no edit-site screen yet. To add them to
 an already-provisioned database, run `db/migrate_from_csv.sh` only on a fresh
 DB, otherwise use Map -> "Add a new site".
+
+## 11. TEST season (colleague trials)
+
+The Season filter has a **TEST** option. While it is selected, every record
+entered (surveillance, dips, treatments, complaints, time, spend, budget
+settings) is saved with Season = TEST regardless of its date, so it never mixes
+with 2026-27, and a warning shows in the sidebar. Tell testers: "pick Season =
+TEST, then enter whatever you like." Switch it off at launch with
+`ENABLE_TEST_SEASON = "0"` in Secrets.
+
+Clear the test data before launch (Postgres; results cascade from events):
+
+```sql
+DELETE FROM surveillance_events WHERE season = 'TEST';
+DELETE FROM site_observations WHERE season = 'TEST';
+DELETE FROM larvae_dips       WHERE season = 'TEST';
+DELETE FROM treatments        WHERE season = 'TEST';
+DELETE FROM complaints        WHERE season = 'TEST';
+DELETE FROM time_entries      WHERE season = 'TEST';
+DELETE FROM cost_entries      WHERE season = 'TEST';
+DELETE FROM budget_settings   WHERE season = 'TEST';
+```
+
+Limits: sites have no season, so sites testers add stay until removed by hand.
+Testers share the real database and password; for full isolation, deploy a
+second copy of the app with its own `DATABASE_URL` (a separate free database)
+and its own password.
