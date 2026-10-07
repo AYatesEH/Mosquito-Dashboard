@@ -204,10 +204,13 @@ def render():
                 area_value = st.number_input("Treatment volume/quantity (as applicable)", min_value=0.0, value=1.0, step=0.1, key="manual_volume")
                 area_unit_label = "unit"
         with c4:
-            rate_override = st.number_input(
-                f"Application rate to use ({rate_unit}) - editable, defaults to the midpoint of the labelled range",
-                min_value=0.0, value=float((product["Rate_Min"] + product["Rate_Max"]) / 2), step=0.1, key="manual_rate",
-            )
+            st.caption(f"Application rate: the midpoint of the labelled range "
+                       f"({(product['Rate_Min'] + product['Rate_Max']) / 2:g} {rate_unit}) unless you change it below.")
+            with st.expander("Advanced: change the application rate"):
+                rate_override = st.number_input(
+                    f"Application rate to use ({rate_unit})",
+                    min_value=0.0, value=float((product["Rate_Min"] + product["Rate_Max"]) / 2), step=0.1, key="manual_rate",
+                )
             if not (product["Rate_Min"] <= rate_override <= product["Rate_Max"]):
                 st.caption(f"⚠️ Outside the labelled range ({product['Rate_Min']:g}-{product['Rate_Max']:g}).")
 

@@ -31,7 +31,10 @@ def render():
     ct_all = calc.event_catch_totals(data["surv_events"], data["surv_results"])
     as_of = pd.Timestamp(filters["date_range"][1])
 
-    with st.expander("Rule parameters (configurable, SAMPLE defaults)", expanded=False):
+    with st.expander("Advanced: hotspot rules", expanded=False):
+        st.caption("These set how many weeks, complaints, treatments and high dip counts it takes to flag a site. "
+                   "The defaults are fine for normal use; change them only to test how sensitive the flags are. "
+                   "Defaults are SAMPLE values pending your program's own criteria.")
         c1, c2, c3 = st.columns(3)
         with c1:
             lookback_weeks = st.slider("Lookback window (weeks)", 2, 12, HOTSPOT_LOOKBACK_WEEKS)

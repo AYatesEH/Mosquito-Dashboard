@@ -103,12 +103,13 @@ def render():
         all_larvicide_treatments = data["treatments"]
         latest_dated = all_larvicide_treatments["Treatment_Date"].dropna()
         as_of_default = latest_dated.max().date() if not latest_dated.empty else pd.Timestamp.now().date()
-        as_of_input = st.date_input(
-            "Assess re-dose status as of", value=as_of_default,
-            help="Defaults to the most recent completed treatment date in the data (this prototype's sample "
-                 "data doesn't extend to today's real date).",
-            key="redose_as_of",
-        )
+        with st.expander("Advanced: assess as of a different date"):
+            as_of_input = st.date_input(
+                "Assess re-dose status as of", value=as_of_default,
+                help="Defaults to the most recent completed treatment date in the data (this prototype's sample "
+                     "data doesn't extend to today's real date).",
+                key="redose_as_of",
+            )
 
         schedule = calc.treatment_redose_schedule(
             data["treatments"], data["products"], as_of=pd.Timestamp(as_of_input), lead_days=REDOSE_LEAD_DAYS
