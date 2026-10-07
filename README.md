@@ -140,7 +140,7 @@ duplicating location details:
 | File | What it holds | Key(s) |
 |---|---|---|
 | `sites.csv` | **The single source of truth for every physical location** - name, type, lat/long, status, description | `Site_ID` |
-| `trap_sites.csv` | A **portable equipment register** (Trap_ID, Trap_Type, Trap_Status) - no `Site_ID`, since only a handful of physical CO2 traps exist and they're moved to a new site each week rather than permanently installed (see `WEEKLY_TRAP_COUNT` in `core/config.py` and the Surveillance page's Add Trap Data tab) | `Trap_ID` |
+| `trap_sites.csv` | A **portable equipment register** (Trap_ID, Trap_Type, Trap_Status) - no `Site_ID`, since only a handful of physical CO2 traps exist and they're moved to a new site each week rather than permanently installed (see `WEEKLY_TRAP_COUNT` in `core/config.py` and the Enter Data page's Trap check form) | `Trap_ID` |
 | `surveillance_events.csv` | One row per trap deployment/retrieval cycle, with its own `Site_ID` and `Trap_Type` (independent of `trap_sites.csv`, since that's where a trap actually went that week) | `Event_ID` → `Trap_ID`, `Site_ID` |
 | `surveillance_results.csv` | One row per species caught in an event (an event can have several) | `Result_ID` → `Event_ID` |
 | `treatments.csv` | The treatment register (Planned/Scheduled/Completed/Cancelled) | `Treatment_ID` → `Site_ID`, `Product_ID` |
@@ -217,7 +217,7 @@ every function has a docstring and nothing here talks to Streamlit.
     - **Dipping/inspection**: from unresolved complaints aged past `COMPLAINT_INSPECTION_AGE_HIGH_DAYS` and
       single-signal hotspot sites (a lone trap spike or a complaint with no matching trap activity), which are
       asked to be confirmed by dipping before a treatment is scheduled. Logging either the qualitative "Larvae
-      dip / inspection" field observation OR an actual dip count (Surveillance page's Add Dip Data tab) clears
+      dip / inspection" field observation OR an actual dip count (Enter Data page's Larvae dip form) clears
       the task.
 
   **This is a pure, stateless view, recomputed fresh from current data every time the page loads - there is no
@@ -436,7 +436,7 @@ restructuring anything.
 
 ## 7. Known prototype limitations (by design, not oversights)
 
-- Data entry forms (Treatments, Complaints, Surveillance - including its Add Dip Data tab, Map's "Add a new
+- Data entry forms (Treatments, Complaints, Surveillance - now all on the Enter Data page, Map's "Add a new
   site", and the To Do List's qualitative dip-logging quick action) save through `core.data_source`, whichever
   backend is configured. **By default (no `DATABASE_URL` set) that's still the CSV files** - genuinely
   working, but not durable on Streamlit Community Cloud and not safe for concurrent multi-user writes. Setting
@@ -546,3 +546,12 @@ Limits: sites have no season, so sites testers add stay until removed by hand.
 Testers share the real database and password; for full isolation, deploy a
 second copy of the app with its own `DATABASE_URL` (a separate free database)
 and its own password.
+
+## 12. Where data is entered
+
+`pages/1_Enter_Data.py` holds the entry forms (trap check, larvae dip,
+treatment, complaint, site observation); the code lives in `core/forms.py`.
+The Surveillance, Treatments and Complaints pages are view-only. Exceptions kept
+where the context is: budget time/spend on the Budget page, the To Do List's
+quick dip/inspection log, and Map -> "Add a new site". After saving, a
+confirmation is shown at the top of the Enter Data page.

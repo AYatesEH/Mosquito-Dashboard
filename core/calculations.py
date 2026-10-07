@@ -686,7 +686,7 @@ def build_weekly_todo_list(
         """True if either a qualitative 'Larvae dip / inspection' field
         observation OR an actual larvae_dips.csv count has been logged for
         this site on/after `since` (and, if given, on/before `until`) - the
-        two are independent write paths (Surveillance page's Add Dip Data
+        two are independent write paths (Enter Data page's Larvae dip
         tab vs. the To Do List's quick-log action) that both count as "this
         site has been checked"."""
         obs = site_observations[
@@ -888,7 +888,7 @@ def build_weekly_todo_list(
 def resolve_trap_id(trap_sites: pd.DataFrame, trap_type: str) -> Optional[str]:
     """
     Picks a Trap_ID to record against a new surveillance event, given only
-    the trap TYPE an officer selected on the "Add Trap Data" form.
+    the trap TYPE an officer selected on the Enter Data "Trap check" form.
 
     trap_sites.csv is a plain equipment register (Trap_ID, Trap_Type,
     Trap_Status, ...) with no location of its own - traps are portable and

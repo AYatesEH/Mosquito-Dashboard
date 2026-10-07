@@ -37,8 +37,8 @@ def render():
         f"This list is generated automatically from complaints, recent trapping, larvae dip counts, hotspots and "
         f"treatment data - it is recomputed fresh every time this page loads, so **there is no 'mark done' "
         f"button**. A task drops off the list on its own the moment you log the surveillance event, treatment, "
-        f"or field observation (\"Larvae dip / inspection\", or an actual dip count on the Surveillance page's "
-        f"Add Dip Data tab) it's asking for, elsewhere in the app. Trap placement assumes only "
+        f"or field observation (\"Larvae dip / inspection\", or an actual dip count on the Enter Data page) "
+        f"it's asking for, elsewhere in the app. Trap placement assumes only "
         f"**{WEEKLY_TRAP_COUNT} CO2 traps** are available each week, set out for one night and picked up the "
         f"next morning."
     )
@@ -47,8 +47,8 @@ def render():
         st.caption(
             "This is a quick qualitative log that you inspected a site - it clears a \"Larvae dipping / "
             "inspection\" task off this list, same as logging an actual larvae count. To record how many "
-            "larvae were actually collected (and feed it into the hotspot calculation), use the Surveillance "
-            "page's **Add Dip Data** tab instead. Saves to this prototype's CSV data store - see README "
+            "larvae were actually collected (and feed it into the hotspot calculation), use the "
+            "**Enter Data** page (Larvae dip) instead. Saves to this prototype's CSV data store - see README "
             "Section 6 for the single-user/non-durable-on-Streamlit-Cloud caveat that applies to every "
             "data-entry form in this app."
         )

@@ -23,7 +23,7 @@ def render():
     events_f = ui.filter_by_sites(events_f, filters)
     ct = calc.event_catch_totals(events_f, data["surv_results"])
 
-    tab_overview, tab_add, tab_dip, tab_log = st.tabs(["Overview", "Add Trap Data", "Add Dip Data", "Event Log"])
+    tab_overview, tab_dip, tab_log = st.tabs(["Overview", "Dip Log", "Event Log"])
 
     with tab_overview:
         # --- Trap effort summary (based on ALL logged events, not just usable ones) ---
@@ -129,132 +129,7 @@ def render():
         else:
             st.info("No usable surveillance data available.")
 
-    with tab_add:
-        st.subheader("Add Trap Data")
-        st.caption(
-            "Trap location and trap type are separate fields - traps are portable CO2 traps moved to a new site "
-            "each week (see the Weekly To Do List), not permanently installed, so there's no fixed trap code to "
-            "pick. Saves to this prototype's CSV data store - fine for a single-user demo/pilot, see README "
-            "Section 6 for moving to a real backend before relying on this for a live season. Logged as one "
-            "entry, after the trap has been retrieved and read - matching how this is normally done at a desk, "
-            "not standing at the trap."
-        )
-        active_traps = data["trap_sites"][data["trap_sites"]["Trap_Status"] == "Active"]
-        active_sites = data["sites"][data["sites"]["Status"] == "Active"]
-        if active_traps.empty or active_sites.empty:
-            st.warning("No active traps/sites to log against.")
-        else:
-            sc1, sc2 = st.columns(2)
-            with sc1:
-                new_site_id = ui.site_picker(active_sites, key="new_event_site", label="Trap location")
-                new_trap_type = st.selectbox("Trap type", TRAP_TYPES, key="new_event_trap_type")
-                new_deploy_date = st.date_input("Deployment date", value=pd.Timestamp.now().date() - pd.Timedelta(days=2), key="new_event_deploy_date")
-                new_retrieve_date = st.date_input("Retrieval date", value=pd.Timestamp.now().date(), key="new_event_retrieve_date")
-            with sc2:
-                new_outcome = st.selectbox("Trap outcome", TRAP_OUTCOMES, key="new_event_outcome")
-                new_validity = st.selectbox(
-                    "Sample validity", ["Valid", "Invalid", "N/A"],
-                    index=["Valid", "Invalid", "N/A"].index(DEFAULT_VALIDITY[new_outcome]), key="new_event_validity",
-                )
-                new_officer = st.selectbox("Officer", data["users"]["Name"].tolist(), key="new_event_officer")
-
-            counts_df = None
-            if new_outcome in ("Successful", "Partial") and new_validity == "Valid":
-                st.caption("Enter the number collected per species (leave at 0 for species not caught):")
-                species_for_count = data["species"][data["species"]["Species_Code"] != "OTHER"][["Species_Code", "Scientific_Name"]].copy()
-                species_for_count["Number_Collected"] = 0
-                counts_df = st.data_editor(
-                    species_for_count, use_container_width=True, hide_index=True, key="new_event_counts",
-                    column_config={
-                        "Species_Code": st.column_config.TextColumn(disabled=True),
-                        "Scientific_Name": st.column_config.TextColumn(disabled=True),
-                        "Number_Collected": st.column_config.NumberColumn(min_value=0, step=1),
-                    },
-                )
-
-            new_event_notes = st.text_area("Notes", key="new_event_notes")
-
-            if st.button("Save trap check", type="primary"):
-                if new_retrieve_date < new_deploy_date:
-                    st.error("Retrieval date can't be before the deployment date.")
-                elif not new_site_id:
-                    st.error("Select a trap location.")
-                else:
-                    # Trap_ID is resolved automatically from the equipment register (trap_sites.csv) -
-                    # it's an internal reference only, never shown or picked by the officer (see
-                    # calc.resolve_trap_id).
-                    new_trap_id = calc.resolve_trap_id(data["trap_sites"], new_trap_type)
-                    event_id = ui.add_surveillance_event({
-                        "Trap_ID": new_trap_id,
-                        "Site_ID": new_site_id,
-                        "Season": ui.infer_season(new_deploy_date),
-                        "Deployment_DateTime": new_deploy_date.strftime("%Y-%m-%d %H:%M"),
-                        "Retrieval_DateTime": new_retrieve_date.strftime("%Y-%m-%d %H:%M"),
-                        "Trap_Type": new_trap_type,
-                        "Trap_Status": new_outcome,
-                        "Sample_Validity": new_validity,
-                        "Officer": new_officer,
-                        "Notes": new_event_notes,
-                        "Created_By": new_officer,
-                        "Created_Date": pd.Timestamp.now().strftime("%Y-%m-%d"),
-                    })
-                    n_results = 0
-                    if counts_df is not None:
-                        for _, r in counts_df.iterrows():
-                            if int(r["Number_Collected"]) > 0:
-                                ui.add_surveillance_result({
-                                    "Event_ID": event_id,
-                                    "Species_Code": r["Species_Code"],
-                                    "Number_Collected": int(r["Number_Collected"]),
-                                    "Notes": "",
-                                })
-                                n_results += 1
-                    st.success(f"Saved {event_id} ({n_results} species result{'s' if n_results != 1 else ''}). The Overview charts and Event Log now include it.")
-                    st.rerun()
-
     with tab_dip:
-        st.subheader("Add Dip Data")
-        st.caption(
-            f"A larvae dip is a manual inspection - no trap or equipment involved, unlike a surveillance event - "
-            f"where a sampling cup is dipped into standing water at a site and the larvae in it are counted. A "
-            f"count above **{HIGH_LARVAE_COUNT_PER_DIP} larvae/dip** (the real APVMA-label 'high larval count' "
-            f"threshold also used on the Dosage Calculator page) feeds into the Hotspot Identification page as "
-            f"its own signal, alongside trap catch data and complaints. Saves to this prototype's CSV data "
-            f"store - see README Section 6 for the single-user/non-durable-on-Streamlit-Cloud caveat that "
-            f"applies to every data-entry form in this app."
-        )
-        active_sites_dip = data["sites"][data["sites"]["Status"] == "Active"]
-        if active_sites_dip.empty:
-            st.warning("No active sites to log against.")
-        else:
-            dp1, dp2 = st.columns(2)
-            with dp1:
-                new_dip_site = ui.site_picker(active_sites_dip, key="new_dip_site", label="Site")
-                new_dip_date = st.date_input("Dip date", value=pd.Timestamp.now().date(), key="new_dip_date")
-            with dp2:
-                new_dip_count = st.number_input("Larvae count", min_value=0, step=1, key="new_dip_count")
-                new_dip_officer = st.selectbox("Officer", data["users"]["Name"].tolist(), key="new_dip_officer")
-            new_dip_notes = st.text_area("Notes", key="new_dip_notes")
-
-            if st.button("Save dip data", type="primary", key="new_dip_save"):
-                if not new_dip_site:
-                    st.error("Select a site.")
-                else:
-                    dip_id = ui.add_larvae_dip({
-                        "Site_ID": new_dip_site,
-                        "Season": ui.infer_season(new_dip_date),
-                        "DateTime": pd.Timestamp(new_dip_date).strftime("%Y-%m-%d %H:%M"),
-                        "Larvae_Count": int(new_dip_count),
-                        "Officer": new_dip_officer,
-                        "Notes": new_dip_notes,
-                        "Created_By": new_dip_officer,
-                        "Created_Date": pd.Timestamp.now().strftime("%Y-%m-%d"),
-                    })
-                    high_note = " - a high count, will feed into the hotspot calculation" if new_dip_count > HIGH_LARVAE_COUNT_PER_DIP else ""
-                    st.success(f"Saved {dip_id} ({int(new_dip_count)} larvae{high_note}). Any matching dipping/inspection task on the To Do List clears on the next refresh.")
-                    st.rerun()
-
-        st.divider()
         st.subheader("Dip log")
         dips_f = ui.filter_by_season_date(data["larvae_dips"], filters, date_col="DateTime")
         dips_f = ui.filter_by_sites(dips_f, filters)
