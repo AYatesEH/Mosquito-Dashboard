@@ -114,65 +114,90 @@ def _overview(data, season, settings, as_of):
         st.dataframe(cpa, hide_index=True, use_container_width=True)
 
 
+def _n() -> int:
+    """Counter used in widget keys: bumping it after a save gives the forms fresh,
+    empty widgets (these are plain widgets, not st.form, so pressing Enter in a
+    box never submits or clears anything - only the Save button saves)."""
+    return st.session_state.get("_budget_form_n", 0)
+
+
+def _bump():
+    st.session_state["_budget_form_n"] = _n() + 1
+
+
 def _log_time(data, season):
+    n = _n()
     officers = data["users"]["Name"].tolist()
     sites = data["sites"].sort_values("Site_Name")
     site_lookup = {"(none)": ""} | dict(zip(sites["Site_Name"] + " (" + sites["Site_ID"] + ")", sites["Site_ID"]))
-    with st.form("log_time", clear_on_submit=True):
-        officer = st.selectbox("Officer", officers)
-        d = st.date_input("Date", value=dt.date.today())
-        activity = st.selectbox("Activity", TIME_ACTIVITIES)
-        hours = st.number_input("Hours", min_value=0.0, max_value=24.0, value=1.0, step=0.25)
-        site = st.selectbox("Site (optional)", list(site_lookup.keys()))
-        notes = st.text_input("Notes (optional)")
-        if st.form_submit_button("Save time entry"):
-            if hours <= 0:
-                st.error("Hours must be greater than 0.")
-            else:
-                new_id = ui.add_time_entry({
-                    "Season": ui.infer_season(d), "Date": d.isoformat(), "Officer": officer,
-                    "Activity": activity, "Hours": hours, "Site_ID": site_lookup[site],
-                    "Notes": notes, "Created_By": officer, "Created_Date": dt.date.today().isoformat(),
-                })
-                st.success(f"Saved {new_id}.")
+    officer = st.selectbox("Officer", officers, key=f"bt_off_{n}")
+    d = st.date_input("Date", value=dt.date.today(), key=f"bt_date_{n}")
+    activity = st.selectbox("Activity", TIME_ACTIVITIES, key=f"bt_act_{n}")
+    hours = st.number_input("Hours", min_value=0.0, max_value=24.0, value=1.0, step=0.25, key=f"bt_hrs_{n}")
+    site = st.selectbox("Site (optional)", list(site_lookup.keys()), key=f"bt_site_{n}")
+    notes = st.text_input("Notes (optional)", key=f"bt_notes_{n}")
+    if st.button("Save time entry", type="primary", key=f"bt_save_{n}"):
+        if hours <= 0:
+            st.error("Hours must be greater than 0.")
+        else:
+            new_id = ui.add_time_entry({
+                "Season": ui.infer_season(d), "Date": d.isoformat(), "Officer": officer,
+                "Activity": activity, "Hours": hours, "Site_ID": site_lookup[site],
+                "Notes": notes, "Created_By": officer, "Created_Date": dt.date.today().isoformat(),
+            })
+            _bump()
+            forms._saved(f"Saved {new_id}.")
+
+
+LARVICIDE_UNITS = ["g", "briquet(s)"]
 
 
 def _log_spend(data):
+    n = _n()
     officers = data["users"]["Name"].tolist()
-    products = {p: f"{n} ({p})" for p, n in zip(data["products"]["Product_ID"], data["products"]["Product_Name"])
+    products = {p: f"{nm} ({p})" for p, nm in zip(data["products"]["Product_ID"], data["products"]["Product_Name"])
                 if p in QUANTITY_USED_UNITS}
-    with st.form("log_cost", clear_on_submit=True):
-        officer = st.selectbox("Entered by", officers)
-        d = st.date_input("Invoice / purchase date", value=dt.date.today())
-        category = st.selectbox("Category", COST_CATEGORIES)
-        product = st.selectbox("Larvicide product (larvicide only)", [""] + list(products),
-                               format_func=lambda p: products.get(p, "(n/a)"))
-        st.caption("Dry ice: quantity in **kg**. Larvicide: quantity in the product's use unit "
-                   + ", ".join(f"{p} = {u}" for p, u in QUANTITY_USED_UNITS.items()) + ".")
-        qty = st.number_input("Quantity", min_value=0.0, step=1.0)
-        unit = st.text_input("Unit (kg / g / briquet(s) / ...)")
-        total = st.number_input("Total cost, ex-GST ($)", min_value=0.0, step=1.0)
-        desc = st.text_input("Description")
-        supplier = st.text_input("Supplier (optional)")
-        invoice = st.text_input("Invoice ref (optional)")
-        if st.form_submit_button("Save spend"):
-            if total <= 0:
-                st.error("Total cost must be greater than 0.")
-            elif category == COST_CATEGORY_LARVICIDE and not product:
-                st.error("Choose the larvicide product so usage can be compared with purchases.")
-            elif category == COST_CATEGORY_LARVICIDE and unit != QUANTITY_USED_UNITS.get(product):
-                st.error(f"Unit for that product must be '{QUANTITY_USED_UNITS.get(product)}'.")
-            elif category == COST_CATEGORY_DRY_ICE and unit.lower() != "kg":
-                st.error("Dry ice must be recorded in kg.")
-            else:
-                new_id = ui.add_cost_entry({
-                    "Season": ui.infer_season(d), "Date": d.isoformat(), "Category": category,
-                    "Description": desc, "Product_ID": product if category == COST_CATEGORY_LARVICIDE else "",
-                    "Quantity": qty if qty else "", "Quantity_Unit": unit, "Total_Cost": total,
-                    "Supplier": supplier, "Invoice_Ref": invoice,
-                    "Created_By": officer, "Created_Date": dt.date.today().isoformat(),
-                })
-                st.success(f"Saved {new_id}.")
+    officer = st.selectbox("Entered by", officers, key=f"bc_off_{n}")
+    d = st.date_input("Invoice / purchase date", value=dt.date.today(), key=f"bc_date_{n}")
+    category = st.selectbox("Category", COST_CATEGORIES, key=f"bc_cat_{n}")
+
+    product, unit, qty = "", "", 0.0
+    if category == COST_CATEGORY_DRY_ICE:
+        qty = st.number_input("Quantity (kg)", min_value=0.0, step=1.0, key=f"bc_qty_{n}")
+        unit = "kg"
+    elif category == COST_CATEGORY_LARVICIDE:
+        product = st.selectbox("Larvicide product", [""] + list(products),
+                               format_func=lambda p: products.get(p, "(choose a product)"), key=f"bc_prod_{n}")
+        default_unit = QUANTITY_USED_UNITS.get(product)
+        unit = st.selectbox("Unit", LARVICIDE_UNITS,
+                            index=LARVICIDE_UNITS.index(default_unit) if default_unit in LARVICIDE_UNITS else 0,
+                            key=f"bc_unit_{n}_{product}")
+        st.caption("Use the product's own unit so purchases can be compared with what treatments used: "
+                   + ", ".join(f"{products[p]} = {u}" for p, u in QUANTITY_USED_UNITS.items() if p in products) + ".")
+        qty = st.number_input(f"Quantity ({unit})", min_value=0.0, step=1.0, key=f"bc_qty_{n}_{product}")
+    total = st.number_input("Total cost, ex-GST ($)", min_value=0.0, step=1.0, key=f"bc_total_{n}")
+    desc = st.text_input("Description", key=f"bc_desc_{n}")
+    supplier = st.text_input("Supplier (optional)", key=f"bc_sup_{n}")
+    invoice = st.text_input("Invoice ref (optional)", key=f"bc_inv_{n}")
+    if st.button("Save spend", type="primary", key=f"bc_save_{n}"):
+        if total <= 0:
+            st.error("Total cost must be greater than 0.")
+        elif category == COST_CATEGORY_LARVICIDE and not product:
+            st.error("Choose the larvicide product so usage can be compared with purchases.")
+        elif category == COST_CATEGORY_LARVICIDE and unit != QUANTITY_USED_UNITS.get(product):
+            st.error(f"Unit for that product must be '{QUANTITY_USED_UNITS.get(product)}'.")
+        elif category in (COST_CATEGORY_DRY_ICE, COST_CATEGORY_LARVICIDE) and qty <= 0:
+            st.error("Enter the quantity bought.")
+        else:
+            new_id = ui.add_cost_entry({
+                "Season": ui.infer_season(d), "Date": d.isoformat(), "Category": category,
+                "Description": desc, "Product_ID": product if category == COST_CATEGORY_LARVICIDE else "",
+                "Quantity": qty if qty else "", "Quantity_Unit": unit if qty else "", "Total_Cost": total,
+                "Supplier": supplier, "Invoice_Ref": invoice,
+                "Created_By": officer, "Created_Date": dt.date.today().isoformat(),
+            })
+            _bump()
+            forms._saved(f"Saved {new_id}.")
 
 
 def _settings(data, season, settings):
@@ -182,18 +207,20 @@ def _settings(data, season, settings):
               (BUDGET_KEY_DRY_ICE_PRICE, "Dry ice price ($/kg, ex-GST)"),
               (BUDGET_KEY_DRY_ICE_KG_PER_NIGHT, "Dry ice used per trap-night (kg)")]
     fields += [(BUDGET_KEY_BUDGET_PREFIX + c, f"Budget: {c} ($)") for c in BUDGET_CATEGORIES]
-    with st.form("settings"):
-        who = st.selectbox("Changed by", officers)
-        vals = {k: st.number_input(label, min_value=0.0, value=float(settings.get(k, 0.0)), step=1.0,
-                                   key=f"set_{k}") for k, label in fields}
-        if st.form_submit_button("Save settings"):
-            n = 0
-            for k, v in vals.items():
-                if v > 0 and abs(v - settings.get(k, -1)) > 1e-9:
-                    ui.add_budget_setting({"Season": season, "Key": k, "Value": v, "Notes": "",
-                                           "Created_By": who, "Created_Date": dt.date.today().isoformat()})
-                    n += 1
-            st.success(f"Saved {n} changed setting(s)." if n else "No changes to save.")
+    who = st.selectbox("Changed by", officers, key="set_who")
+    vals = {k: st.number_input(label, min_value=0.0, value=float(settings.get(k, 0.0)), step=1.0,
+                               key=f"set_{season}_{k}") for k, label in fields}
+    if st.button("Save settings", type="primary", key="set_save"):
+        saved = 0
+        for k, v in vals.items():
+            if v > 0 and abs(v - settings.get(k, -1)) > 1e-9:
+                ui.add_budget_setting({"Season": season, "Key": k, "Value": v, "Notes": "",
+                                       "Created_By": who, "Created_Date": dt.date.today().isoformat()})
+                saved += 1
+        if saved:
+            forms._saved(f"Saved {saved} changed setting(s).")
+        else:
+            st.info("No changes to save.")
     st.caption("A value of 0 means 'not set' and isn't saved.")
 
 

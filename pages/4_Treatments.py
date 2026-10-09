@@ -45,9 +45,10 @@ def render():
         status_filter = st.multiselect("Filter by status", TREATMENT_STATUSES, default=TREATMENT_STATUSES)
         t_display = t[t["Treatment_Status"].isin(status_filter)]
         st.dataframe(
-            t_display[["Treatment_ID", "Site_Name", "Treatment_Status", "Treatment_Type", "Product_Name",
+            ui.dates_only(t_display[["Treatment_ID", "Site_Name", "Treatment_Status", "Treatment_Type", "Product_Name",
                        "Application_Method", "Area_Treated_M2", "Quantity_Used", "Planned_Date", "Treatment_Date",
                        "Operator", "Reason", "Cancelled_Reason"]].sort_values("Planned_Date", ascending=False),
+                          ["Planned_Date", "Treatment_Date"]),
             use_container_width=True, hide_index=True, height=420,
         )
         st.download_button(
@@ -60,7 +61,7 @@ def render():
         upcoming = t[t["Treatment_Status"].isin(["Planned", "Scheduled"])].sort_values("Planned_Date")
         if not upcoming.empty:
             st.dataframe(
-                upcoming[["Treatment_ID", "Site_Name", "Treatment_Status", "Treatment_Type", "Planned_Date", "Operator", "Reason"]],
+                ui.dates_only(upcoming[["Treatment_ID", "Site_Name", "Treatment_Status", "Treatment_Type", "Planned_Date", "Operator", "Reason"]], ["Planned_Date"]),
                 use_container_width=True, hide_index=True,
             )
         else:
@@ -84,7 +85,7 @@ def render():
         if followup_rows:
             fu_df = pd.DataFrame(followup_rows)
             st.dataframe(
-                fu_df[["Treatment_ID", "Site_Name", "Treatment_Date", "Treatment_Type", "Operator"]],
+                ui.dates_only(fu_df[["Treatment_ID", "Site_Name", "Treatment_Date", "Treatment_Type", "Operator"]], ["Treatment_Date"]),
                 use_container_width=True, hide_index=True,
             )
         else:
@@ -131,7 +132,7 @@ def render():
                 "Filter by status", status_options, default=default_statuses or status_options, key="redose_status_filter"
             )
             display = schedule[schedule["Status"].isin(redose_status_filter)].sort_values("Redose_Due")
-            display_fmt = display.copy()
+            display_fmt = ui.dates_only(display, ["Treatment_Date", "Effective_Until", "Redose_Due"])
             display_fmt["Status"] = display_fmt["Status"].apply(lambda s: ui.status_badge_html(s, REDOSE_STATUS_COLOURS))
             st.write(
                 display_fmt[["Site_Name", "Product_Name", "Treatment_Date", "Rate_Used", "Rate_Unit",

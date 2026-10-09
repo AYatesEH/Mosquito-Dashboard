@@ -9,7 +9,7 @@ from core.config import QUANTITY_USED_UNITS
 def render():
     ui.apply_page_style()
     data = ui.get_data()
-    ui.render_global_filters(data)
+    filters = ui.render_global_filters(data)
 
     st.title("Products")
     st.warning(
@@ -22,7 +22,7 @@ def render():
     )
 
     products = data["products"]
-    treatments = data["treatments"]
+    treatments = data["treatments"][data["treatments"]["Season"] == filters["season"]]
 
     status_filter = st.multiselect("Status", products["Status"].unique().tolist(), default=products["Status"].unique().tolist())
     filtered = products[products["Status"].isin(status_filter)]
@@ -36,6 +36,7 @@ def render():
 
     st.divider()
     st.subheader("Usage history for a product")
+    st.caption(f"Completed treatments in the selected season (**{filters['season']}**) - change the Season in the sidebar.")
     product_name = st.selectbox("Select a product", products["Product_Name"].tolist())
     product_id = products[products["Product_Name"] == product_name]["Product_ID"].iloc[0]
     used = treatments[(treatments["Product_ID"] == product_id) & (treatments["Treatment_Status"] == "Completed")]
@@ -48,9 +49,9 @@ def render():
     c3.metric(f"Total quantity used{f' ({qty_unit})' if qty_unit else ''}", qty_fmt)
     if not used.empty:
         st.dataframe(
-            used.merge(data["sites"][["Site_ID", "Site_Name"]], on="Site_ID", how="left")[
+            ui.dates_only(used.merge(data["sites"][["Site_ID", "Site_Name"]], on="Site_ID", how="left")[
                 ["Treatment_ID", "Site_Name", "Treatment_Date", "Area_Treated_M2", "Quantity_Used", "Operator"]
-            ].sort_values("Treatment_Date", ascending=False),
+            ].sort_values("Treatment_Date", ascending=False), ["Treatment_Date"]),
             use_container_width=True, hide_index=True,
         )
     else:

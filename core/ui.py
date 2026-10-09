@@ -446,6 +446,16 @@ def filter_by_season_date(df: pd.DataFrame, filters: dict, date_col: str, season
     return out
 
 
+def dates_only(df: pd.DataFrame, cols: list) -> pd.DataFrame:
+    """Copy of df with the given date/time columns shown as plain dates (the stored
+    treatment dates carry no meaningful time of day, so '00:00:00' is just noise)."""
+    out = df.copy()
+    for c in cols:
+        if c in out.columns:
+            out[c] = pd.to_datetime(out[c], errors="coerce").dt.strftime("%Y-%m-%d")
+    return out
+
+
 def filter_by_sites(df: pd.DataFrame, filters: dict, site_col: str = "Site_ID") -> pd.DataFrame:
     if filters.get("site_ids") and site_col in df.columns:
         return df[df[site_col].isin(filters["site_ids"])]
