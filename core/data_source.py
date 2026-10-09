@@ -39,6 +39,19 @@ import pandas as pd
 from core.config import DATA_DIR
 
 
+# Tables whose rows can be edited/deleted from the app: key -> (csv file, id column).
+EDITABLE_TABLES = {
+    "surveillance_events": ("surveillance_events.csv", "Event_ID"),
+    "surveillance_results": ("surveillance_results.csv", "Result_ID"),
+    "treatments": ("treatments.csv", "Treatment_ID"),
+    "complaints": ("complaints.csv", "Complaint_ID"),
+    "site_observations": ("site_observations.csv", "Observation_ID"),
+    "larvae_dips": ("larvae_dips.csv", "Dip_ID"),
+    "time_entries": ("time_entries.csv", "Entry_ID"),
+    "cost_entries": ("cost_entries.csv", "Cost_ID"),
+}
+
+
 class DataRepository(abc.ABC):
     """Abstract interface every data backend must implement."""
 
@@ -132,6 +145,17 @@ class DataRepository(abc.ABC):
 
     @abc.abstractmethod
     def add_budget_setting(self, row: dict) -> str: ...
+
+    # --- Editing / deleting existing records -----------------------------
+    # `table` is one of EDITABLE_TABLES. `changes` uses the same CSV-style keys
+    # as the add_* methods; keys the table doesn't have are ignored. Both
+    # raise KeyError if the record doesn't exist.
+
+    @abc.abstractmethod
+    def update_record(self, table: str, record_id: str, changes: dict) -> None: ...
+
+    @abc.abstractmethod
+    def delete_record(self, table: str, record_id: str) -> None: ...
 
 
 class CSVDataRepository(DataRepository):
@@ -356,6 +380,41 @@ class CSVDataRepository(DataRepository):
         new_id = self._next_id(self.get_budget_settings(), "Setting_ID", "BST", 5)
         self._append_row("budget_settings.csv", {**row, "Setting_ID": new_id})
         return new_id
+
+    # --- Edit / delete ---------------------------------------------------
+
+    def _load_for_edit(self, table: str):
+        if table not in EDITABLE_TABLES:
+            raise KeyError(f"{table} is not editable")
+        filename, id_col = EDITABLE_TABLES[table]
+        path = self.data_dir / filename
+        if not path.exists():
+            raise KeyError(f"No {filename} yet")
+        return path, id_col, pd.read_csv(path, dtype=str, keep_default_na=False)
+
+    def update_record(self, table: str, record_id: str, changes: dict) -> None:
+        path, id_col, df = self._load_for_edit(table)
+        mask = df[id_col] == record_id
+        if not mask.any():
+            raise KeyError(f"{record_id} not found in {table}")
+        for key, value in changes.items():
+            if key in df.columns and key != id_col:
+                if value is None or (isinstance(value, float) and pd.isna(value)):
+                    value = ""
+                df.loc[mask, key] = str(value)
+        df.to_csv(path, index=False)
+
+    def delete_record(self, table: str, record_id: str) -> None:
+        path, id_col, df = self._load_for_edit(table)
+        mask = df[id_col] == record_id
+        if not mask.any():
+            raise KeyError(f"{record_id} not found in {table}")
+        df[~mask].to_csv(path, index=False)
+        if table == "surveillance_events":  # mirror the database's ON DELETE CASCADE
+            rpath = self.data_dir / "surveillance_results.csv"
+            if rpath.exists():
+                res = pd.read_csv(rpath, dtype=str, keep_default_na=False)
+                res[res["Event_ID"] != record_id].to_csv(rpath, index=False)
 
 
 @functools.lru_cache(maxsize=1)
@@ -759,6 +818,44 @@ class PostgresDataRepository(DataRepository):
             new_id = self._next_id(conn, "budget_setting_id_seq", "BST", 5)
             self._insert_row(conn, "budget_settings", self._BUDGET_SETTINGS_COLUMNS, row, {"setting_id": new_id})
         return new_id
+
+    # --- Edit / delete ---------------------------------------------------
+
+    # table key -> (db table, db id column, CSV-key -> db column map)
+    @property
+    def _EDIT_MAP(self):
+        return {
+            "surveillance_events": ("surveillance_events", "event_id", self._SURV_EVENTS_COLUMNS),
+            "surveillance_results": ("surveillance_results", "result_id", self._SURV_RESULTS_COLUMNS),
+            "treatments": ("treatments", "treatment_id", self._TREATMENTS_COLUMNS),
+            "complaints": ("complaints", "complaint_id", self._COMPLAINTS_COLUMNS),
+            "site_observations": ("site_observations", "observation_id", self._SITE_OBSERVATIONS_COLUMNS),
+            "larvae_dips": ("larvae_dips", "dip_id", self._LARVAE_DIPS_COLUMNS),
+            "time_entries": ("time_entries", "entry_id", self._TIME_ENTRIES_COLUMNS),
+            "cost_entries": ("cost_entries", "cost_id", self._COST_ENTRIES_COLUMNS),
+        }
+
+    def update_record(self, table: str, record_id: str, changes: dict) -> None:
+        from sqlalchemy import text
+        db_table, id_col, column_map = self._EDIT_MAP[table]
+        cleaned = self._clean(changes)
+        values = {column_map[k]: v for k, v in cleaned.items() if k in column_map}
+        if not values:
+            return
+        set_clause = ", ".join(f"{c} = :{c}" for c in values)
+        with self._engine.begin() as conn:
+            result = conn.execute(text(f"UPDATE {db_table} SET {set_clause} WHERE {id_col} = :_id"),
+                                  {**values, "_id": record_id})
+            if result.rowcount == 0:
+                raise KeyError(f"{record_id} not found in {table}")
+
+    def delete_record(self, table: str, record_id: str) -> None:
+        from sqlalchemy import text
+        db_table, id_col, _ = self._EDIT_MAP[table]
+        with self._engine.begin() as conn:  # events' results go too (ON DELETE CASCADE)
+            result = conn.execute(text(f"DELETE FROM {db_table} WHERE {id_col} = :_id"), {"_id": record_id})
+            if result.rowcount == 0:
+                raise KeyError(f"{record_id} not found in {table}")
 
 
 def get_repository() -> DataRepository:

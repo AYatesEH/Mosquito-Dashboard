@@ -209,6 +209,16 @@ def add_budget_setting(row: dict) -> str:
     return new_id
 
 
+def update_record(table: str, record_id: str, changes: dict) -> None:
+    get_repository().update_record(table, record_id, changes)
+    invalidate_data_cache()
+
+
+def delete_record(table: str, record_id: str) -> None:
+    get_repository().delete_record(table, record_id)
+    invalidate_data_cache()
+
+
 def infer_season(d) -> str:
     """Which SEASON_BOUNDS key a date falls in - used to fill the Season
     column on a new record without asking the officer to pick it separately.

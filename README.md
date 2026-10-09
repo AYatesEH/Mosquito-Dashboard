@@ -553,3 +553,17 @@ treatment, complaint, site observation); the code lives in `core/forms.py`.
 The Surveillance, Treatments and Complaints pages are view-only. Exceptions kept
 where the context is: budget time/spend on the Budget page and Map -> "Add a new site". After saving, a
 confirmation is shown at the top of the Enter Data page.
+
+## 13. Fixing mistakes (edit and delete)
+
+Enter Data has a **Fix a record** option (and the Budget page a **Fix an entry**
+tab) for trap results, larvae dips, treatments, complaints, site observations,
+time entries and spend entries. Pick a record from the selected season (the 100
+most recent), correct it and save, or delete it (with a confirmation tick).
+The record ID, season and who first created it don't change. A treatment's
+product and rate can't be edited because the rate is locked to the product
+label: delete it and re-enter it. Editing a trap result also lets you correct
+its species counts. Code: `core/edit_forms.py` (UI) and `update_record` /
+`delete_record` on both data backends. With the shared password there is no
+per-person audit of edits (treatments record a Modified By / Date); per-person
+logins would add that.

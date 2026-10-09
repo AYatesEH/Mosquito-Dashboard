@@ -11,7 +11,7 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-from core import ui, calculations as calc
+from core import ui, calculations as calc, edit_forms, forms
 from core.config import (
     TIME_ACTIVITIES, COST_CATEGORIES, COST_CATEGORY_DRY_ICE, COST_CATEGORY_LARVICIDE,
     BUDGET_CATEGORIES, BUDGET_KEY_BUDGET_HOURS, BUDGET_KEY_DRY_ICE_PRICE,
@@ -212,7 +212,8 @@ def render():
     as_of = min(max(pd.Timestamp(filters["date_range"][1]), start), pd.Timestamp.now().normalize())
     as_of = max(as_of, start)
 
-    t1, t2, t3, t4 = st.tabs(["Overview", "Log time", "Log spend", "Settings"])
+    forms.show_flash()
+    t1, t2, t3, t4, t5 = st.tabs(["Overview", "Log time", "Log spend", "Settings", "Fix an entry"])
     with t1:
         _overview(data, season, settings, as_of)
     with t2:
@@ -221,6 +222,8 @@ def render():
         _log_spend(data)
     with t4:
         _settings(data, season, settings)
+    with t5:
+        edit_forms.edit_form(data, filters, edit_forms.BUDGET_TYPES)
 
 
 render()
