@@ -15,10 +15,15 @@ def render():
 
     st.title("Treatment Effectiveness")
     ui.sample_data_banner()
-    st.info(
-        "Results below describe **observed changes associated with** each treatment, not proven cause and effect. "
-        "Weather, tides, surveillance effort and other factors may also influence mosquito abundance over the same "
-        "window. Always read effectiveness alongside the comparison window sizes and event counts shown."
+    st.markdown(
+        "**What this page shows:** for each completed treatment, how many mosquitoes the traps at that site caught "
+        "per night in the week *before* the treatment compared with the week *after*. A drop suggests the "
+        "treatment helped. It can only be worked out when the site has trap results on **both sides** of the "
+        "treatment - otherwise it says \"Not enough trap data\"."
+    )
+    st.caption(
+        "Read it as a guide, not proof: weather, tides and how often the site was trapped can also change the "
+        "numbers. Only a few trap results either side of a treatment means a rough figure."
     )
 
     ct_all = calc.event_catch_totals(data["surv_events"], data["surv_results"])
@@ -55,19 +60,31 @@ def render():
     st.subheader("Summary")
     ui.kpi_row([
         ("Completed treatments assessed", str(len(results_df)), None),
-        ("With sufficient surveillance data", str(n_sufficient), None),
-        ("Insufficient data", str(len(results_df) - n_sufficient), "Shown for transparency - not excluded silently."),
-        ("Median observed change", f"{results_df['Pct_Change'].median():+.0f}%"
+        ("Could be assessed", str(n_sufficient), "Treatments with trap results both before and after."),
+        ("Not enough trap data", str(len(results_df) - n_sufficient), "Shown for transparency - not left out silently."),
+        ("Typical change (median)", f"{results_df['Pct_Change'].median():+.0f}%"
          if results_df["Pct_Change"].notna().any() else "N/A", "Negative = lower abundance after treatment."),
     ])
 
     st.divider()
     st.subheader("Results by treatment")
     display_df = results_df.copy()
-    display_df["Assessment"] = display_df["Sufficient_Data"].map({True: "Assessed", False: "Insufficient data"})
+    def _result_words(r):
+        if not r["Sufficient_Data"] or pd.isna(r["Pct_Change"]):
+            return "Not enough trap data"
+        if r["Pct_Change"] <= -10:
+            return "Fewer mosquitoes after"
+        if r["Pct_Change"] >= 10:
+            return "More mosquitoes after"
+        return "About the same"
+    display_df["Result"] = display_df.apply(_result_words, axis=1)
     st.dataframe(
-        display_df[["Treatment_ID", "Site_Name", "Treatment_Date", "Pre_Abundance", "Post_Abundance",
-                    "Pct_Change", "Pre_Events", "Post_Events", "Assessment"]].sort_values("Treatment_Date", ascending=False),
+        display_df[["Treatment_ID", "Site_Name", "Treatment_Date", "Result", "Pre_Abundance", "Post_Abundance",
+                    "Pct_Change", "Pre_Events", "Post_Events"]]
+        .rename(columns={"Pre_Abundance": "Avg caught per night BEFORE", "Post_Abundance": "Avg caught per night AFTER",
+                         "Pct_Change": "Change (%)", "Pre_Events": "Trap results before",
+                         "Post_Events": "Trap results after"})
+        .sort_values("Treatment_Date", ascending=False),
         use_container_width=True, hide_index=True, height=350,
     )
 

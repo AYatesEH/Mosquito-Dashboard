@@ -83,7 +83,10 @@ def render():
             dip_product_id = st.selectbox(
                 "Suggested product (override if needed)",
                 active_product_ids, index=active_product_ids.index(default_product_id),
-                format_func=lambda pid: product_names[pid], key="dip_product",
+                format_func=lambda pid: product_names[pid],
+                # Keyed on the location type: a fixed key keeps the first selection in session state, so
+                # changing the location would never change the suggested product.
+                key=f"dip_product_{dip_location_type}",
             )
         dip_product = active_products[active_products["Product_ID"] == dip_product_id].iloc[0]
         rate_options = LABEL_RATE_OPTIONS.get(dip_product_id, [])
@@ -99,7 +102,7 @@ def render():
                 dip_condition_idx = st.selectbox(
                     "Site condition (override if it doesn't match what you observe on site)",
                     list(range(len(rate_labels))), index=min(default_condition_index, len(rate_labels) - 1),
-                    format_func=lambda i: rate_labels[i], key="dip_condition",
+                    format_func=lambda i: rate_labels[i], key=f"dip_condition_{dip_location_type}_{dip_product_id}",
                 )
                 dip_rate = rate_options[dip_condition_idx][1]
             else:

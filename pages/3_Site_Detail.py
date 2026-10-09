@@ -49,7 +49,7 @@ def render():
     site_hotspot_by_site = {row["Site_ID"]: row for row in site_hotspots.to_dict("records")}
     status_info = calc.site_map_status(site_id, ct_all, data["thresholds"], hotspots_by_site=site_hotspot_by_site)
     st.subheader(f"{site_row['Site_Name']} ({site_id})")
-    c1, c2, c3 = st.columns([2, 2, 1])
+    c1, c2, c3 = st.columns([2, 2, 3])
     with c1:
         st.write(f"**Type:** {site_row['Site_Type']}  |  **Status:** {site_row['Status']}")
         st.write(site_row["Description"])
@@ -61,7 +61,7 @@ def render():
                 data["sites"][data["sites"]["Site_ID"] == site_id],
                 pd.DataFrame([status_info]), show_treatments=False, show_complaints=False,
             )
-            st_folium(mini_map, width=280, height=220)
+            st_folium(mini_map, width=None, height=300)
         else:
             st.warning("Coordinates missing for this site (see Data Quality).")
 
