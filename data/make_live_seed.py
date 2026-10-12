@@ -8,6 +8,7 @@ for the target season. data/raw/ (the sample data) is NOT touched.
 
     python data/make_live_seed.py                       # keeps the sample officers
     python data/make_live_seed.py --officers "Alex Yates:Team Leader" "Sam Lee:EHO"
+    python data/make_live_seed.py --out data/live_seed_private --officers "..."   # real names: git-ignored
 
 Then either load it into Postgres:
     ./db/migrate_from_csv.sh "$DATABASE_URL" data/live_seed
@@ -33,10 +34,12 @@ EMPTY = ["surveillance_events", "surveillance_results", "site_observations", "la
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--season", default="2026-27")
+    ap.add_argument("--out", default=str(ROOT / "live_seed"), help="output folder (use data/live_seed_private for real names - it is git-ignored)")
     ap.add_argument("--officers", nargs="*", help='"Name:Role" pairs replacing the sample officers')
     a = ap.parse_args()
+    OUT = Path(a.out)
 
-    OUT.mkdir(exist_ok=True)
+    OUT.mkdir(parents=True, exist_ok=True)
     for t in KEEP:
         shutil.copy(RAW / f"{t}.csv", OUT / f"{t}.csv")
     for t in EMPTY:
