@@ -41,7 +41,7 @@ psql "$DATABASE_URL" -v ON_ERROR_STOP=1 <<SQL
 \copy site_observations (observation_id, site_id, season, date_time, officer, observation_category, notes, created_by, created_date) FROM '$RAW_DIR/site_observations.csv' WITH (FORMAT csv, HEADER, NULL '')
 \copy larvae_dips (dip_id, site_id, season, date_time, larvae_count, officer, notes, created_by, created_date) FROM '$RAW_DIR/larvae_dips.csv' WITH (FORMAT csv, HEADER, NULL '')
 \copy treatments (treatment_id, site_id, season, planned_date, treatment_date, treatment_status, treatment_type, product_id, application_method, application_rate, rate_unit, area_treated_m2, quantity_used, operator, reason, cancelled_reason, notes, created_by, created_date, modified_by, modified_date) FROM '$RAW_DIR/treatments.csv' WITH (FORMAT csv, HEADER, NULL '')
-\copy complaints (complaint_id, date_received, season, site_id, approx_latitude, approx_longitude, category, description, investigation_status, outcome, officer, created_by, created_date) FROM '$RAW_DIR/complaints.csv' WITH (FORMAT csv, HEADER, NULL '')
+\copy complaints (complaint_id, date_received, season, site_id, approx_latitude, approx_longitude, category, description, complaint_ref, investigation_status, outcome, officer, created_by, created_date) FROM '$RAW_DIR/complaints.csv' WITH (FORMAT csv, HEADER, NULL '')
 \copy environmental_data (env_id, date, site_id, rainfall_mm, temp_min_c, temp_max_c, tidal_level_m, notes) FROM '$RAW_DIR/environmental_data.csv' WITH (FORMAT csv, HEADER, NULL '')
 SQL
 

@@ -1069,7 +1069,8 @@ for season in ALL_SEASONS:
             "Approx_Latitude": approx_lat,
             "Approx_Longitude": approx_lon,
             "Category": rng.choice(COMPLAINT_CATEGORIES),
-            "Description": "Resident-reported mosquito nuisance (sample description).",
+            "Description": "",
+            "Complaint_Ref": "",
             "Investigation_Status": status,
             "Outcome": "Inspection scheduled" if status != "Closed" else rng.choice(
                 ["No breeding found", "Breeding site identified and treated", "Referred to property owner"]),

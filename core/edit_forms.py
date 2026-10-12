@@ -72,7 +72,7 @@ SPECS = {
                    ("Investigation_Status", "Investigation status", "select", INVESTIGATION_STATUSES),
                    ("Outcome", "Outcome (if closed)", "select_opt", OUTCOMES),
                    ("Officer", "Officer", "officer", None),
-                   ("Description", "Description", "textarea", None)],
+                   ("Complaint_Ref", "Complaint reference no. (no names or addresses)", "text", None)],
     },
     "Site observation": {
         "table": "site_observations", "id": "Observation_ID", "date": "DateTime", "df": "observations",
@@ -222,10 +222,6 @@ def edit_form(data: dict, filters: dict, kinds: list):
                     changes["Cancelled_Reason"] = ""
                 changes["Modified_By"], changes["Modified_Date"] = who, today
             if kind == "Complaint":
-                srow = data["sites"][data["sites"]["Site_ID"] == changes["Site_ID"]]
-                if changes["Site_ID"] != row.get("Site_ID"):
-                    changes["Approx_Latitude"] = srow["Latitude"].iloc[0] if not srow.empty else ""
-                    changes["Approx_Longitude"] = srow["Longitude"].iloc[0] if not srow.empty else ""
                 if changes["Investigation_Status"] != "Closed":
                     changes["Outcome"] = ""
             if kind == "Trap result":

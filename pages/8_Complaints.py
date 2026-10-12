@@ -79,11 +79,10 @@ def render():
     st.subheader("Complaint register")
     site_names = data["sites"][["Site_ID", "Site_Name"]]
     display = complaints_f.merge(site_names, on="Site_ID", how="left")
-    st.dataframe(
-        display[["Complaint_ID", "Date_Received", "Site_Name", "Category", "Investigation_Status", "Outcome", "Officer"]]
-        .sort_values("Date_Received", ascending=False),
-        use_container_width=True, hide_index=True, height=380,
-    )
+    shown_cols = ["Complaint_ID", "Complaint_Ref", "Date_Received", "Site_Name", "Category",
+                  "Investigation_Status", "Outcome", "Officer"]
+    display = display[shown_cols].sort_values("Date_Received", ascending=False)
+    st.dataframe(display, use_container_width=True, hide_index=True, height=380)
     st.download_button("Export complaints to CSV", display.to_csv(index=False).encode("utf-8"),
                         file_name="complaints_export.csv", mime="text/csv")
 

@@ -554,6 +554,15 @@ The Surveillance, Treatments and Complaints pages are view-only. Exceptions kept
 where the context is: budget time/spend on the Budget page and Map -> "Add a new site". After saving, a
 confirmation is shown at the top of the Enter Data page.
 
+**Complaints hold no personal details.** The complaint form stores only the date, site,
+category, status, outcome, officer and an optional complaint reference number (for looking
+up the full record in the council's own system). There is no free-text description and no
+resident-level coordinates; the map plots a complaint at its site. The `description`,
+`approx_latitude` and `approx_longitude` columns remain in the schema for compatibility but
+are left empty. The Complaints page export contains only the columns shown on screen.
+Databases created before this change pick up the new `complaint_ref` column when
+`db/schema.sql` is re-run (it is idempotent).
+
 ## 13. Fixing mistakes (edit and delete)
 
 Enter Data has a **Fix a record** option (and the Budget page a **Fix an entry**

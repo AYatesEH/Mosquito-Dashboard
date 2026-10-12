@@ -155,7 +155,12 @@ def build_operational_map(
     # --- Layer: complaints ---------------------------------------------------
     if show_complaints and complaints is not None and not complaints.empty:
         complaints_layer = folium.FeatureGroup(name="Complaints", show=False)
-        c = complaints.dropna(subset=["Approx_Latitude", "Approx_Longitude"])
+        # Complaints are plotted at their site's position (no resident-level
+        # coordinates are stored); older rows with their own point keep it.
+        c = complaints.merge(sites[["Site_ID", "Latitude", "Longitude"]], on="Site_ID", how="left")
+        c["Approx_Latitude"] = c["Approx_Latitude"].fillna(c["Latitude"])
+        c["Approx_Longitude"] = c["Approx_Longitude"].fillna(c["Longitude"])
+        c = c.dropna(subset=["Approx_Latitude", "Approx_Longitude"])
         for _, row in c.iterrows():
             popup_html = (
                 f"<b>Complaint {row['Complaint_ID']}</b><br>Category: {row['Category']}<br>"

@@ -262,6 +262,8 @@ class CSVDataRepository(DataRepository):
         df = self._read_csv("complaints.csv", date_cols=["Date_Received", "Created_Date"])
         for col in ("Approx_Latitude", "Approx_Longitude"):
             df[col] = pd.to_numeric(df[col], errors="coerce")
+        if "Complaint_Ref" not in df.columns:   # older CSVs predate this column
+            df["Complaint_Ref"] = ""
         return df
 
     def get_environmental_data(self) -> pd.DataFrame:
@@ -498,7 +500,7 @@ class PostgresDataRepository(DataRepository):
     _COMPLAINTS_COLUMNS = {
         "Date_Received": "date_received", "Season": "season", "Site_ID": "site_id",
         "Approx_Latitude": "approx_latitude", "Approx_Longitude": "approx_longitude",
-        "Category": "category", "Description": "description",
+        "Category": "category", "Description": "description", "Complaint_Ref": "complaint_ref",
         "Investigation_Status": "investigation_status", "Outcome": "outcome",
         "Officer": "officer", "Created_By": "created_by", "Created_Date": "created_date",
     }
@@ -625,7 +627,8 @@ class PostgresDataRepository(DataRepository):
             'SELECT complaint_id AS "Complaint_ID", date_received AS "Date_Received", '
             'season AS "Season", site_id AS "Site_ID", approx_latitude AS "Approx_Latitude", '
             'approx_longitude AS "Approx_Longitude", category AS "Category", '
-            'description AS "Description", investigation_status AS "Investigation_Status", '
+            'description AS "Description", complaint_ref AS "Complaint_Ref", '
+            'investigation_status AS "Investigation_Status", '
             'outcome AS "Outcome", officer AS "Officer", created_by AS "Created_By", '
             'created_date AS "Created_Date" FROM complaints ORDER BY complaint_id',
             date_cols=["Date_Received", "Created_Date"],

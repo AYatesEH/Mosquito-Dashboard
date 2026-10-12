@@ -362,9 +362,9 @@ def treatment_form(data: dict):
 
 def complaint_form(data: dict):
     """Log a complaint."""
-    st.caption(
-        "Saves to this prototype's CSV data store - fine for a single-user demo/pilot, see README Section 6 "
-        "for moving to a real backend before relying on this for a live season."
+    st.info(
+        "Please don't enter resident names, phone numbers or street addresses here. Put the complaint's "
+        "reference number in the box below and keep the full details in the official complaint record."
     )
     cc1, cc2 = st.columns(2)
     with cc1:
@@ -378,24 +378,20 @@ def complaint_form(data: dict):
         new_status = st.selectbox("Investigation status", INVESTIGATION_STATUSES, key="new_complaint_status")
         new_officer = st.selectbox("Officer", data["users"]["Name"].tolist(), key="new_complaint_officer")
         new_outcome = st.selectbox("Outcome (if closed)", [""] + OUTCOMES, key="new_complaint_outcome") if new_status == "Closed" else ""
-    new_description = st.text_area("Description", key="new_complaint_description")
+    new_ref = st.text_input("Complaint reference no. (optional - no names or addresses)", key="new_complaint_ref")
 
     if st.button("Save complaint", type="primary"):
-        if new_site_choice == "No specific site / general area":
-            site_id, lat, lon = "", "", ""
-        else:
-            site_id = new_site_choice.split("(")[-1].rstrip(")")
-            srow = data["sites"][data["sites"]["Site_ID"] == site_id].iloc[0]
-            lat = srow["Latitude"] if pd.notna(srow["Latitude"]) else ""
-            lon = srow["Longitude"] if pd.notna(srow["Longitude"]) else ""
+        site_id = "" if new_site_choice == "No specific site / general area" \
+            else new_site_choice.split("(")[-1].rstrip(")")
         new_id = ui.add_complaint({
             "Date_Received": new_date_received.strftime("%Y-%m-%d"),
             "Season": ui.infer_season(new_date_received),
             "Site_ID": site_id,
-            "Approx_Latitude": lat,
-            "Approx_Longitude": lon,
+            "Approx_Latitude": "",
+            "Approx_Longitude": "",
             "Category": new_category,
-            "Description": new_description or "No description provided.",
+            "Complaint_Ref": new_ref.strip(),
+            "Description": "",
             "Investigation_Status": new_status,
             "Outcome": new_outcome,
             "Officer": new_officer,

@@ -199,12 +199,16 @@ CREATE TABLE IF NOT EXISTS complaints (
     approx_longitude      DOUBLE PRECISION,
     category                TEXT,
     description             TEXT,
+    complaint_ref           TEXT,
     investigation_status  TEXT,
     outcome                 TEXT,
     officer                  TEXT,
     created_by              TEXT,
     created_date            DATE
 );
+
+-- Databases created before the reference column existed pick it up here.
+ALTER TABLE complaints ADD COLUMN IF NOT EXISTS complaint_ref TEXT;
 
 CREATE TABLE IF NOT EXISTS environmental_data (
     env_id        TEXT PRIMARY KEY,
