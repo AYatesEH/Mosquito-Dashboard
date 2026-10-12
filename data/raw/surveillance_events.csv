@@ -256,4 +256,3 @@ EVT-00254,TRP-002,ST-014,2025-26,2026-01-21 00:00,2026-01-23 00:00,EVS (CO2-bait
 EVT-00255,TRP-003,ST-011,2025-26,2026-01-21 00:00,2026-01-23 00:00,EVS (CO2-baited),Successful,Valid,Officer D,,data_generator,2026-01-23
 EVT-00256,TRP-001,ST-020,2025-26,2026-01-28 00:00,2026-01-30 00:00,EVS (CO2-baited),Successful,Valid,Officer F,,data_generator,2026-01-30
 EVT-00257,TRP-002,ST-002,2025-26,2026-01-28 00:00,2026-01-30 00:00,EVS (CO2-baited),Successful,Valid,Officer A,,data_generator,2026-01-30
-EVT-00258,TRP-003,ST-012,2025-26,2026-01-28 00:00,2026-01-30 00:00,EVS (CO2-baited),Failed - Equipment/Battery,Invalid,Officer C,,data_generator,2026-01-30

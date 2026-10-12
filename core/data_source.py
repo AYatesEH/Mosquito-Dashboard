@@ -432,7 +432,40 @@ def _get_engine(database_url: str):
     streamlit (see the module docstring).
     """
     from sqlalchemy import create_engine
-    return create_engine(database_url, pool_pre_ping=True, future=True)
+    return create_engine(_with_installed_driver(database_url), pool_pre_ping=True, future=True)
+
+
+def _driver_available(module: str) -> bool:
+    import importlib.util
+    return importlib.util.find_spec(module) is not None
+
+
+def _with_installed_driver(database_url: str, have_psycopg2=None, have_psycopg=None) -> str:
+    """Make a Postgres URL work with whichever driver is actually installed.
+
+    Providers hand out URLs in different styles: 'postgres://...',
+    'postgresql://...' or 'postgresql+psycopg://...' (the psycopg v3 driver).
+    SQLAlchemy takes the driver named in the URL literally, so a URL naming a
+    driver that isn't installed fails with ModuleNotFoundError. This rewrites
+    only the scheme (the part before '://') to a driver that is installed,
+    preferring psycopg2 (which requirements.txt provides). Non-Postgres URLs
+    and anything with an unrecognised scheme are returned unchanged.
+    """
+    scheme, sep, rest = database_url.partition("://")
+    base, _, named_driver = scheme.partition("+")
+    if not sep or base not in ("postgres", "postgresql") or named_driver not in ("", "psycopg", "psycopg2"):
+        return database_url
+    if have_psycopg2 is None:
+        have_psycopg2 = _driver_available("psycopg2")
+    if have_psycopg is None:
+        have_psycopg = _driver_available("psycopg")
+    if have_psycopg2:
+        driver = "postgresql+psycopg2"
+    elif have_psycopg:
+        driver = "postgresql+psycopg"
+    else:
+        return database_url   # let SQLAlchemy raise its own clear error
+    return f"{driver}://{rest}"
 
 
 class PostgresDataRepository(DataRepository):
