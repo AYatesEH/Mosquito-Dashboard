@@ -364,7 +364,7 @@ def complaint_form(data: dict):
     """Log a complaint."""
     st.info(
         "Please don't enter resident names, phone numbers or street addresses here. Put the complaint's "
-        "reference number in the box below and keep the full details in the official complaint record."
+        "CRM RQ number in the box below and keep the full details in the official complaint record."
     )
     cc1, cc2 = st.columns(2)
     with cc1:
@@ -378,7 +378,8 @@ def complaint_form(data: dict):
         new_status = st.selectbox("Investigation status", INVESTIGATION_STATUSES, key="new_complaint_status")
         new_officer = st.selectbox("Officer", data["users"]["Name"].tolist(), key="new_complaint_officer")
         new_outcome = st.selectbox("Outcome (if closed)", [""] + OUTCOMES, key="new_complaint_outcome") if new_status == "Closed" else ""
-    new_ref = st.text_input("Complaint reference no. (optional - no names or addresses)", key="new_complaint_ref")
+    new_ref = st.text_input("CRM RQ number", key="new_complaint_ref", placeholder="e.g. RQ1234567",
+                            help="The request number from the CRM. Use it to find the full complaint details; don't type names or addresses here.")
 
     if st.button("Save complaint", type="primary"):
         site_id = "" if new_site_choice == "No specific site / general area" \

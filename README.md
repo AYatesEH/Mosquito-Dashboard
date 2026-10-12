@@ -555,7 +555,7 @@ where the context is: budget time/spend on the Budget page and Map -> "Add a new
 confirmation is shown at the top of the Enter Data page.
 
 **Complaints hold no personal details.** The complaint form stores only the date, site,
-category, status, outcome, officer and an optional complaint reference number (for looking
+category, status, outcome, officer and an optional CRM RQ number (for looking
 up the full record in the council's own system). There is no free-text description and no
 resident-level coordinates; the map plots a complaint at its site. The `description`,
 `approx_latitude` and `approx_longitude` columns remain in the schema for compatibility but

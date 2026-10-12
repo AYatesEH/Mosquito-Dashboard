@@ -82,7 +82,7 @@ def render():
     shown_cols = ["Complaint_ID", "Complaint_Ref", "Date_Received", "Site_Name", "Category",
                   "Investigation_Status", "Outcome", "Officer"]
     display = display[shown_cols].sort_values("Date_Received", ascending=False)
-    st.dataframe(display, use_container_width=True, hide_index=True, height=380)
+    st.dataframe(display.rename(columns={"Complaint_Ref": "CRM RQ number"}), use_container_width=True, hide_index=True, height=380)
     st.download_button("Export complaints to CSV", display.to_csv(index=False).encode("utf-8"),
                         file_name="complaints_export.csv", mime="text/csv")
 

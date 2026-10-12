@@ -72,7 +72,7 @@ SPECS = {
                    ("Investigation_Status", "Investigation status", "select", INVESTIGATION_STATUSES),
                    ("Outcome", "Outcome (if closed)", "select_opt", OUTCOMES),
                    ("Officer", "Officer", "officer", None),
-                   ("Complaint_Ref", "Complaint reference no. (no names or addresses)", "text", None)],
+                   ("Complaint_Ref", "CRM RQ number", "text", None)],
     },
     "Site observation": {
         "table": "site_observations", "id": "Observation_ID", "date": "DateTime", "df": "observations",
